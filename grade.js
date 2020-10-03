@@ -1,8 +1,6 @@
 var subheight = 100;
 var legendCells = 10;
 var transitionTime = 500;
-var countryByIdSimulations = d3.map();
-var countryByIdPopulation = d3.map();
 var legendLinear;
 
 var govRevenue = 0;
@@ -15,261 +13,14 @@ var country = "$-ALL";
 var method = "newgrpc"
 var prefix = "U";
 
-// **** add or update coefficients here ****
-var coeffs = new Map([
-["SANITBASIC", 	
-	new Map(
-	[
-		[1	,	0.00224	],	
-		[11	,	-0.00130],
-		[12	,	-0.00034],
-		[13	,	0.000955],
-		[14	,	0.000705],
-		[15	,	0.000796],
-		[16	,	-0.00047],
-		[2	,	233.9464],
-		[21	,	235.0595],
-		[22	,	75.44795],
-		[23	,	-434.453],
-		[25	,	-351.782],
-		[26	,	254.2561]
-	]
-	)
-],
-["SANITSAFE", 	
-	new Map(
-	[
-		[1	,	7.29E-05],
-		[11	,	-5.98E-0],
-		[13	,	0.000101],
-		[16	,	-1.99E-0],
-		[2 	,	4264.142],
-		[21	,	11489.15],
-		[23	,	-3922.25],
-		[24	,	-16243.7],
-		[25	,	-4314.27],
-		[26	,	2870.706]
-	]
-	)
-],
-["SCHOOLPERC", 	
-	new Map(
-	[
-		[1	,	2.13E-05],
-		[12	,	-2.44E-06],
-		[15	,	-4.48E-06],
-		[16	,	3.87E-06 ],
-		[2	,	-28011.95],
-		[21	,	-5385.622],
-		[22	,	-5740.458],
-		[24	,	8537.92  ],
-		[25	,	-17828.86]
-	]
-	)
-],
-["WATERBASIC", 	
-	new Map(
-	[
-		[1	,	0.002777],
-		[12	,	-8.16E-0],
-		[14	,	0.000788],
-		[15	,	0.001012],
-		[2	,	-154.023],
-		[22	,	108.3361],
-		[24	,	247.8044]
-	]
-	)
-],
-["WATERSAFE",	
-	new Map(
-	[
-		[1	,	0.00211],
-		[11	,	0.00161],
-		[14	,	0.00164],
-		[15	,	-0.0013],
-		[16	,	-0.0009],
-		[2	,	593.101],
-		[21	,	-228.00],
-		[22	,	57.8362],
-		[23	,	-270.40],
-		[25	,	143.799],
-		[26	,	168.741]
-	]
-	)
-],
-["IMUNISATION",	
-	new Map(
-	[
-		[1	,	8.14E-05],	
-		[11	,	-1.51E-05],
-		[2	,	-25232.71],
-		[21	,	-8328.613]
-	]
-	)
-]
-]);
-
-console.log(coeffs);
-
-// **** add or update outcomes here ****
-var outcomesList = [
-		[ "SANITBASIC",                                  
-				{ 
-						name : "Basic sanitation",  
-						loCol : "#dee5f8",              
-						hiCol : "#e09900",
-						fixedExtent : [0,100],						
-						desc: "The percentage of the population using at least, that is, improved sanitation facilities that are not shared with other households."}], 
-		[ "SANITSAFE",                                       
-				{ 
-						name : "Safe sanitation",    
-						loCol : "#dee5f8",              
-						hiCol : "#e09900",              
-						fixedExtent : [0,100],
-						desc: "The percentage of the population using improved sanitation facilities that are not shared with other households and where excreta are safely disposed of in situ or transported and treated offsite."}], 
-		[ "SCHOOLPERC",
-				{
-						name : "School life expectancy", 
-						loCol : "#dee5f8",              
-						hiCol : "#e09900",    
-						fixedExtent : [0,100],
-						desc : "The number of years a person of school entrance age can expect to spend within the specified level of education"}],
-		[ "WATERBASIC", 	                                                    
-				{                                       
-						name : "Basic drinking water services",             				
-						loCol : "#dee5f8",                                      
-						hiCol : "#e09900",                                      
-						fixedExtent : [0,100],                          		
-						desc : "The percentage of the population drinking water from an improved source, provided collection time is not more than 30 minutes for a round trip."}],        				
-						
-		[ "WATERSAFE", 	                                                    
-				{                                       
-						name : "Safely-managed drinking water services",             				
-						loCol : "#dee5f8",                                      
-						hiCol : "#e09900",                                      
-						fixedExtent : [0,100],                          		
-						desc : "The percentage of the population using drinking water from an improved source that is accessible on premises, available when needed and free from faecal and priority chemical contamination."}],        										
-		
-		[ "IMUNISATION", 	                                                    
-				{                                       
-						name : "Child immunisation",             				
-						loCol : "#dee5f8",                                      
-						hiCol : "#e09900",                                      
-						fixedExtent : [0,100],                          		
-						desc : "The percentage of children ages 12-23 months who received DPT vaccinations before 12 months or at any time before the survey."}],
-];
-
-let outcomesMap = new Map(outcomesList);
-var outcome = "SANITSAFE";
+var outcome = "SANITBASIC";
 
 const cLIC  = 1;
 const cLMIC  = 2;
 const cUMIC  = 3;               
 const cHIC  = 4;
 		
-function getRevenue(d, m)
-{
-		if (m == "percentage")
-		{
-				var newAbsRev = (d.govRevCap * (govRevenue)) * d.population;
-				var additionalPerCapita = d.govRevCap * govRevenue;
-				return [govRevenue, newAbsRev, additionalPerCapita, d.govRevCap + additionalPerCapita];
-		}
-		else if (m == "pc")
-		{
-				var newGRPC = d.govRevCap + pcGovRev;
-				var newGovRev = newGRPC / d.govRevCap - 1;
-				var newAbsRev = (d.govRevCap * (newGovRev)) * d.population;
-				return [newGovRev, newAbsRev, pcGovRev, newGRPC];
-		}
-		else if (m == "newgrpc")
-		{
-				var newGRPC = enteredGrpc > d.govRevCap ? enteredGrpc : d.govRevCap;
-				var newGovRev = newGRPC / d.govRevCap - 1;
-				var newAbsRev = (d.govRevCap * (newGovRev)) * d.population;
-				return [newGovRev, newAbsRev, newGRPC - d.govRevCap, newGRPC];
-		}
-		else
-		{
-				var newGRPC = d.govRevCap + absGovRev / d.population;
-				var newGovRev = newGRPC / d.govRevCap - 1;
-				var additionalPerCapita = absGovRev / d.population;
-				return [newGovRev, absGovRev, additionalPerCapita, newGRPC];
-		}
-}
 
-
-function computeResult(d, _outcome)
-{
-	
-		var computedRevenue = getRevenue(d, method);
-		var grpc = computedRevenue[3];
-		
-		//console.log(d, _outcome);
-		
-		return [d[_outcome]]
-}
-
-
-function typeAndSetPopulation(d) {
-	d["Birth rate, crude (per 1,000 people)"]						=	+d["Birth rate, crude (per 1,000 people)"]						
-	d["Births attended by skilled health staff (% of total)"]		=   +d["Births attended by skilled health staff (% of total)"]		
-	d["Children survive to 1 year"]									=   +d["Children survive to 1 year"]									
-	d["Children survive to 5 years"]								=   +d["Children survive to 5 years"]								
-	d["Fertility rate, total (births per woman)"]					=   +d["Fertility rate, total (births per woman)"]					
-	d["Mortality rate, infant (per 1,000 live births)"]				=   +d["Mortality rate, infant (per 1,000 live births)"]				
-	d["Mortality rate, under-5 (per 1,000 live births)"]			=   +d["Mortality rate, under-5 (per 1,000 live births)"]			
-	d["Number of births"]											=   +d["Number of births"]											
-	d["Number of females aged 15-49"]								=   +d["Number of females aged 15-49"]								
-	d["Percentage of female population aged 15-49"]					=   +d["Percentage of female population aged 15-49"]					
-	d["Pop < 5"]													=   +d["Pop < 5"]													
-	d["Population ages 00-04, female (% of female population)"]		=   +d["Population ages 00-04, female (% of female population)"]		
-	d["Population ages 00-04, male (% of male population)"]			=   +d["Population ages 00-04, male (% of male population)"]			
-	d["Population ages 10-14, female (% of female population)"]		=   +d["Population ages 10-14, female (% of female population)"]		
-	d["Population ages 15-19, female (% of female population)"]		=   +d["Population ages 15-19, female (% of female population)"]		
-	d["Population ages 20-24, female (% of female population)"]		=   +d["Population ages 20-24, female (% of female population)"]		
-	d["Population ages 25-29, female (% of female population)"]		=   +d["Population ages 25-29, female (% of female population)"]		
-	d["Population ages 30-34, female (% of female population)"]		=   +d["Population ages 30-34, female (% of female population)"]		
-	d["Population ages 35-39, female (% of female population)"]		=   +d["Population ages 35-39, female (% of female population)"]		
-	d["Population ages 40-44, female (% of female population)"]		=   +d["Population ages 40-44, female (% of female population)"]		
-	d["Population ages 45-49, female (% of female population)"]		=   +d["Population ages 45-49, female (% of female population)"]		
-	d["Population, female"]											=   +d["Population, female"]											
-	d["Population, female (% of total population)"]					=   +d["Population, female (% of total population)"]					
-	d["Population, male"]											=   +d["Population, male"]											
-	d["Population, male (% of total population)"]					=   +d["Population, male (% of total population)"]					
-	d["Population, total"]											=   +d["Population, total"]											
-	d["Survival rate to 5 years"]									=   +d["Survival rate to 5 years"]									
-	d["Survival rate to 12 mo"]										=   +d["Survival rate to 12 mo"]										
-	d["countrycode"]												=    d["countrycode"]												
-	d["countryname"]												=    d["countryname"]												
-	d["female <5 "]													=   +d["\"female <5 \""]												
-	d["incomelevel"]												=    d["incomelevel"]												
-	d["male <5"]													=   +d["male <5"]													
-	d["year"]														=   +d["year"]
-    countryByIdPopulation.set(d.countrycode + d.year, d);	
-	return d;
-}
-
-function typeAndSetSimulations(d) {
-	d.CORRUPTION  	= +d.CORRUPTION  	
-	d.Country 		=  d.Country 		
-	d.GOVEFFECT 	= +d.GOVEFFECT 		
-	d.GRPERCAP 		= +d.GRPERCAP 		
-	d.IMUNISATION 	= +d.IMUNISATION 	
-	d.ISO 			=  d.ISO 			
-	d.POLSTAB 		= +d.POLSTAB 		
-	d.REGQUALITY 	= +d.REGQUALITY 	
-	d.RULELAW 		= +d.RULELAW 		
-	d.SANITBASIC 	= +d.SANITBASIC 	
-	d.SANITSAFE 	= +d.SANITSAFE 		
-	d.SCHOOLPERC 	= +d.SCHOOLPERC 	
-	d.VOICE 		= +d.VOICE 			
-	d.WATERBASIC 	= +d.WATERBASIC 	
-	d.WATERSAFE 	= +d.WATERSAFE 		
-	d.YEAR 		 	= +d["Year "]
-	countryByIdSimulations.set(d.ISO + d.YEAR, d);	
-	return d;
-}
 
 
 function getColor(d) {
@@ -289,9 +40,11 @@ function getColor(d) {
 		}
 }
 
-function makeText(dataRowSimulations)
+function makeText(dataRowSimulations, dataRowPopulations)
 {
-	var result = computeResult(dataRowSimulations, outcome);
+	var revenues = getRevenue(dataRowSimulations, dataRowPopulations, method);
+	console.log(revenues);
+	var result = computeResult(dataRowSimulations, outcome, revenues[3]);
 	/*var revenues = getRevenue(dataRowSimulations, method);
 	var newGovRev = 100 * revenues[0];
 	var newGovAbsRev = revenues[1] / getPrefixValue(prefix);
@@ -330,7 +83,7 @@ function makeText(dataRowSimulations)
 	//+ "<strong>" +  "Increase in GRpC" 
 	//+ "<\/strong>" + ": <span class='ar'>" + costs[2].toFixed(2) + "%<\/span><br/>";
 	*/
-	return result[0];	
+	return "historical:" + result[0] + "<br/>fitted:\t" + result[1] + "<br/>improved:\t" + result[2];	
 }
 
 function getPrefix(p)
@@ -357,8 +110,10 @@ function getText(d) {
 				return "";
 		}
 		var dataRowSimulations = countryByIdSimulations.get(d.id + year);
-		if (dataRowSimulations) {
-			return makeText(dataRowSimulations);
+		var dataRowPopulations = countryByIdPopulation.get(d.id + year);
+		console.log(dataRowPopulations, dataRowSimulations);
+		if (dataRowSimulations && dataRowPopulations) {
+			return makeText(dataRowSimulations, dataRowPopulations);
 		} else {
 				if (d.hasOwnProperty("properties"))
 						return "<strong>" + d.properties.name + "<\/strong>" + ": No data";
@@ -579,10 +334,6 @@ function updateLegend()
 }
 
 function loaded(error, countries, populationsData, simulationsData) {
-	
-		//console.log(countryByIdPopulation)
-		//console.log(countryByIdSimulations)
-
 		outcomesMap.forEach(function(v, k){
 				outcomesMap.get(k).extent = d3.extent(simulationsData, function(d) {
 				return parseFloat(d[k]);
