@@ -156,6 +156,7 @@ function computeResult(d, _outcome, _grpc)
 	var l = _outcome;
 	if (_outcome == "SANITBASIC")
 	{
+		console.log(_grpc);
 		improved = 100 / (1 + Math.exp(-(C(l,1)+C(l,11)*d.CORRUPTION+C(l,12)*d.POLSTAB
 		+C(l,13)*d.REGQUALITY+C(l,14)*d.RULELAW+C(l,15)*d.GOVEFFECT+C(l,16)
 		*d.VOICE)*(_grpc-(C(l,2)+C(l,21)*d.CORRUPTION+C(l,22)*d.POLSTAB

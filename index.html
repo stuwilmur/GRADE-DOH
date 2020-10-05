@@ -166,6 +166,11 @@
 			svg.attr("transform", "translate(" + d3.event.translate 
 			+ ")scale(" + d3.event.scale + ")");
 	}
+	
+	function focusCountry()
+	{
+			svg.transition(transitionTime * 2).call(d3.behavior.zoom().//attr("transform", "translate(10,10)scale(5)")
+	}
 
 	function mainUpdate()
 	{

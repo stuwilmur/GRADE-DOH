@@ -156,6 +156,7 @@ function setupMenus(countries, outcomes)
 			.on('change', function(d) {
 					country = this.options[this.selectedIndex].value;
 					mainUpdate();
+					focusCountry();
 			})
 			.selectAll('option')
 			.data(countries)
