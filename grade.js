@@ -25,25 +25,26 @@ const cHIC  = 4;
 
 function getColor(d) {
 		var dataRowSimulations = countryByIdSimulations.get(d.id + year);
-		if (dataRowSimulations) {
+		var dataRowPopulations = countryByIdPopulation.get(d.id + year);
+		if (dataRowSimulations && dataRowPopulations) {
 				var results = computeResult(dataRowSimulations, outcome);
 				if (country == "$-ALL" || country == d.id       
-				|| country == "$-LIC"   && dataRowSimulations.income == cLIC 
-				|| country == "$-LMIC" && dataRowSimulations.income == cLMIC
-				|| country == "$-UMIC" && dataRowSimulations.income == cUMIC
-				|| country == "$-HIC"   && dataRowSimulations.income == cHIC)
+				|| country == "$-LIC"   && dataRowPopulations.incomelevel == "LIC"
+				|| country == "$-LMIC" 	&& dataRowPopulations.incomelevel == "LMC"
+				|| country == "$-UMIC" 	&& dataRowPopulations.incomelevel == "UMC"
+				|| country == "$-HIC"   && dataRowPopulations.incomelevel == "HIC")
 						return colorScale(results[0]);
 				else
 						return "rgba(0, 0, 0, 0.3)";
 		} else {
-				return "rgba(0, 0, 0, 0.7)";
+				return "rgba(0, 0, 0, 0.6)";
 		}
 }
 
 function makeText(dataRowSimulations, dataRowPopulations)
 {
 	var revenues = getRevenue(dataRowSimulations, dataRowPopulations, method);
-	console.log(revenues);
+	//console.log(revenues);
 	var result = computeResult(dataRowSimulations, outcome, revenues[3]);
 	/*var revenues = getRevenue(dataRowSimulations, method);
 	var newGovRev = 100 * revenues[0];
@@ -111,7 +112,7 @@ function getText(d) {
 		}
 		var dataRowSimulations = countryByIdSimulations.get(d.id + year);
 		var dataRowPopulations = countryByIdPopulation.get(d.id + year);
-		console.log(dataRowPopulations, dataRowSimulations);
+		//console.log(dataRowPopulations, dataRowSimulations);
 		if (dataRowSimulations && dataRowPopulations) {
 			return makeText(dataRowSimulations, dataRowPopulations);
 		} else {
@@ -353,6 +354,7 @@ function loaded(error, countries, populationsData, simulationsData) {
 				.append('path')
 				.attr('class', 'countries')
 				.attr('d', path)
+				.on("click", clicked)
 				.attr('fill', function(d,i) {
 						return getColor(d);
 				})

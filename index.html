@@ -148,19 +148,91 @@
   var width = 1500;
   var height = 700;
   
+  const zoom = d3.behavior.zoom()
+      .scaleExtent([1, 8])
+      .on("zoom", zoomed);
+	
+  function zoomed(event) {
+  svg.style("stroke-width", 1.5 / d3.event.scale + "px");
+  svg.attr("transform", "translate(" + d3.event.translate + ")scale(" + d3.event.scale + ")");
+  }
+  
+ function clicked(d) {
+  //if (active.node() === this) return reset();
+  //active.classed("active", false);
+  //active = d3.select(this).classed("active", true);
+  
+  //console.log(d);
+
+  var bounds = path.bounds(d),
+      ww = bounds[1][0] - bounds[0][0],
+      hh = bounds[1][1] - bounds[0][1],
+      x = (bounds[0][0] + bounds[1][0]) / 2,
+      y = (bounds[0][1] + bounds[1][1]) / 2,
+      scale = Math.max(1, Math.min(8, 0.85 / Math.max(ww / width, hh / height))),
+      translate = [width / 2 - scale * x, height / 2 - scale * y];
+
+console.log("hello")
+
+  svg.transition()
+      .duration(transitionTime * 2)
+      .call(zoom.translate(translate).scale(scale).event);
+	  
+	  if (d.hasOwnProperty("id"))
+	  {
+		  country = d.id;
+		  d3.select('#countrylist').property('value', d.id);
+		  mainUpdate();
+	  }
+}
+
+function reset() {
+  //active.classed("active", false);
+  //active = d3.select(null);
+
+  svg.transition()
+      .duration(transitionTime * 2)
+      .call(zoom.translate([0, 0]).scale(1).event);
+	
+   country = "$-ALL"
+   d3.select('#countrylist').property('value', "$-ALL");
+   mainUpdate();
+	  
+   d3.event.stopPropagation();
+}
+
+function stop() {
+  if (d3.event.defaultPrevented) d3.event.stopPropagation();
+}
+  
 	var svg = d3.select('#vis').append('svg')
 		.attr('width', width)
 		.attr('height', height)
-		.call(d3.behavior.zoom()
-		.on("zoom", redraw))
+		.call(zoom)
+		//.on("zoom", redraw))
+		.on("click", stop, true)
 		.append("g");
+		
+	svg.append("rect")
+    .attr("width", width)
+    .attr("height", height)
+	.style("fill","white")
+    .on("click", reset);
 		
 	var svg2 = d3.select('#vis').append('svg')
 			.attr('width', width)
 			.attr('height', subheight)
-			.call(d3.behavior.zoom()
-			.on("zoom", redraw))
+			.call(zoom)
+			//.on("zoom", redraw))
 			.append("g");
+			
+	svg
+    .call(zoom) // delete this line to disable free zooming
+    .call(zoom.event);
+	
+	svg2
+    .call(zoom) // delete this line to disable free zooming
+    .call(zoom.event);
 			
 	function redraw() {
 			svg.attr("transform", "translate(" + d3.event.translate 
@@ -169,7 +241,20 @@
 	
 	function focusCountry()
 	{
-			svg.transition(transitionTime * 2).call(d3.behavior.zoom().//attr("transform", "translate(10,10)scale(5)")
+			if (country.slice(0,2) == "$-")
+			{
+				return;
+			}
+	
+			//svg.transition(transitionTime * 2).attr("transform", "translate(10,10)scale(5)");
+			var found_country = svg.selectAll('path.countries')
+			.filter(function(d,i){
+				return d.id == country;
+			})
+			
+			if(found_country.length == 1){
+				clicked(found_country.data()[0]);
+			}
 	}
 
 	function mainUpdate()

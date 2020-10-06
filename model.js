@@ -156,12 +156,44 @@ function computeResult(d, _outcome, _grpc)
 	var l = _outcome;
 	if (_outcome == "SANITBASIC")
 	{
-		console.log(_grpc);
 		improved = 100 / (1 + Math.exp(-(C(l,1)+C(l,11)*d.CORRUPTION+C(l,12)*d.POLSTAB
 		+C(l,13)*d.REGQUALITY+C(l,14)*d.RULELAW+C(l,15)*d.GOVEFFECT+C(l,16)
 		*d.VOICE)*(_grpc-(C(l,2)+C(l,21)*d.CORRUPTION+C(l,22)*d.POLSTAB
 		+C(l,23)*d.REGQUALITY+0*d.RULELAW+C(l,25)*d.GOVEFFECT+C(l,26)*d.VOICE
 		))))	
+	}
+	else if (_outcome == "SANITSAFE")
+	{
+		improved = 100/(1+Math.exp(-(C(l,1)+C(l,11)*d.CORRUPTION+0*d.POLSTAB+C(l,13)
+        *d.REGQUALITY+0*d.RULELAW+0*d.GOVEFFECT+C(l,16)*d.VOICE)
+        *(_grpc-(C(l,2)+C(l,21)*d.CORRUPTION+0*d.POLSTAB+C(l,23)
+        *d.REGQUALITY+C(l,24)*d.RULELAW+C(l,25)*d.GOVEFFECT+C(l,26)*d.VOICE
+        ))))			
+	}
+	else if (_outcome == "SCHOOLPERC")
+	{
+		improved = 100/(1+Math.exp(-(C(l,1)+0*d.CORRUPTION+C(l,12)*d.POLSTAB+0
+        *d.REGQUALITY+0*d.RULELAW+C(l,15)*d.GOVEFFECT+C(l,16)*d.VOICE)
+        *(_grpc-(C(l,2)+C(l,21)*d.CORRUPTION+C(l,22)*d.POLSTAB+0
+        *d.REGQUALITY+C(l,24)*d.RULELAW+C(l,25)*d.GOVEFFECT+0*d.VOICE ))))
+	}
+	else if (_outcome == "WATERBASIC")
+	{
+		improved = 100/(1+Math.exp(-(C(l,1)+C(l,12)*d.POLSTAB+C(l,14)*d.RULELAW
+        +C(l,15)*d.GOVEFFECT)*(_grpc-(C(l,2)+C(l,22)*d.POLSTAB+C(l,24)
+        *d.RULELAW))))		
+	}
+	else if (_outcome == "WATERSAFE")
+	{
+		improved = 100/(1+Math.exp(-(C(l,1)+C(l,11)*d.CORRUPTION+0*d.POLSTAB+0
+        *d.REGQUALITY+C(l,14)*d.RULELAW+C(l,15)*d.GOVEFFECT+C(l,16)*d.VOICE)
+        *(_grpc-(C(l,2)+C(l,21)*d.CORRUPTION+C(l,22)*d.POLSTAB+C(l,23)
+        *d.REGQUALITY+0*d.RULELAW+C(l,25)*d.GOVEFFECT+C(l,26)*d.VOICE ))))
+	}
+	else if (_outcome == "IMUNISATION")
+	{
+		improved = 100/(1+Math.exp(-(C(l,1)+C(l,11)*d.POLSTAB)*(_grpc-(C(l,2)
+        +C(l,21)*d.POLSTAB ))))		
 	}
 
 	// [historical, fitted, improved]	
