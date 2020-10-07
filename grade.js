@@ -20,9 +20,6 @@ const cLMIC  = 2;
 const cUMIC  = 3;               
 const cHIC  = 4;
 		
-
-
-
 function getColor(d) {
 		var dataRowSimulations = countryByIdSimulations.get(d.id + year);
 		var dataRowPopulations = countryByIdPopulation.get(d.id + year);
@@ -44,8 +41,10 @@ function getColor(d) {
 function makeText(dataRowSimulations, dataRowPopulations)
 {
 	var revenues = getRevenue(dataRowSimulations, dataRowPopulations, method);
-	//console.log(revenues);
+	console.log(revenues);
 	var result = computeResult(dataRowSimulations, outcome, revenues[3]);
+	console.log(result)
+	var fitted = computeResult(dataRowSimulations, outcome, revenues[4]);
 	/*var revenues = getRevenue(dataRowSimulations, method);
 	var newGovRev = 100 * revenues[0];
 	var newGovAbsRev = revenues[1] / getPrefixValue(prefix);
@@ -84,7 +83,14 @@ function makeText(dataRowSimulations, dataRowPopulations)
 	//+ "<strong>" +  "Increase in GRpC" 
 	//+ "<\/strong>" + ": <span class='ar'>" + costs[2].toFixed(2) + "%<\/span><br/>";
 	*/
-	return "historical:" + result[0] + "<br/>fitted:\t" + result[1] + "<br/>improved:\t" + result[2];	
+	var text = "";
+	text = text + "<h1 class='tooltip'> " + dataRowPopulations.countryname + "</h1>"
+				+ "<br/>" + year
+				+ "<br/>" + outcomesMap.get(outcome).name + "<br/>"
+				+  "historical: <span class = 'ar'>" 	+ result[0].toFixed(3) + "</span>" 
+				+ "<br/>fitted: <span class = 'ar'>" 	+ fitted[1].toFixed(3) + "</span>" 
+				+ "<br/>improved: <span class = 'ar'>" 	+ result[1].toFixed(3) + "</span>";
+	return text;
 }
 
 function getPrefix(p)

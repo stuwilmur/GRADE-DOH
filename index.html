@@ -125,12 +125,14 @@
 		  </select>
       </div>
 
+<!--
 <h2>Download data:</h2>
 <ul>
 <li><a href = "GRADE.xlsx">Excel workbook</a></li>
 <li><a href = "lives saved data.csv">Input data (CSV)</a></li>
 </ul>
-<p id="version">v0.1 30/09/2020</p>
+-->
+<p id="version">v0.2 07/10/2020</p>
       <div>
         
       </div>
@@ -163,13 +165,16 @@
   //active = d3.select(this).classed("active", true);
   
   //console.log(d);
+  
+  const maxScale = 0.85;
+  const maxiScale = 8;
 
   var bounds = path.bounds(d),
       ww = bounds[1][0] - bounds[0][0],
       hh = bounds[1][1] - bounds[0][1],
       x = (bounds[0][0] + bounds[1][0]) / 2,
       y = (bounds[0][1] + bounds[1][1]) / 2,
-      scale = Math.max(1, Math.min(8, 0.85 / Math.max(ww / width, hh / height))),
+      scale = Math.max(1, Math.min(maxiScale, maxScale / Math.max(ww / width, hh / height))),
       translate = [width / 2 - scale * x, height / 2 - scale * y];
 
 console.log("hello")

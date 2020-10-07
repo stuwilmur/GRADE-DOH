@@ -196,8 +196,8 @@ function computeResult(d, _outcome, _grpc)
         +C(l,21)*d.POLSTAB ))))		
 	}
 
-	// [historical, fitted, improved]	
-	return [d[_outcome], 0, improved]
+	// [historical, improved]	
+	return [d[_outcome], improved]
 }
 
 
@@ -263,31 +263,33 @@ function typeAndSetSimulations(d) {
 
 function getRevenue(_sim, _pop, m)
 {
+	
+		//returns % increase, new absolute revenue, additional revenue per capita, new grpc, historical grpc (no increase)
 		if (m == "percentage")
 		{
 				var newAbsRev = (_sim.GRPERCAP * (govRevenue)) * _pop["Population, total"];
 				var additionalPerCapita = _sim.GRPERCAP * govRevenue;
-				return [govRevenue, newAbsRev, additionalPerCapita, _sim.GRPERCAP + additionalPerCapita];
+				return [govRevenue, newAbsRev, additionalPerCapita, _sim.GRPERCAP + additionalPerCapita, _sim.GRPERCAP];
 		}
 		else if (m == "pc")
 		{
 				var newGRPC = _sim.GRPERCAP + pcGovRev;
 				var newGovRev = newGRPC / _sim.GRPERCAP - 1;
 				var newAbsRev = (_sim.GRPERCAP * (newGovRev)) * _pop["Population, total"];
-				return [newGovRev, newAbsRev, pcGovRev, newGRPC];
+				return [newGovRev, newAbsRev, pcGovRev, newGRPC, _sim.GRPERCAP];
 		}
 		else if (m == "newgrpc")
 		{
 				var newGRPC = enteredGrpc > _sim.GRPERCAP ? enteredGrpc : _sim.GRPERCAP;
 				var newGovRev = newGRPC / _sim.GRPERCAP - 1;
 				var newAbsRev = (_sim.GRPERCAP * (newGovRev)) * _pop.population;
-				return [newGovRev, newAbsRev, newGRPC - _sim.GRPERCAP, newGRPC];
+				return [newGovRev, newAbsRev, newGRPC - _sim.GRPERCAP, newGRPC, _sim.GRPERCAP];
 		}
 		else
 		{
 				var newGRPC = _sim.GRPERCAP + absGovRev / _pop["Population, total"];
 				var newGovRev = newGRPC / _sim.GRPERCAP - 1;
 				var additionalPerCapita = absGovRev / _pop["Population, total"];
-				return [newGovRev, absGovRev, additionalPerCapita, newGRPC];
+				return [newGovRev, absGovRev, additionalPerCapita, newGRPC, _sim.GRPERCAP];
 		}
 }
