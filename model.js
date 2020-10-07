@@ -150,10 +150,10 @@ function C(_outcome, index)
 	return coeffs.get(_outcome).get(index);
 }
 
-function computeResult(d, _outcome, _grpc)
-{		
-	var improved;
+function compute(d, pop, _outcome, _grpc)
+{
 	var l = _outcome;
+	var improved;
 	if (_outcome == "SANITBASIC")
 	{
 		improved = 100 / (1 + Math.exp(-(C(l,1)+C(l,11)*d.CORRUPTION+C(l,12)*d.POLSTAB
@@ -195,9 +195,37 @@ function computeResult(d, _outcome, _grpc)
 		improved = 100/(1+Math.exp(-(C(l,1)+C(l,11)*d.POLSTAB)*(_grpc-(C(l,2)
         +C(l,21)*d.POLSTAB ))))		
 	}
+	else
+	{
+		improved = NaN;
+	}
+	
+	return improved;
+}
 
-	// [historical, improved]	
-	return [d[_outcome], improved]
+function computeResult(d, pop, _outcome, _grpc, _grpcOrig)
+{		
+	var fitted = compute(d, pop, _outcome, _grpcOrig);
+	var improved = compute(d, pop, _outcome, _grpc);
+	
+	var additional = {};
+	
+	if (_outcome == "SANITBASIC" || _outcome == "SANITSAFE" || _outcome == "WATERBASIC" || _outcome == "WATERSAFE")
+	{
+		additional["Number of people with increased access"] = (improved - fitted) / 100 * pop["Population, total"];
+		additional["Number of children < 5 who will have increased access"] = (improved - fitted) / 100 * pop["Pop < 5"];
+	}
+	else if (_outcome == "IMUNISATION")
+	{
+		additional["Number of infants immunised"] = (improved - fitted) / 100 * pop["Children survive to 1 year"]
+	}
+	else if (_outcome == "SCHOOLPERC")
+	{
+		additional["Years of school life expectancy"] = 17 * (improved - fitted) / 100 * pop["Pop < 5"]
+	}
+
+	var ret = {original: d[_outcome], "improved" : improved, "fitted" : fitted, "additional" : additional};
+	return ret;
 }
 
 

@@ -20,17 +20,22 @@ const cLMIC  = 2;
 const cUMIC  = 3;               
 const cHIC  = 4;
 		
-function getColor(d) {
-		var dataRowSimulations = countryByIdSimulations.get(d.id + year);
-		var dataRowPopulations = countryByIdPopulation.get(d.id + year);
-		if (dataRowSimulations && dataRowPopulations) {
-				var results = computeResult(dataRowSimulations, outcome);
-				if (country == "$-ALL" || country == d.id       
+function getColor(_cid, _year, _method) {
+		var value = getResult(_cid, _year, _method);
+		var dataRowPopulations = countryByIdPopulation.get(_cid + _year);
+		//console.log(dataRowPopulations);
+		if (!isNaN(value)) {
+				if (country == "$-ALL" //|| country == _cid
+				|| country.slice(0,1) != "$"
 				|| country == "$-LIC"   && dataRowPopulations.incomelevel == "LIC"
 				|| country == "$-LMIC" 	&& dataRowPopulations.incomelevel == "LMC"
 				|| country == "$-UMIC" 	&& dataRowPopulations.incomelevel == "UMC"
 				|| country == "$-HIC"   && dataRowPopulations.incomelevel == "HIC")
-						return colorScale(results[0]);
+				{
+						//console.log(results.get("original outcome"));
+						//console.log(value);
+						return colorScale(value);
+				}
 				else
 						return "rgba(0, 0, 0, 0.3)";
 		} else {
@@ -41,10 +46,9 @@ function getColor(d) {
 function makeText(dataRowSimulations, dataRowPopulations)
 {
 	var revenues = getRevenue(dataRowSimulations, dataRowPopulations, method);
-	console.log(revenues);
-	var result = computeResult(dataRowSimulations, outcome, revenues[3]);
-	console.log(result)
-	var fitted = computeResult(dataRowSimulations, outcome, revenues[4]);
+	if (dataRowSimulations.ISO == "AFG")
+	{console.log(revenues);}
+	var result = computeResult(dataRowSimulations, dataRowPopulations, outcome, revenues[3], revenues[4]);
 	/*var revenues = getRevenue(dataRowSimulations, method);
 	var newGovRev = 100 * revenues[0];
 	var newGovAbsRev = revenues[1] / getPrefixValue(prefix);
@@ -87,9 +91,16 @@ function makeText(dataRowSimulations, dataRowPopulations)
 	text = text + "<h1 class='tooltip'> " + dataRowPopulations.countryname + "</h1>"
 				+ "<br/>" + year
 				+ "<br/>" + outcomesMap.get(outcome).name + "<br/>"
-				+  "historical: <span class = 'ar'>" 	+ result[0].toFixed(3) + "</span>" 
-				+ "<br/>fitted: <span class = 'ar'>" 	+ fitted[1].toFixed(3) + "</span>" 
-				+ "<br/>improved: <span class = 'ar'>" 	+ result[1].toFixed(3) + "</span>";
+				+  "historical: <span class = 'ar'>" 	+ result.original.toFixed(3) + "</span>" 
+				+ "<br/>fitted: <span class = 'ar'>" 	+ result.fitted.toFixed(3) + "</span>" 
+				+ "<br/>improved: <span class = 'ar'>" 	+ result.improved.toFixed(3) + "</span>";
+				
+	if (result.hasOwnProperty("additional"))
+	{
+		for (const [key, value] of Object.entries(result.additional)) {
+		  text = text + "<br/>" + key + ": <span class = 'ar'>" + value + "</span>";
+		}
+	}
 	return text;
 }
 
@@ -127,6 +138,24 @@ function getText(d) {
 				else
 						return "<strong>No data<\/strong>";
 		}
+}
+
+function getResult(_cid, _year, _method)
+{
+	var dataRowSimulations = countryByIdSimulations.get(_cid + _year);
+	var dataRowPopulations = countryByIdPopulation.get(_cid + _year);
+	if (dataRowSimulations && dataRowPopulations)
+	{
+		var revenues = getRevenue(dataRowSimulations, dataRowPopulations, _method);
+		var result = computeResult(dataRowSimulations, dataRowPopulations, outcome, revenues[3], revenues[4]);
+		if (_cid == "AFG")
+		{console.log(revenues);}
+		return result.improved;
+	}
+	else
+	{
+		return NaN;
+	}
 }
 
 function setupMenus(countries, outcomes)
@@ -305,12 +334,13 @@ function colourCountries()
 		   svg.selectAll('path.countries').transition()  
 		  .duration(transitionTime)  
 		  .attr('fill', function(d) {
-				return getColor(d);
+				return getColor(d.id, year, method);
 		  })
 }
 
 function updateCountries()
 {
+		//console.log("hello")
 		var d = {"id" : country};
 		var text = getText(d);
 		d3.select("#countrytext").
@@ -362,7 +392,7 @@ function loaded(error, countries, populationsData, simulationsData) {
 				.attr('d', path)
 				.on("click", clicked)
 				.attr('fill', function(d,i) {
-						return getColor(d);
+						return getColor(d.id, year, method);
 				})
 				.call(d3.helper.tooltip(
 						function(d, i){
