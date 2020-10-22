@@ -15,6 +15,7 @@ var method = "newgrpc";
 var prefix = "U";
 
 var outcome = "SANITBASIC";
+var govtype = "GOVEFFECT";
 
 const cLIC  = 1;
 const cLMIC  = 2;
@@ -44,7 +45,7 @@ function getColor(_cid, _year, _method) {
 function makeText(dataRowSimulations, dataRowPopulations)
 {
 	var revenues = getRevenue(dataRowSimulations, dataRowPopulations, method);
-	var result = computeResult(dataRowSimulations, dataRowPopulations, outcome, revenues["new grpc"], revenues["historical grpc"], governance);
+	var result = computeResult(dataRowSimulations, dataRowPopulations, outcome, revenues["new grpc"], revenues["historical grpc"], {type : govtype, value : governance} );
 	/*var revenues = getRevenue(dataRowSimulations, method);
 	var newGovRev = 100 * revenues[0];
 	var newGovAbsRev = revenues[1] / getPrefixValue(prefix);
@@ -145,7 +146,7 @@ function getResult(_cid, _year, _method)
 	{
 		var revenues = getRevenue(dataRowSimulations, dataRowPopulations, _method);
 		var result = computeResult(dataRowSimulations, dataRowPopulations, outcome, 
-                                   revenues["new grpc"], revenues["historical grpc"], governance);
+                                   revenues["new grpc"], revenues["historical grpc"], {type : govtype, value : governance});
 		return result.improved;
 	}
 	else
@@ -204,6 +205,14 @@ function setupMenus(countries, outcomes)
 			.append("option")
 			.attr('value', function(d) {return d[0];})
 			.text(function(d) {return d[1].name;}); 
+        
+            d3.select("#govList")
+            .selectAll("option")
+            .data(govMeasures)
+            .enter()
+            .append("option")
+            .attr('value', function(d){return d.name})
+            .text(function(d){return d.desc;})
 			
 			d3.select("#methodlist")
 			.on("change", function(d) {
@@ -323,6 +332,12 @@ d3.selectAll("#outcomes").on("change", function(d){
 		updateLegend();
 		mainUpdate();
 });
+    
+d3.selectAll("#govList").on("change", function(d){
+        govtype = this.value;
+        console.log(govtype);
+        mainUpdate();
+})
 
 d3.selectAll(".colourscheme").on("input", function(d){
 		ccolor = this.value;

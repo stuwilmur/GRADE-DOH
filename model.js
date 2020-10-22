@@ -95,6 +95,15 @@ var coeffs = new Map([
 ]
 ]);
 
+var govMeasures = [
+    { name : "CORRUPTION", desc : "Corruption"                  },
+    { name : "GOVEFFECT",  desc : "Government effectiveness"    },
+    { name : "POLSTAB",    desc : "Political stability"         },
+    { name : "REGQUALITY", desc : "Regulatory quality"          },
+    { name : "RULELAW",    desc : "Rule of law"                 },
+    { name : "VOICE",      desc : "Voice and accountability"    },
+];
+
 // **** add or update outcomes here ****
 var outcomesList = [
 		[ "SANITBASIC",                                  
@@ -150,52 +159,57 @@ function C(_outcome, index)
 	return coeffs.get(_outcome).get(index);
 }
 
-function compute(d, pop, _outcome, _grpc, _govImprovement)
+function compute(d, pop, _outcome, _grpc, _gov)
 {
 	var l = _outcome;
 	var improved;
-    var govEffect = d.GOVEFFECT + _govImprovement; 
+
+    function g(_type){
+        var ret = d[_type] + (_type == _gov.type ? _gov.value : 0);
+        //console.log(d[_type], _type, _gov.type, _gov.value, ret);
+        return ret;
+    }
     
 	if (_outcome == "SANITBASIC")
 	{
-		improved = 100 / (1 + Math.exp(-(C(l,1)+C(l,11)*d.CORRUPTION+C(l,12)*d.POLSTAB
-		+C(l,13)*d.REGQUALITY+C(l,14)*d.RULELAW+C(l,15)*govEffect+C(l,16)
-		*d.VOICE)*(_grpc-(C(l,2)+C(l,21)*d.CORRUPTION+C(l,22)*d.POLSTAB
-		+C(l,23)*d.REGQUALITY+0*d.RULELAW+C(l,25)*govEffect+C(l,26)*d.VOICE
+		improved = 100 / (1 + Math.exp(-(C(l,1)+C(l,11)*g("CORRUPTION")+C(l,12)*g("POLSTAB")
+		+C(l,13)*g("REGQUALITY")+C(l,14)*g("RULELAW")+C(l,15)*g("GOVEFFECT")+C(l,16)
+		*g("VOICE"))*(_grpc-(C(l,2)+C(l,21)*g("CORRUPTION")+C(l,22)*g("POLSTAB")
+		+C(l,23)*g("REGQUALITY")+0*g("RULELAW")+C(l,25)*g("GOVEFFECT")+C(l,26)*g("VOICE")
 		))))	
 	}
 	else if (_outcome == "SANITSAFE")
 	{
-		improved = 100/(1+Math.exp(-(C(l,1)+C(l,11)*d.CORRUPTION+0*d.POLSTAB+C(l,13)
-		*d.REGQUALITY+0*d.RULELAW+0*govEffect+C(l,16)*d.VOICE)
-		*(d.GRPERCAP-(C(l,2)+C(l,21)*d.CORRUPTION+0*d.POLSTAB+C(l,23)
-		*d.REGQUALITY+C(l,24)*d.RULELAW+C(l,25)*govEffect+C(l,26)*d.VOICE
+		improved = 100/(1+Math.exp(-(C(l,1)+C(l,11)*g("CORRUPTION")+0*g("POLSTAB")+C(l,13)
+		*g("REGQUALITY")+0*g("RULELAW")+0*g("GOVEFFECT")+C(l,16)*g("VOICE"))
+		*(_grpc-(C(l,2)+C(l,21)*g("CORRUPTION")+0*g("POLSTAB")+C(l,23)
+		*g("REGQUALITY")+C(l,24)*g("RULELAW")+C(l,25)*g("GOVEFFECT")+C(l,26)*g("VOICE")
 		))));			
 	}
 	else if (_outcome == "SCHOOLPERC")
 	{
-		improved = 100/(1+Math.exp(-(C(l,1)+0*d.CORRUPTION+C(l,12)*d.POLSTAB+0
-        *d.REGQUALITY+0*d.RULELAW+C(l,15)*govEffect+C(l,16)*d.VOICE)
-        *(_grpc-(C(l,2)+C(l,21)*d.CORRUPTION+C(l,22)*d.POLSTAB+0
-        *d.REGQUALITY+C(l,24)*d.RULELAW+C(l,25)*govEffect+0*d.VOICE ))))
+		improved = 100/(1+Math.exp(-(C(l,1)+0*g("CORRUPTION")+C(l,12)*g("POLSTAB")+0
+        *g("REGQUALITY")+0*g("RULELAW")+C(l,15)*g("GOVEFFECT")+C(l,16)*g("VOICE"))
+        *(_grpc-(C(l,2)+C(l,21)*g("CORRUPTION")+C(l,22)*g("POLSTAB")+0
+        *g("REGQUALITY")+C(l,24)*g("RULELAW")+C(l,25)*g("GOVEFFECT")+0*g("VOICE") ))))
 	}
 	else if (_outcome == "WATERBASIC")
 	{
-		improved = 100/(1+Math.exp(-(C(l,1)+C(l,12)*d.POLSTAB+C(l,14)*d.RULELAW
-        +C(l,15)*govEffect)*(_grpc-(C(l,2)+C(l,22)*d.POLSTAB+C(l,24)
-        *d.RULELAW))))		
+		improved = 100/(1+Math.exp(-(C(l,1)+C(l,12)*g("POLSTAB")+C(l,14)*g("RULELAW")
+        +C(l,15)*g("GOVEFFECT"))*(_grpc-(C(l,2)+C(l,22)*g("POLSTAB")+C(l,24)
+        *g("RULELAW")))))		
 	}
 	else if (_outcome == "WATERSAFE")
 	{
-		improved = 100/(1+Math.exp(-(C(l,1)+C(l,11)*d.CORRUPTION+0*d.POLSTAB+0
-        *d.REGQUALITY+C(l,14)*d.RULELAW+C(l,15)*govEffect+C(l,16)*d.VOICE)
-        *(_grpc-(C(l,2)+C(l,21)*d.CORRUPTION+C(l,22)*d.POLSTAB+C(l,23)
-        *d.REGQUALITY+0*d.RULELAW+C(l,25)*govEffect+C(l,26)*d.VOICE ))))
+		improved = 100/(1+Math.exp(-(C(l,1)+C(l,11)*g("CORRUPTION")+0*g("POLSTAB")+0
+        *g("REGQUALITY")+C(l,14)*g("RULELAW")+C(l,15)*g("GOVEFFECT")+C(l,16)*g("VOICE"))
+        *(_grpc-(C(l,2)+C(l,21)*g("CORRUPTION")+C(l,22)*g("POLSTAB")+C(l,23)
+        *g("REGQUALITY")+0*g("RULELAW")+C(l,25)*g("GOVEFFECT")+C(l,26)*g("VOICE") ))))
 	}
 	else if (_outcome == "IMUNISATION")
 	{
-		improved = 100/(1+Math.exp(-(C(l,1)+C(l,11)*d.POLSTAB)*(_grpc-(C(l,2)
-        +C(l,21)*d.POLSTAB ))))		
+		improved = 100/(1+Math.exp(-(C(l,1)+C(l,11)*g("POLSTAB"))*(_grpc-(C(l,2)
+        +C(l,21)*g("POLSTAB") ))))		
 	}
 	else
 	{
@@ -207,7 +221,7 @@ function compute(d, pop, _outcome, _grpc, _govImprovement)
 
 function computeResult(d, pop, _outcome, _grpc, _grpcOrig, _govImprovement)
 {    
-	var fitted = compute(d, pop, _outcome, _grpcOrig, 0)
+	var fitted = compute(d, pop, _outcome, _grpcOrig, {type : "", value : 0})
 	var improved = compute(d, pop, _outcome, _grpc, _govImprovement)
 	
 	var additional = {};
