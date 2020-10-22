@@ -9,6 +9,7 @@ var absGovRev = 0;
 var absGovRevSlider = 0;
 var pcGovRev = 0;
 var year = 2016;
+var governance = 0;
 var country = "$-ALL";
 var method = "newgrpc";
 var prefix = "U";
@@ -23,7 +24,6 @@ const cHIC  = 4;
 function getColor(_cid, _year, _method) {
 		var value = getResult(_cid, _year, _method);
 		var dataRowPopulations = countryByIdPopulation.get(_cid + _year);
-		//console.log(dataRowPopulations);
 		if (!isNaN(value)) {
 				if (country == "$-ALL" //|| country == _cid
 				|| country.slice(0,1) != "$"
@@ -32,8 +32,6 @@ function getColor(_cid, _year, _method) {
 				|| country == "$-UMIC" 	&& dataRowPopulations.incomelevel == "UMC"
 				|| country == "$-HIC"   && dataRowPopulations.incomelevel == "HIC")
 				{
-						//console.log(results.get("original outcome"));
-						//console.log(value);
 						return colorScale(value);
 				}
 				else
@@ -46,9 +44,7 @@ function getColor(_cid, _year, _method) {
 function makeText(dataRowSimulations, dataRowPopulations)
 {
 	var revenues = getRevenue(dataRowSimulations, dataRowPopulations, method);
-	if (dataRowSimulations.ISO == "AFG")
-	{console.log(revenues);}
-	var result = computeResult(dataRowSimulations, dataRowPopulations, outcome, revenues["new grpc"], revenues["historical grpc"]);
+	var result = computeResult(dataRowSimulations, dataRowPopulations, outcome, revenues["new grpc"], revenues["historical grpc"], governance);
 	/*var revenues = getRevenue(dataRowSimulations, method);
 	var newGovRev = 100 * revenues[0];
 	var newGovAbsRev = revenues[1] / getPrefixValue(prefix);
@@ -131,7 +127,6 @@ function getText(d) {
 		}
 		var dataRowSimulations = countryByIdSimulations.get(d.id + year);
 		var dataRowPopulations = countryByIdPopulation.get(d.id + year);
-		//console.log(dataRowPopulations, dataRowSimulations);
 		if (dataRowSimulations && dataRowPopulations) {
 			return makeText(dataRowSimulations, dataRowPopulations);
 		} else {
@@ -149,9 +144,8 @@ function getResult(_cid, _year, _method)
 	if (dataRowSimulations && dataRowPopulations)
 	{
 		var revenues = getRevenue(dataRowSimulations, dataRowPopulations, _method);
-		var result = computeResult(dataRowSimulations, dataRowPopulations, outcome, revenues["new grpc"], revenues["historical grpc"]);
-		if (_cid == "AFG")
-		{console.log(revenues);}
+		var result = computeResult(dataRowSimulations, dataRowPopulations, outcome, 
+                                   revenues["new grpc"], revenues["historical grpc"], governance);
 		return result.improved;
 	}
 	else
@@ -310,6 +304,12 @@ d3.select("#grpcSlider").on("input", function(d){
 		d3.select("#grpcVal").text("$" + enteredGrpc);
 		mainUpdate();
 });
+    
+d3.select("#govSlider").on("input", function(d){
+        governance = this.value / 100.0 * 2;
+        d3.select("#govVal").text(governance);
+        mainUpdate();
+});
 
 
 d3.select("#yearSlider").on("input", function(d){
@@ -342,7 +342,6 @@ function colourCountries()
 
 function updateCountries()
 {
-		//console.log("hello")
 		var d = {"id" : country};
 		var text = getText(d);
 		d3.select("#countrytext").

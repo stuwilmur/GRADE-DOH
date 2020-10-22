@@ -150,45 +150,47 @@ function C(_outcome, index)
 	return coeffs.get(_outcome).get(index);
 }
 
-function compute(d, pop, _outcome, _grpc)
+function compute(d, pop, _outcome, _grpc, _govImprovement)
 {
 	var l = _outcome;
 	var improved;
+    var govEffect = d.GOVEFFECT + _govImprovement; 
+    
 	if (_outcome == "SANITBASIC")
 	{
 		improved = 100 / (1 + Math.exp(-(C(l,1)+C(l,11)*d.CORRUPTION+C(l,12)*d.POLSTAB
-		+C(l,13)*d.REGQUALITY+C(l,14)*d.RULELAW+C(l,15)*d.GOVEFFECT+C(l,16)
+		+C(l,13)*d.REGQUALITY+C(l,14)*d.RULELAW+C(l,15)*govEffect+C(l,16)
 		*d.VOICE)*(_grpc-(C(l,2)+C(l,21)*d.CORRUPTION+C(l,22)*d.POLSTAB
-		+C(l,23)*d.REGQUALITY+0*d.RULELAW+C(l,25)*d.GOVEFFECT+C(l,26)*d.VOICE
+		+C(l,23)*d.REGQUALITY+0*d.RULELAW+C(l,25)*govEffect+C(l,26)*d.VOICE
 		))))	
 	}
 	else if (_outcome == "SANITSAFE")
 	{
 		improved = 100/(1+Math.exp(-(C(l,1)+C(l,11)*d.CORRUPTION+0*d.POLSTAB+C(l,13)
-		*d.REGQUALITY+0*d.RULELAW+0*d.GOVEFFECT+C(l,16)*d.VOICE)
+		*d.REGQUALITY+0*d.RULELAW+0*govEffect+C(l,16)*d.VOICE)
 		*(d.GRPERCAP-(C(l,2)+C(l,21)*d.CORRUPTION+0*d.POLSTAB+C(l,23)
-		*d.REGQUALITY+C(l,24)*d.RULELAW+C(l,25)*d.GOVEFFECT+C(l,26)*d.VOICE
+		*d.REGQUALITY+C(l,24)*d.RULELAW+C(l,25)*govEffect+C(l,26)*d.VOICE
 		))));			
 	}
 	else if (_outcome == "SCHOOLPERC")
 	{
 		improved = 100/(1+Math.exp(-(C(l,1)+0*d.CORRUPTION+C(l,12)*d.POLSTAB+0
-        *d.REGQUALITY+0*d.RULELAW+C(l,15)*d.GOVEFFECT+C(l,16)*d.VOICE)
+        *d.REGQUALITY+0*d.RULELAW+C(l,15)*govEffect+C(l,16)*d.VOICE)
         *(_grpc-(C(l,2)+C(l,21)*d.CORRUPTION+C(l,22)*d.POLSTAB+0
-        *d.REGQUALITY+C(l,24)*d.RULELAW+C(l,25)*d.GOVEFFECT+0*d.VOICE ))))
+        *d.REGQUALITY+C(l,24)*d.RULELAW+C(l,25)*govEffect+0*d.VOICE ))))
 	}
 	else if (_outcome == "WATERBASIC")
 	{
 		improved = 100/(1+Math.exp(-(C(l,1)+C(l,12)*d.POLSTAB+C(l,14)*d.RULELAW
-        +C(l,15)*d.GOVEFFECT)*(_grpc-(C(l,2)+C(l,22)*d.POLSTAB+C(l,24)
+        +C(l,15)*govEffect)*(_grpc-(C(l,2)+C(l,22)*d.POLSTAB+C(l,24)
         *d.RULELAW))))		
 	}
 	else if (_outcome == "WATERSAFE")
 	{
 		improved = 100/(1+Math.exp(-(C(l,1)+C(l,11)*d.CORRUPTION+0*d.POLSTAB+0
-        *d.REGQUALITY+C(l,14)*d.RULELAW+C(l,15)*d.GOVEFFECT+C(l,16)*d.VOICE)
+        *d.REGQUALITY+C(l,14)*d.RULELAW+C(l,15)*govEffect+C(l,16)*d.VOICE)
         *(_grpc-(C(l,2)+C(l,21)*d.CORRUPTION+C(l,22)*d.POLSTAB+C(l,23)
-        *d.REGQUALITY+0*d.RULELAW+C(l,25)*d.GOVEFFECT+C(l,26)*d.VOICE ))))
+        *d.REGQUALITY+0*d.RULELAW+C(l,25)*govEffect+C(l,26)*d.VOICE ))))
 	}
 	else if (_outcome == "IMUNISATION")
 	{
@@ -203,16 +205,16 @@ function compute(d, pop, _outcome, _grpc)
 	return improved;
 }
 
-function computeResult(d, pop, _outcome, _grpc, _grpcOrig)
-{		
-	var fitted = compute(d, pop, _outcome, _grpcOrig);
-	var improved = compute(d, pop, _outcome, _grpc);
+function computeResult(d, pop, _outcome, _grpc, _grpcOrig, _govImprovement)
+{    
+	var fitted = compute(d, pop, _outcome, _grpcOrig, 0)
+	var improved = compute(d, pop, _outcome, _grpc, _govImprovement)
 	
 	var additional = {};
 	
-	if (_outcome == P"SANITBASIC" || _outcome == "SANITSAFE" || _outcome == "WATERBASIC" || _outcome == "WATERSAFE")
-	{CP
-CF		additional["People with increased access"] = (improved - fitted) / 100 * pop["Population, total"];F
+	if (_outcome == "SANITBASIC" || _outcome == "SANITSAFE" || _outcome == "WATERBASIC" || _outcome == "WATERSAFE")
+	{
+		additional["People with increased access"] = (improved - fitted) / 100 * pop["Population, total"];
 		additional["Children < 5 with increased access"] = (improved - fitted) / 100 * pop["Pop < 5"];
 		additional["Females 15-49 years with increased access"] = (improved - fitted) / 100 * pop["Number of females aged 15-49"];
 	}

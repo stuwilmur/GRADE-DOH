@@ -121,6 +121,13 @@
             "grpcVal">$0</span></p>
           </div>
         </div>
+          
+        <div class="slidecontainer">
+          <input type="range" name="govSlider" id="govSlider" class="slider" min="0"
+          max="100" value="0" />
+
+          <p>Governance improvement: <span id="govVal">0</span></p>
+        </div>
 
         <div class="slidecontainer">
           <input type="range" name="yearSlider" id="yearSlider" class="slider" min="1960"
@@ -171,7 +178,6 @@
   //active.classed("active", false);
   //active = d3.select(this).classed("active", true);
   
-  //console.log(d);
   
   const maxScale = 0.85;
   const maxiScale = 8;
@@ -183,8 +189,6 @@
       y = (bounds[0][1] + bounds[1][1]) / 2,
       scale = Math.max(1, Math.min(maxiScale, maxScale / Math.max(ww / width, hh / height))),
       translate = [width / 2 - scale * x, height / 2 - scale * y];
-
-//console.log("hello")
 
   svg.transition()
       .duration(transitionTime * 2)
