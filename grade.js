@@ -10,7 +10,7 @@ var absGovRevSlider = 0;
 var pcGovRev = 0;
 var year = 2016;
 var country = "$-ALL";
-var method = "newgrpc"
+var method = "newgrpc";
 var prefix = "U";
 
 var outcome = "SANITBASIC";
@@ -48,7 +48,7 @@ function makeText(dataRowSimulations, dataRowPopulations)
 	var revenues = getRevenue(dataRowSimulations, dataRowPopulations, method);
 	if (dataRowSimulations.ISO == "AFG")
 	{console.log(revenues);}
-	var result = computeResult(dataRowSimulations, dataRowPopulations, outcome, revenues[3], revenues[4]);
+	var result = computeResult(dataRowSimulations, dataRowPopulations, outcome, revenues["new grpc"], revenues["historical grpc"]);
 	/*var revenues = getRevenue(dataRowSimulations, method);
 	var newGovRev = 100 * revenues[0];
 	var newGovAbsRev = revenues[1] / getPrefixValue(prefix);
@@ -90,15 +90,17 @@ function makeText(dataRowSimulations, dataRowPopulations)
 	var text = "";
 	text = text + "<h1 class='tooltip'> " + dataRowPopulations.countryname + "</h1>"
 				+ "<br/>" + year
+                + "<br/>Current Gov. rev. per capita: <span class = 'ar'>$" + d3.format(",")(revenues["historical grpc"].toFixed(2)) + "</span>"
+				+ "<br/>New Gov. rev. per capita: <span class = 'ar'>$" + d3.format(",")(revenues["new grpc"].toFixed(2)) + "</span>"
 				+ "<br/>" + outcomesMap.get(outcome).name + "<br/>"
-				+  "historical: <span class = 'ar'>" 	+ result.original.toFixed(3) + "</span>" 
-				+ "<br/>fitted: <span class = 'ar'>" 	+ result.fitted.toFixed(3) + "</span>" 
-				+ "<br/>improved: <span class = 'ar'>" 	+ result.improved.toFixed(3) + "</span>";
+				+  "Current % coverage: <span class = 'ar'>" 	+ result.fitted.toFixed(3) + "</span>" 
+				//+ "<br/>fitted: <span class = 'ar'>" 	+ result.fitted.toFixed(3) + "</span>" 
+				+ "<br/>New % coverage: <span class = 'ar'>" 	+ result.improved.toFixed(3) + "</span>";
 				
 	if (result.hasOwnProperty("additional"))
 	{
 		for (const [key, value] of Object.entries(result.additional)) {
-		  text = text + "<br/>" + key + ": <span class = 'ar'>" + value + "</span>";
+		  text = text + "<br/>" + key + ": <span class = 'ar'>" + d3.format(",")(value.toFixed(0)) + "</span>";
 		}
 	}
 	return text;
@@ -115,9 +117,9 @@ function getPrefix(p)
 function getPrefixValue(p)
 {
 	if (p == "B")
-		return 1000000000;
+		return 1E9;
 	else if (p == "M")
-		return 1000000;
+		return 1E6;
 	else 
 		return 1;
 }
@@ -147,7 +149,7 @@ function getResult(_cid, _year, _method)
 	if (dataRowSimulations && dataRowPopulations)
 	{
 		var revenues = getRevenue(dataRowSimulations, dataRowPopulations, _method);
-		var result = computeResult(dataRowSimulations, dataRowPopulations, outcome, revenues[3], revenues[4]);
+		var result = computeResult(dataRowSimulations, dataRowPopulations, outcome, revenues["new grpc"], revenues["historical grpc"]);
 		if (_cid == "AFG")
 		{console.log(revenues);}
 		return result.improved;
