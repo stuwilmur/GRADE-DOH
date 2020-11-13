@@ -290,8 +290,13 @@ a {
     float: right
 }
 
+.arb {
+    float: right;
+    font-weight: bold;
+}
+
 div.tooltip {
-    font-size: 100%;
+    font-size: 120%;
     border-radius: 0px;
     color: #000000;
     padding: 10px 15px;

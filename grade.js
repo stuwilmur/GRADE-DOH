@@ -95,7 +95,7 @@ function makeText(dataRowSimulations, dataRowPopulations) {
 
     if (result.hasOwnProperty("additional")) {
         for (const [key, value] of Object.entries(result.additional)) {
-            text = text + "<br/>" + key + ":&nbsp&nbsp<span class = 'ar'>" + d3.format(",")(value.toFixed(0)) + "</span>";
+            text = text + "<br/>" + key + ":&nbsp&nbsp<span class = 'arb'>" + d3.format(",")(value.toFixed(0)) + "</span>";
         }
     }
     
@@ -104,7 +104,7 @@ function makeText(dataRowSimulations, dataRowPopulations) {
         govtext = govtext + result.desc + ": <span class = 'ar'>" + result.value.toFixed(2) + "</span><br/>"
     })
     
-    text = text + "<br/><br/><strong>Governance quality</strong><br/>" + govtext;
+    text = text + "<br/><br/><strong>Governance</strong><br/>" + govtext;
     
     return text;
 }
@@ -328,7 +328,7 @@ function setupMenus(countries, outcomes) {
 
     d3.select("#govSlider").on("input", function (d) {
         governance = Math.round((this.value / 200.0 * 2.0 - 1) * 100) / 100 ;
-        d3.select("#govVal").text(governance);
+        d3.select("#govVal").text((governance<=0?"":"+") + governance);
         mainUpdate();
     });
 

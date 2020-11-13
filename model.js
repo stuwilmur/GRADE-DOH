@@ -124,7 +124,23 @@ var govMeasures = new Map([
 
 // **** add or update outcomes here ****
 var outcomesList = [
-		["SANITBASIC",
+        ["WATERBASIC",
+        {
+            name: "Basic drinking water services",
+            loCol: "#dee5f8",
+            hiCol: "#e09900",
+            fixedExtent: [0, 100],
+            desc: "The percentage of the population drinking water from an improved source, provided collection time is not more than 30 minutes for a round trip."
+        }],
+		["WATERSAFE",
+        {
+            name: "Safely-managed drinking water services",
+            loCol: "#dee5f8",
+            hiCol: "#e09900",
+            fixedExtent: [0, 100],
+            desc: "The percentage of the population using drinking water from an improved source that is accessible on premises, available when needed and free from faecal and priority chemical contamination."
+        }],	
+        ["SANITBASIC",
         {
             name: "Basic sanitation",
             loCol: "#dee5f8",
@@ -148,24 +164,8 @@ var outcomesList = [
             fixedExtent: [0, 100],
             desc: "The number of years a person of school entrance age can expect to spend within the specified level of education"
         }],
-		["WATERBASIC",
-        {
-            name: "Basic drinking water services",
-            loCol: "#dee5f8",
-            hiCol: "#e09900",
-            fixedExtent: [0, 100],
-            desc: "The percentage of the population drinking water from an improved source, provided collection time is not more than 30 minutes for a round trip."
-        }],
 
-		["WATERSAFE",
-        {
-            name: "Safely-managed drinking water services",
-            loCol: "#dee5f8",
-            hiCol: "#e09900",
-            fixedExtent: [0, 100],
-            desc: "The percentage of the population using drinking water from an improved source that is accessible on premises, available when needed and free from faecal and priority chemical contamination."
-        }],
-
+/*
 		["IMUNISATION",
         {
             name: "Child immunisation",
@@ -174,6 +174,7 @@ var outcomesList = [
             fixedExtent: [0, 100],
             desc: "The percentage of children ages 12-23 months who received DPT vaccinations before 12 months or at any time before the survey."
         }],
+        */
 ];
 
 let outcomesMap = new Map(outcomesList);
@@ -254,7 +255,7 @@ function computeResult(d, pop, _outcome, _grpc, _grpcOrig, _govImprovement) {
     if (_outcome == "SANITBASIC" || _outcome == "SANITSAFE" || _outcome == "WATERBASIC" || _outcome == "WATERSAFE") {
         additional["People with increased access"] = (improved - original) / 100 * pop["Population, total"];
         additional["Children < 5 with increased access"] = (improved - original) / 100 * pop["Pop < 5"];
-        additional["Females 15-49 years with increased access"] = (improved - original) / 100 * pop["Number of females aged 15-49"];
+        additional["Females 15-49 with increased access"] = (improved - original) / 100 * pop["Number of females aged 15-49"];
     } else if (_outcome == "IMUNISATION") {
         additional["Number of infants immunised"] = (improved - original) / 100 * pop["Children survive to 1 year"]
     } else if (_outcome == "SCHOOLPERC") {
