@@ -224,6 +224,9 @@ function setupMenus(countries, outcomes) {
             .text(function (d) {
                 return d[1].name;
             });
+        
+        // make sure selection matches initial value
+        d3.select('#outcomes').property('value', outcome);
 
         /*
         d3.select("#govList")
