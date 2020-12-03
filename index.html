@@ -140,7 +140,7 @@
 <li><a href = "population_data.csv">Population data (CSV)</a></li>
 <li><a href = "simulations_data.csv">Simulation data (CSV)</a></li>
 </ul>
-            <p id="version">v0.4 13/11/2020</p>
+            <p id="version">v0.5 03/12/2020</p>
             <div>
 
             </div>
@@ -199,15 +199,19 @@
             //active.classed("active", false);
             //active = d3.select(null);
 
-            svg.transition()
-                .duration(transitionTime * 2)
-                .call(zoom.translate([0, 0]).scale(1).event);
+            resetview();
 
             country = "$-ALL"
             d3.select('#countrylist').property('value', "$-ALL");
             mainUpdate();
 
             d3.event.stopPropagation();
+        }
+        
+        function resetview(){
+                svg.transition()
+                .duration(transitionTime * 2)
+                .call(zoom.translate([0, 0]).scale(1).event);
         }
 
         function stop() {
@@ -250,6 +254,7 @@
 
         function focusCountry() {
             if (country.slice(0, 2) == "$-") {
+                resetview();
                 return;
             }
 
