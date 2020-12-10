@@ -13,6 +13,7 @@ var governance = 0;
 var country = "$-ALL";
 var method = "newgrpc";
 var prefix = "U";
+var lastyear = 2020; //!!
 
 var outcome = "SANITBASIC";
 var govtype = "GOVEFFECT";
@@ -98,14 +99,14 @@ function makeText(dataRowSimulations, dataRowPopulations) {
             text = text + "<br/>" + key + ":&nbsp&nbsp<span class = 'arb'>" + d3.format(",")(value.toFixed(0)) + "</span>";
         }
     }
-    
+
     var govtext = "";
-    result.gov.forEach(function(result, govmeasure){
+    result.gov.forEach(function (result, govmeasure) {
         govtext = govtext + result.desc + ": <span class = 'ar'>" + result.value.toFixed(2) + "</span><br/>"
     })
-    
+
     text = text + "<br/><br/><strong>Governance</strong><br/>" + govtext;
-    
+
     return text;
 }
 
@@ -224,7 +225,7 @@ function setupMenus(countries, outcomes) {
             .text(function (d) {
                 return d[1].name;
             });
-        
+
         // make sure selection matches initial value
         d3.select('#outcomes').property('value', outcome);
 
@@ -314,24 +315,24 @@ function setupMenus(countries, outcomes) {
     d3.select("#absRevSlider").on("input", function (d) {
         absGovRevSlider = this.value;
         absGovRev = absGovRevSlider * getPrefixValue(prefix);
-        d3.select("#absRevenueVal").text("$" + Math.round(absGovRev / getPrefixValue(prefix)) + prefix);
+        d3.select("#absRevenueVal").text("$" + d3.format(",")(Math.round(absGovRev / getPrefixValue(prefix))) + getPrefix(prefix));
         mainUpdate();
     });
 
     d3.select("#pcRevSlider").on("input", function (d) {
         pcGovRev = this.value * 1;
-        d3.select("#perCapitaRevenueVal").text("$" + Math.round(pcGovRev));
+        d3.select("#perCapitaRevenueVal").text("$" + d3.format(",")(Math.round(pcGovRev)));
         mainUpdate();
     });
     d3.select("#grpcSlider").on("input", function (d) {
         enteredGrpc = this.value * 1;
-        d3.select("#grpcVal").text("$" + enteredGrpc);
+        d3.select("#grpcVal").text("$" + d3.format(",")(enteredGrpc));
         mainUpdate();
     });
 
     d3.select("#govSlider").on("input", function (d) {
-        governance = Math.round((this.value / 200.0 * 2.0 - 1) * 100) / 100 ;
-        d3.select("#govVal").text((governance<=0?"":"+") + governance);
+        governance = Math.round((this.value / 200.0 * 2.0 - 1) * 100) / 100;
+        d3.select("#govVal").text((governance <= 0 ? "" : "+") + governance);
         mainUpdate();
     });
 
@@ -381,6 +382,74 @@ function updateCountries() {
     d3.select("#countrydata")
         .style("display", text.length > 0 ? "block" : "none");
     colourCountries();
+    updateplot();
+}
+
+function getplotdata(_firstyear, _country) {
+    // Takes a baseline year an increase in revenue, and calculates the corresponding % increase in grpc:
+    // projects this by: allowing five years for increased revenue to act, where there is no effect;
+    // applying the percentage increase for all remaining years. 
+    var res = []
+    var grpcPcIncrease = 0;
+    for (y = _firstyear; y < lastyear && ((y - _firstyear) < 10); y++) {
+        var sim = countryByIdSimulations.get(_country + y);
+        var pop = countryByIdPopulation.get(_country + y);
+        if (sim && pop) {
+            var revenues = getRevenue(sim, pop, method);
+            if (y == _firstyear) {
+                grpcPcIncrease = revenues["percentage increase"];
+                grpc = revenues["historical grpc"];
+            } else if ((y - _firstyear) < 5) {
+                grpc = revenues["historical grpc"];
+            } else {
+                grpc = revenues["historical grpc"] * (1 + grpcPcIncrease);
+            }
+            //var computed = compute(sim, pop, outcome, grpc, 0)
+            var computed = computeResult(sim, pop, outcome, grpc, revenues["historical grpc"], governance);
+            res.push({
+                "year": +y,
+                "improved": computed.additional
+            });
+        }
+    }
+    return (res);
+}
+
+function updateplot() {
+    if (country.slice(0, 2) == "$-") {
+        d3.select("#plot").style("display", "none");
+    } else {
+        var data = getplotdata(year, country);
+        console.log(data);
+
+        d3.select("#plot").style("display", "block");
+       
+        var outcome1 = {
+            x: data.map(a => a.year),
+            y: data.map(a => a.improved["Children < 5 with increased access"]),
+            type: 'scatter',
+            name: "Children < 5 with increased access"
+        };
+        
+        var outcome2 = {
+            x: data.map(a => a.year),
+            y: data.map(a => a.improved["Females 15-49 with increased access"]),
+            type: 'scatter',
+            name: "Females 15-49 with increased access"
+        };
+        
+         var outcome3 = {
+            x: data.map(a => a.year),
+            y: data.map(a => a.improved["People with increased access"]),
+            type: 'scatter',
+            name: "People with increased access"
+        };
+
+        var data = [outcome1, outcome2, outcome3];
+        console.log(data)
+
+        Plotly.newPlot('plot', data);
+    }
 }
 
 function updateLegend() {

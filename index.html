@@ -21,6 +21,8 @@
     </script>
     <script src="https://d3js.org/topojson.v1.min.js" type="text/javascript">
     </script>
+    <script src='https://cdn.plot.ly/plotly-latest.min.js'>
+    </script>
 
     <script src="tooltip.js" type="text/javascript">
     </script>
@@ -151,12 +153,19 @@
                 <span id="countrytext"></span>
             </p>
         </div>
+        <div  class="plot" id = "plot">
+            <!---
+             Result to show <select id="countrylist" name="country">
+                </select>
+            --->
+        </div>
     </div>
     <script src="grade.js" type="text/javascript"></script>
     <script src="model.js" type="text/javascript"></script>
     <script type="text/javascript">
         var width = 1500;
         var height = 700;
+        var plotheight = 400;
 
         const zoom = d3.behavior.zoom()
             .scaleExtent([1, 8])

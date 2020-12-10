@@ -25,6 +25,18 @@ body {
     pointer-events: none;
 }
 
+.plot {
+    float: left;
+    border-style: solid;
+    border-color: lightgray;
+    border-width: 1px;
+    background: rgba(255, 255, 255, 1);
+    /*
+    width: 600px;
+    height: 500px;
+    */
+}
+
 .output strong {
     font-weight: bold;
 }
@@ -45,10 +57,10 @@ vis {
 }
 
 #countrydata,
-#countrydata2 {
+#countrydata2,
+#plot{
     margin-top: 100px;
     margin-left: 10px;
-    opacity: 0.8;
 }
 
 #countrydata2 {
