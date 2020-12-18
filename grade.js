@@ -14,6 +14,7 @@ var country = "$-ALL";
 var method = "newgrpc";
 var prefix = "U";
 var lastyear = 2020; //!!
+var plottype = "population"
 
 var outcome = "SANITBASIC";
 var govtype = "GOVEFFECT";
@@ -299,6 +300,12 @@ function setupMenus(countries, outcomes) {
                 d3.select("#absRevenueVal").text("$" + Math.round(absGovRev / prefixValue) + getPrefix(prefix));
                 mainUpdate();
             })
+        
+        d3.select("#plottype")
+        .on("change", function(d){
+            plottype = this.options[this.selectedIndex].value;
+            updateplot();
+            })
     }
 
     initMenus(countries, outcomes);
@@ -385,7 +392,7 @@ function updateCountries() {
     updateplot();
 }
 
-function getplotdata(_firstyear, _country) {
+function getplotdata(_firstyear, _country, _outcome) {
     // Takes a baseline year an increase in revenue, and calculates the corresponding % increase in grpc:
     // projects this by: allowing five years for increased revenue to act, where there is no effect;
     // applying the percentage increase for all remaining years. 
@@ -404,8 +411,8 @@ function getplotdata(_firstyear, _country) {
             } else {
                 grpc = revenues["historical grpc"] * (1 + grpcPcIncrease);
             }
-            //var computed = compute(sim, pop, outcome, grpc, 0)
-            var computed = computeResult(sim, pop, outcome, grpc, revenues["historical grpc"], governance);
+            //var computed = compute(sim, pop, _outcome, grpc, 0)
+            var computed = computeResult(sim, pop, _outcome, grpc, revenues["historical grpc"], governance);
             res.push({
                 "year": +y,
                 "improved": computed.additional
@@ -417,13 +424,17 @@ function getplotdata(_firstyear, _country) {
 
 function updateplot() {
     if (country.slice(0, 2) == "$-") {
-        d3.select("#plot").style("display", "none");
+        d3.select("#plotwrapper").style("display", "none");
     } else {
-        var data = getplotdata(year, country);
-        console.log(data);
+        var data = getplotdata(year, country, outcome);
 
-        d3.select("#plot").style("display", "block");
+        d3.select("#plotwrapper").style("display", "block");
+        
+        //!! TODO:
+        // read all data from single file
+        // unlink old files, remove from repository
        
+        /*
         var outcome1 = {
             x: data.map(a => a.year),
             y: data.map(a => a.improved["Children < 5 with increased access"]),
@@ -445,10 +456,24 @@ function updateplot() {
             name: "People with increased access"
         };
 
-        var data = [outcome1, outcome2, outcome3];
-        console.log(data)
+        var data1 = [outcome1, outcome2, outcome3];
+        */
+        var plotdata = [];
+        
+        for (const prop in data[0].improved){
+            var outcomedata = {
+                x: data.map(a => a.year),
+                y: data.map(a => a.improved[prop]),
+                type: "scatter",
+                name: prop
+            };
+            plotdata.push(outcomedata);
+        }
+                
+        var layout = {showlegend: true,
+	       legend: {"orientation": "h"}};
 
-        Plotly.newPlot('plot', data);
+        Plotly.newPlot('plot', plotdata, layout);
     }
 }
 

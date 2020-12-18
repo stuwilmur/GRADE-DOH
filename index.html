@@ -122,7 +122,7 @@
 
                 <div class="slidecontainer">
                     <input type="range" name="govSlider" id="govSlider" class="slider" min="0" max="200" value="100" />
-                    <img src="img/larrow.png" style="width: 60px; height: auto;"/>worsening&nbsp&nbsp&nbsp<span class="ar">improving <img src="img/rarrow.png" style="width: 60px; height : auto"/></span>
+                    <img src="img/larrow.png" style="width: 60px; height: auto;" />worsening&nbsp&nbsp&nbsp<span class="ar">improving <img src="img/rarrow.png" style="width: 60px; height : auto" /></span>
 
                     <p>Governance quality: <span id="govVal">0</span></p>
                 </div>
@@ -136,13 +136,13 @@
                 </select>
             </div>
 
-            
-<h4>Download raw data</h4>
-<ul>
-<li><a href = "population_data.csv">Population data (CSV)</a></li>
-<li><a href = "simulations_data.csv">Simulation data (CSV)</a></li>
-</ul>
-            <p id="version">v0.5 03/12/2020</p>
+
+            <h4>Download raw data</h4>
+            <ul>
+                <li><a href="MASTER%20used%20for%20GRADE%20DOH%20models%2012.8.2020%20for%20SH.csv">Population data (CSV)</a></li>
+                <li><a href="simulations_data.csv">Simulation data (CSV)</a></li>
+            </ul>
+            <p id="version">v0.6 18/12/2020</p>
             <div>
 
             </div>
@@ -153,11 +153,22 @@
                 <span id="countrytext"></span>
             </p>
         </div>
-        <div  class="plot" id = "plot">
-            <!---
+        <div class="plotwrapper" id = "plotwrapper">
+            <div class="plot" id="plot">
+                <!---
              Result to show <select id="countrylist" name="country">
                 </select>
             --->
+            </div>
+            <div class="plottools">
+                <!---
+                <select name="plottype" id="plottype">
+                    <option value="u5m">Under-5 deaths averted</option>
+                    <option value="mmr">Maternal deaths averted</option>
+                    <option value="population">Population affected</option>
+                </select>
+                --->
+            </div>
         </div>
     </div>
     <script src="grade.js" type="text/javascript"></script>
@@ -216,9 +227,9 @@
 
             d3.event.stopPropagation();
         }
-        
-        function resetview(){
-                svg.transition()
+
+        function resetview() {
+            svg.transition()
                 .duration(transitionTime * 2)
                 .call(zoom.translate([0, 0]).scale(1).event);
         }

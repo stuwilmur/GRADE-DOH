@@ -92,7 +92,43 @@ var coeffs = new Map([
 		[21, -8328.613]
 	]
         )
-]
+],
+["U5MSURV",
+       new Map(
+       [
+           [1, 0.000487660315618],
+           [12, -0.0000292129327268],
+           [15, -0.0000889823437485],
+           [16, 0.0000441671186032],
+           [2, 5986.3033303],
+           [21, 295.792385161],
+           [22, -218.908408761],
+           [23, -307.070582687],
+           [25, -1800.65834264],
+           [26, 389.563410216]
+
+       ]
+        )
+],
+["MMRSURV",
+       new Map(
+       [
+            [1, 0.00162428846511],
+            [11, 0.000480954347841],
+            [12, -0.000245303543036],
+            [14, -0.000993435385523],
+            [15, 0.000635303615423],
+            [16, 0.000368281180655],
+            [2, -1708.97971425],
+            [21, 854.424918802],
+            [22, -328.239576261],
+            [23, -193.518329888],
+            [24, -1354.51903559],
+            [25, 488.294796998],
+            [26, 451.468766258]
+       ]
+        )
+],
 ]);
 
 var govMeasures = new Map([
@@ -139,7 +175,7 @@ var outcomesList = [
             hiCol: "#e09900",
             fixedExtent: [0, 100],
             desc: "The percentage of the population using drinking water from an improved source that is accessible on premises, available when needed and free from faecal and priority chemical contamination."
-        }],	
+        }],
         ["SANITBASIC",
         {
             name: "Basic sanitation",
@@ -164,6 +200,22 @@ var outcomesList = [
             fixedExtent: [0, 100],
             desc: "The number of years a person of school entrance age can expect to spend within the specified level of education"
         }],
+        ["U5MSURV",
+        {
+            name: "Under-5 survival",
+            loCol: "#dee5f8",
+            hiCol: "#e09900",
+            fixedExtent: [0, 100],
+            desc: "Under-5 survival"
+         }],
+        ["MMRSURV",
+        {
+            name: "Maternal survival",
+            loCol: "#dee5f8",
+            hiCol: "#e09900",
+            fixedExtent: [0, 100],
+            desc: "Maternal survival"
+         }],
 
 /*
 		["IMUNISATION",
@@ -185,15 +237,17 @@ function C(_outcome, index) {
 
 function gg(_type, _d, _gov) {
     var x = _d[_type] + (govMeasures.get(_type).positive == true ? _gov : -_gov);
-    var limited = Math.min(Math.max(-2.5, x),2.5)
+    var limited = Math.min(Math.max(-2.5, x), 2.5)
     return limited;
 }
 
-function computegovernance(_d, _gov)
-{
+function computegovernance(_d, _gov) {
     var ret = new Map();
-    govMeasures.forEach(function(measure, govtype){
-        ret.set(govtype, {desc : measure.desc, value : gg(govtype, _d, _gov)});
+    govMeasures.forEach(function (measure, govtype) {
+        ret.set(govtype, {
+            desc: measure.desc,
+            value: gg(govtype, _d, _gov)
+        });
     })
     return ret;
 }
@@ -235,6 +289,11 @@ function compute(d, pop, _outcome, _grpc, _gov) {
     } else if (_outcome == "IMUNISATION") {
         improved = 100 / (1 + Math.exp(-(C(l, 1) + C(l, 11) * g("POLSTAB")) * (_grpc - (C(l, 2) +
             C(l, 21) * g("POLSTAB")))))
+    } else if (_outcome == "U5MSURV") {
+        improved = 100 / (1 + Math.exp(-(C(l, 1) + 0 * g("CORRUPTION") + C(l, 12) * g("POLSTAB") + 0 * g("REGQUALITY") + 0 * g("RULELAW") + C(l, 15) * g("GOVEFFECT") + C(l, 16) * g("VOICE")) * (_grpc - (-C(l, 2) + C(l, 21) * g("CORRUPTION") + C(l, 22) * g("POLSTAB") + C(l, 23) * g("REGQUALITY") + 0 * g("RULELAW") + C(l, 25) * g("GOVEFFECT") + C(l, 26) * g("VOICE")))));
+
+    } else if (_outcome == "MMRSURV") {
+        improved = 95 + (100 - 95) / (1 + Math.exp(-(C(l, 1) + C(l, 11) * g("CORRUPTION") + C(l, 12) * g("POLSTAB") + 0 * g("REGQUALITY") - C(l, 14) * g("RULELAW") + C(l, 15) * g("GOVEFFECT") + C(l, 16) * g("VOICE")) * (_grpc - (C(l, 2) + C(l, 21) * g("CORRUPTION") + C(l, 22) * g("POLSTAB") + C(l, 23) * g("REGQUALITY") + C(l, 24) * g("RULELAW") + C(l, 25) * g("GOVEFFECT") + C(l, 26) * g("VOICE")))));
     } else {
         improved = NaN;
     }
@@ -260,6 +319,14 @@ function computeResult(d, pop, _outcome, _grpc, _grpcOrig, _govImprovement) {
         additional["Number of infants immunised"] = (improved - original) / 100 * pop["Children survive to 1 year"]
     } else if (_outcome == "SCHOOLPERC") {
         additional["Years of school life expectancy"] = 17 * (improved - original) / 100 * pop["Pop < 5"]
+    } else if (_outcome == "U5MSURV"){
+        additional["Under-5 five deaths averted"] = (improved - original) / 100 * pop["Number of births"]
+        additional["Under-5 deaths"] = (1 - original / 100) * pop["Number of births"]
+        additional["Under-5 deaths with additional revenue"] = (1 - improved / 100) * pop["Number of births"]
+    } else if (_outcome == "MMRSURV"){
+        additional["Maternal deaths averted"] = (improved - original) / 100 * pop["Number of females aged 15-49"]
+        additional["Maternal deaths"] = (1 - original / 100) * pop["Number of females aged 15-49"]
+        additional["Maternal deaths with additional revenue"] = (1 - improved / 100) * pop["Number of females aged 15-49"]
     }
 
     var ret = {
@@ -267,7 +334,7 @@ function computeResult(d, pop, _outcome, _grpc, _grpcOrig, _govImprovement) {
         "improved": improved,
         "fitted": fitted,
         "additional": additional,
-        "gov" : govresults
+        "gov": govresults
     };
     return ret;
 }
@@ -332,6 +399,8 @@ function typeAndSetSimulations(d) {
         d.WATERBASIC = +d.WATERBASIC
         d.WATERSAFE = +d.WATERSAFE
         d.YEAR = +d["Year "]
+        d.U5MSURV = +d.U5MSURV
+        d.MMRSURV = +d.MMRSURV
         countryByIdSimulations.set(d.ISO + d.YEAR, d);
     }
     return d;

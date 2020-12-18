@@ -25,16 +25,22 @@ body {
     pointer-events: none;
 }
 
-.plot {
+.plotwrapper {
     float: left;
     border-style: solid;
     border-color: lightgray;
     border-width: 1px;
     background: rgba(255, 255, 255, 1);
-    /*
+    display: none;
+}
+
+.plot {
     width: 600px;
     height: 500px;
-    */
+}
+
+.plottools{
+    margin-left: 10px;
 }
 
 .output strong {
@@ -58,7 +64,7 @@ vis {
 
 #countrydata,
 #countrydata2,
-#plot{
+#plotwrapper{
     margin-top: 100px;
     margin-left: 10px;
 }
