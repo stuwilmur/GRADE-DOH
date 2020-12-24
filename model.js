@@ -293,7 +293,7 @@ function compute(d, pop, _outcome, _grpc, _gov) {
         improved = 100 / (1 + Math.exp(-(C(l, 1) + 0 * g("CORRUPTION") + C(l, 12) * g("POLSTAB") + 0 * g("REGQUALITY") + 0 * g("RULELAW") + C(l, 15) * g("GOVEFFECT") + C(l, 16) * g("VOICE")) * (_grpc - (-C(l, 2) + C(l, 21) * g("CORRUPTION") + C(l, 22) * g("POLSTAB") + C(l, 23) * g("REGQUALITY") + 0 * g("RULELAW") + C(l, 25) * g("GOVEFFECT") + C(l, 26) * g("VOICE")))));
 
     } else if (_outcome == "MMRSURV") {
-        improved = 95 + (100 - 95) / (1 + Math.exp(-(C(l, 1) + C(l, 11) * g("CORRUPTION") + C(l, 12) * g("POLSTAB") + 0 * g("REGQUALITY") - C(l, 14) * g("RULELAW") + C(l, 15) * g("GOVEFFECT") + C(l, 16) * g("VOICE")) * (_grpc - (C(l, 2) + C(l, 21) * g("CORRUPTION") + C(l, 22) * g("POLSTAB") + C(l, 23) * g("REGQUALITY") + C(l, 24) * g("RULELAW") + C(l, 25) * g("GOVEFFECT") + C(l, 26) * g("VOICE")))));
+        improved = 95 + (100 - 95) / (1 + Math.exp(-(C(l, 1) + C(l, 11) * g("CORRUPTION") + C(l, 12) * g("POLSTAB") + 0 * g("REGQUALITY") + C(l, 14) * g("RULELAW") + C(l, 15) * g("GOVEFFECT") + C(l, 16) * g("VOICE")) * (_grpc - (C(l, 2) + C(l, 21) * g("CORRUPTION") + C(l, 22) * g("POLSTAB") + C(l, 23) * g("REGQUALITY") + C(l, 24) * g("RULELAW") + C(l, 25) * g("GOVEFFECT") + C(l, 26) * g("VOICE")))));
     } else {
         improved = NaN;
     }
@@ -324,9 +324,9 @@ function computeResult(d, pop, _outcome, _grpc, _grpcOrig, _govImprovement) {
         additional["Under-5 deaths"] = (1 - original / 100) * pop["Number of births"]
         additional["Under-5 deaths with additional revenue"] = (1 - improved / 100) * pop["Number of births"]
     } else if (_outcome == "MMRSURV"){
-        additional["Maternal deaths averted"] = (improved - original) / 100 * pop["Number of females aged 15-49"]
-        additional["Maternal deaths"] = (1 - original / 100) * pop["Number of females aged 15-49"]
-        additional["Maternal deaths with additional revenue"] = (1 - improved / 100) * pop["Number of females aged 15-49"]
+        additional["Maternal deaths averted"] = (improved - original) / 100 * pop["Number of births"]
+        additional["Maternal deaths"] = (1 - original / 100) * pop["Number of births"]
+        additional["Maternal deaths with additional revenue"] = (1 - improved / 100) * pop["Number of births"]
     }
 
     var ret = {
