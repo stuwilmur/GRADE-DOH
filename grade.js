@@ -43,9 +43,9 @@ function getColor(_cid, _year, _method) {
     }
 }
 
-function makeText(dataRowSimulations, dataRowPopulations) {
-    var revenues = getRevenue(dataRowSimulations, dataRowPopulations, method);
-    var result = computeResult(dataRowSimulations, dataRowPopulations, outcome, revenues["new grpc"], revenues["historical grpc"], governance);
+function makeText(dataRowPopulations) {
+    var revenues = getRevenue(dataRowPopulations, method);
+    var result = computeResult(dataRowPopulations, outcome, revenues["new grpc"], revenues["historical grpc"], governance);
     /*var revenues = getRevenue(dataRowSimulations, method);
     var newGovRev = 100 * revenues[0];
     var newGovAbsRev = revenues[1] / getPrefixValue(prefix);
@@ -131,10 +131,10 @@ function getText(d) {
     if (d.id[0] == "$") {
         return "";
     }
-    var dataRowSimulations = countryByIdSimulations.get(d.id + year);
+    //!!var dataRowSimulations = countryByIdSimulations.get(d.id + year);
     var dataRowPopulations = countryByIdPopulation.get(d.id + year);
-    if (dataRowSimulations && dataRowPopulations) {
-        return makeText(dataRowSimulations, dataRowPopulations);
+    if (dataRowPopulations) {
+        return makeText(dataRowPopulations);
     } else {
         if (d.hasOwnProperty("properties"))
             return "<strong>" + d.properties.name + "<\/strong>" + ": No data";
@@ -144,11 +144,11 @@ function getText(d) {
 }
 
 function getResult(_cid, _year, _method) {
-    var dataRowSimulations = countryByIdSimulations.get(_cid + _year);
+    //!!var dataRowSimulations = countryByIdSimulations.get(_cid + _year);
     var dataRowPopulations = countryByIdPopulation.get(_cid + _year);
-    if (dataRowSimulations && dataRowPopulations) {
-        var revenues = getRevenue(dataRowSimulations, dataRowPopulations, _method);
-        var result = computeResult(dataRowSimulations, dataRowPopulations, outcome,
+    if (dataRowPopulations) {
+        var revenues = getRevenue(dataRowPopulations, _method);
+        var result = computeResult(dataRowPopulations, outcome,
             revenues["new grpc"], revenues["historical grpc"], governance);
         return result.improved;
     } else {
@@ -399,10 +399,10 @@ function getplotdata(_firstyear, _country, _outcome) {
     var res = []
     var grpcPcIncrease = 0;
     for (y = _firstyear; y < lastyear && ((y - _firstyear) < 10); y++) {
-        var sim = countryByIdSimulations.get(_country + y);
+        //var sim = countryByIdSimulations.get(_country + y);
         var pop = countryByIdPopulation.get(_country + y);
-        if (sim && pop) {
-            var revenues = getRevenue(sim, pop, method);
+        if (pop) {
+            var revenues = getRevenue(pop, method);
             if (y == _firstyear) {
                 grpcPcIncrease = revenues["percentage increase"];
                 grpc = revenues["historical grpc"];
@@ -411,8 +411,8 @@ function getplotdata(_firstyear, _country, _outcome) {
             } else {
                 grpc = revenues["historical grpc"] * (1 + grpcPcIncrease);
             }
-            //var computed = compute(sim, pop, _outcome, grpc, 0)
-            var computed = computeResult(sim, pop, _outcome, grpc, revenues["historical grpc"], governance);
+            //var computed = compute(pop, _outcome, grpc, 0)
+            var computed = computeResult(pop, _outcome, grpc, revenues["historical grpc"], governance);
             res.push({
                 "year": +y,
                 "improved": computed.additional
@@ -498,7 +498,9 @@ function updateLegend() {
         .text(theOutcome.desc);
 }
 
-function loaded(error, countries, populationsData, simulationsData) {
+function loaded(error, countries, populationsData) {
+    /*
+    // used to handle non-fixed variable extents - to be updated if required
     outcomesMap.forEach(function (v, k) {
         outcomesMap.get(k).extent = d3.extent(simulationsData, function (d) {
             return parseFloat(d[k]);
@@ -508,6 +510,10 @@ function loaded(error, countries, populationsData, simulationsData) {
     colorScale.domain(d3.extent(simulationsData, function (d) {
         return parseFloat(d[outcome]);
     }));
+    */
+    
+    var theOutcome = outcomesMap.get(outcome)
+    colorScale.domain(theOutcome.hasOwnProperty("fixedExtent") ? theOutcome.fixedExtent : theOutcome.extent);
 
     var countries = topojson.feature(countries, countries.objects.units).features;
 
@@ -559,5 +565,7 @@ function loaded(error, countries, populationsData, simulationsData) {
     });
 
     setupMenus(countries, outcomesList);
+    
+    //!!console.log(countryByIdPopulation);
 
 }

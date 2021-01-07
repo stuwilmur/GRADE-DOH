@@ -1,4 +1,4 @@
-var countryByIdSimulations = d3.map();
+//!!var countryByIdSimulations = d3.map();
 var countryByIdPopulation = d3.map();
 
 // **** add or update coefficients here ****
@@ -252,12 +252,12 @@ function computegovernance(_d, _gov) {
     return ret;
 }
 
-function compute(d, pop, _outcome, _grpc, _gov) {
+function compute(_pop, _outcome, _grpc, _gov) {
     var l = _outcome;
     var improved;
 
     function g(_type) {
-        return gg(_type, d, _gov)
+        return gg(_type, _pop, _gov)
     }
 
     if (_outcome == "SANITBASIC") {
@@ -301,36 +301,36 @@ function compute(d, pop, _outcome, _grpc, _gov) {
     return improved;
 }
 
-function computeResult(d, pop, _outcome, _grpc, _grpcOrig, _govImprovement) {
-    var fitted = compute(d, pop, _outcome, _grpcOrig, 0)
-    var original = d[_outcome]
-    var improved = compute(d, pop, _outcome, _grpc, _govImprovement)
-    var govresults = computegovernance(d, _govImprovement)
+function computeResult(_pop, _outcome, _grpc, _grpcOrig, _govImprovement) {
+    var fitted = compute(_pop, _outcome, _grpcOrig, 0)
+    var original = _pop[_outcome]
+    var improved = compute(_pop, _outcome, _grpc, _govImprovement)
+    var govresults = computegovernance(_pop, _govImprovement)
     var residual = original - fitted;
     improved = Math.min(Math.max(improved + residual, 0), 100);
 
     var additional = {};
 
     if (_outcome == "SANITBASIC" || _outcome == "SANITSAFE" || _outcome == "WATERBASIC" || _outcome == "WATERSAFE") {
-        additional["People with increased access"] = (improved - original) / 100 * pop["Population, total"];
-        additional["Children < 5 with increased access"] = (improved - original) / 100 * pop["Pop < 5"];
-        additional["Females 15-49 with increased access"] = (improved - original) / 100 * pop["Number of females aged 15-49"];
+        additional["People with increased access"] = (improved - original) / 100 * _pop["Population, total"];
+        additional["Children < 5 with increased access"] = (improved - original) / 100 * _pop["Pop < 5"];
+        additional["Females 15-49 with increased access"] = (improved - original) / 100 * _pop["Number of females aged 15-49"];
     } else if (_outcome == "IMUNISATION") {
-        additional["Number of infants immunised"] = (improved - original) / 100 * pop["Children survive to 1 year"]
+        additional["Number of infants immunised"] = (improved - original) / 100 * _pop["Children survive to 1 year"]
     } else if (_outcome == "SCHOOLPERC") {
-        additional["Years of school life expectancy"] = 17 * (improved - original) / 100 * pop["Pop < 5"]
+        additional["Years of school life expectancy"] = 17 * (improved - original) / 100 * _pop["Pop < 5"]
     } else if (_outcome == "U5MSURV"){
-        additional["Under-5 five deaths averted"] = (improved - original) / 100 * pop["Number of births"]
-        additional["Under-5 deaths"] = (1 - original / 100) * pop["Number of births"]
-        additional["Under-5 deaths with additional revenue"] = (1 - improved / 100) * pop["Number of births"]
+        additional["Under-5 five deaths averted"] = (improved - original) / 100 * _pop["Number of births"]
+        additional["Under-5 deaths"] = (1 - original / 100) * _pop["Number of births"]
+        additional["Under-5 deaths with additional revenue"] = (1 - improved / 100) * _pop["Number of births"]
     } else if (_outcome == "MMRSURV"){
-        additional["Maternal deaths averted"] = (improved - original) / 100 * pop["Number of births"]
-        additional["Maternal deaths"] = (1 - original / 100) * pop["Number of births"]
-        additional["Maternal deaths with additional revenue"] = (1 - improved / 100) * pop["Number of births"]
+        additional["Maternal deaths averted"] = (improved - original) / 100 * _pop["Number of births"]
+        additional["Maternal deaths"] = (1 - original / 100) * _pop["Number of births"]
+        additional["Maternal deaths with additional revenue"] = (1 - improved / 100) * _pop["Number of births"]
     }
 
     var ret = {
-        original: d[_outcome],
+        original: _pop[_outcome],
         "improved": improved,
         "fitted": fitted,
         "additional": additional,
@@ -340,45 +340,43 @@ function computeResult(d, pop, _outcome, _grpc, _grpcOrig, _govImprovement) {
 }
 
 function typeAndSetPopulation(d) {
-    //d["Birth rate, crude (per 1,000 people)"] = +d["Birth rate, crude (per 1,000 people)"]
-    //d["Births attended by skilled health staff (% of total)"] = +d["Births attended by skilled health staff (% of total)"]
-    d["Children survive to 1 year"] = +d["Children survive to 1 year"]
-    //d["Children survive to 5 years"] = +d["Children survive to 5 years"]
-    //d["Fertility rate, total (births per woman)"] = +d["Fertility rate, total (births per woman)"]
-    //d["Mortality rate, infant (per 1,000 live births)"] = +d["Mortality rate, infant (per 1,000 live births)"]
-    //d["Mortality rate, under-5 (per 1,000 live births)"] = +d["Mortality rate, under-5 (per 1,000 live births)"]
-    d["Number of births"] = +d["Number of births"]
-    d["Number of females aged 15-49"] = +d["Number of females aged 15-49"]
-    //d["Percentage of female population aged 15-49"] = +d["Percentage of female population aged 15-49"]
-    d["Pop < 5"] = +d["Pop < 5"]
-    //d["Population ages 00-04, female (% of female population)"] = +d["Population ages 00-04, female (% of female population)"]
-    //d["Population ages 00-04, male (% of male population)"] = +d["Population ages 00-04, male (% of male population)"]
-    //d["Population ages 10-14, female (% of female population)"] = +d["Population ages 10-14, female (% of female population)"]
-    //d["Population ages 15-19, female (% of female population)"] = +d["Population ages 15-19, female (% of female population)"]
-    //d["Population ages 20-24, female (% of female population)"] = +d["Population ages 20-24, female (% of female population)"]
-    //d["Population ages 25-29, female (% of female population)"] = +d["Population ages 25-29, female (% of female population)"]
-    //d["Population ages 30-34, female (% of female population)"] = +d["Population ages 30-34, female (% of female population)"]
-    //d["Population ages 35-39, female (% of female population)"] = +d["Population ages 35-39, female (% of female population)"]
-    //d["Population ages 40-44, female (% of female population)"] = +d["Population ages 40-44, female (% of female population)"]
-    //d["Population ages 45-49, female (% of female population)"] = +d["Population ages 45-49, female (% of female population)"]
-    //d["Population, female"] = +d["Population, female"]
-    //d["Population, female (% of total population)"] = +d["Population, female (% of total population)"]
-    //d["Population, male"] = +d["Population, male"]
-    //d["Population, male (% of total population)"] = +d["Population, male (% of total population)"]
-    d["Population, total"] = +d["Population, total"]
-    //d["Survival rate to 5 years"] = +d["Survival rate to 5 years"]
-    //d["Survival rate to 12 mo"] = +d["Survival rate to 12 mo"]
-    d["countrycode"] = d["countrycode"]
-    d["countryname"] = d["countryname"]
-    //d["female <5 "] = +d["\"female <5 \""]
-    //d["incomelevel"] = d["incomelevel"]
-    //d["male <5"] = +d["male <5"]
-    d["year"] = +d["year"]
-    countryByIdPopulation.set(d.countrycode + d.year, d);
-    return d;
+    
+    var e = {}
+    
+    e.CORRUPTION    =+d["Control of Corruption: Estimate"]
+    e.Country 	    =d["countryname"]                                      
+    e.GOVEFFECT 	=+d["Government Effectiveness: Estimate"]
+    e.GRPERCAP 	    =+d["GRpc UNU WIDER"]
+    e.IMUNISATION	=+d["Immunization, DPT (% of children ages 12-23 months)"]
+    e.ISO 	        =d["countrycode"]
+    e.POLSTAB 	    =+d["Political Stability and Absence of Violence/Terrorism: Estimate"]
+    e.REGQUALITY	=+d["Regulatory Quality: Estimate"]
+    e.RULELAW 	    =+d["Rule of Law: Estimate"]
+    e.SANITBASIC 	=+d["People using at least basic sanitation services (% of population)"]
+    e.SANITSAFE 	=+d["People using safely managed sanitation services (% of population)"]
+    e.SCHOOLPERC 	=+d["School percent"]
+    e.VOICE 	    =+d["Voice and Accountability: Estimate"]
+    e.WATERBASIC 	=+d["People using at least basic drinking water services (% of population)"]
+    e.WATERSAFE 	=+d["People using safely managed drinking water services (% of population)"]
+    e.U5MSURV 	    =+d["U5 survival %"]
+    e.MMRSURV 	    =+d["Maternal survival rate %"]
+    
+    e["Population, total"]              =+d["Pop total"]
+    e["Pop < 5"]                        =+d["Pop<5"]
+    e["Number of females aged 15-49"]   =+d["Female Pop15-49"]
+    e["Children survive to 1 year"]     =+d["Number of infants surviving to 1yr"]
+    e["Number of births"]               =+d["Number of births"]
+    e["countrycode"]                    =d["countrycode"]
+    e["countryname"]                    =d["countryname"]
+    e["year"]                           =+d["year"]
+    e["incomelevel"]                    =d["incomelevel"]
+
+   
+    countryByIdPopulation.set(e.countrycode + e.year, e);
+    return e;
 }
 
-function typeAndSetSimulations(d) {
+/*function typeAndSetSimulations(d) {
     if (d === undefined) {
         return undefined
     } else {
@@ -404,51 +402,52 @@ function typeAndSetSimulations(d) {
     }
     return d;
 }
+*///!
 
-function getRevenue(_sim, _pop, m) {
+function getRevenue(_pop, m) {
     var ret;
     if (m == "percentage") {
-        var newAbsRev = (_sim.GRPERCAP * (govRevenue)) * _pop["Population, total"];
-        var additionalPerCapita = _sim.GRPERCAP * govRevenue;
+        var newAbsRev = (_pop.GRPERCAP * (govRevenue)) * _pop["Population, total"];
+        var additionalPerCapita = _pop.GRPERCAP * govRevenue;
         ret = {
             "percentage increase": govRevenue,
             "new absolute revenue": newAbsRev,
             "additional revenue per capita": additionalPerCapita,
-            "new grpc": _sim.GRPERCAP + additionalPerCapita,
-            "historical grpc": _sim.GRPERCAP
+            "new grpc": _pop.GRPERCAP + additionalPerCapita,
+            "historical grpc": _pop.GRPERCAP
         };
     } else if (m == "pc") {
-        var newGRPC = _sim.GRPERCAP + pcGovRev;
-        var newGovRev = newGRPC / _sim.GRPERCAP - 1;
-        var newAbsRev = (_sim.GRPERCAP * (newGovRev)) * _pop["Population, total"];
+        var newGRPC = _pop.GRPERCAP + pcGovRev;
+        var newGovRev = newGRPC / _pop.GRPERCAP - 1;
+        var newAbsRev = (_pop.GRPERCAP * (newGovRev)) * _pop["Population, total"];
         ret = {
             "percentage increase": newGovRev,
             "new absolute revenue": newAbsRev,
             "additional revenue per capita": pcGovRev,
             "new grpc": newGRPC,
-            "historical grpc": _sim.GRPERCAP
+            "historical grpc": _pop.GRPERCAP
         };
     } else if (m == "newgrpc") {
-        var newGRPC = enteredGrpc > _sim.GRPERCAP ? enteredGrpc : _sim.GRPERCAP;
-        var newGovRev = newGRPC / _sim.GRPERCAP - 1;
-        var newAbsRev = (_sim.GRPERCAP * (newGovRev)) * _pop["Population, total"];
+        var newGRPC = enteredGrpc > _pop.GRPERCAP ? enteredGrpc : _pop.GRPERCAP;
+        var newGovRev = newGRPC / _pop.GRPERCAP - 1;
+        var newAbsRev = (_pop.GRPERCAP * (newGovRev)) * _pop["Population, total"];
         ret = {
             "percentage increase": newGovRev,
             "new absolute revenue": newAbsRev,
-            "additional revenue per capita": newGRPC - _sim.GRPERCAP,
+            "additional revenue per capita": newGRPC - _pop.GRPERCAP,
             "new grpc": newGRPC,
-            "historical grpc": _sim.GRPERCAP
+            "historical grpc": _pop.GRPERCAP
         };
     } else {
-        var newGRPC = _sim.GRPERCAP + absGovRev / _pop["Population, total"];
-        var newGovRev = newGRPC / _sim.GRPERCAP - 1;
+        var newGRPC = _pop.GRPERCAP + absGovRev / _pop["Population, total"];
+        var newGovRev = newGRPC / _pop.GRPERCAP - 1;
         var additionalPerCapita = absGovRev / _pop["Population, total"];
         ret = {
             "percentage increase": newGovRev,
             "new absolute revenue": absGovRev,
             "additional revenue per capita": additionalPerCapita,
             "new grpc": newGRPC,
-            "historical grpc": _sim.GRPERCAP
+            "historical grpc": _pop.GRPERCAP
         };
     }
     return ret;
