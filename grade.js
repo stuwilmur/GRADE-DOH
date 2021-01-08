@@ -2,6 +2,7 @@ var subheight = 100;
 var legendCells = 10;
 var transitionTime = 500;
 var legendLinear;
+var popnested;
 
 var govRevenue = 0;
 var enteredGrpc = 0;
@@ -24,9 +25,28 @@ const cLMIC = 2;
 const cUMIC = 3;
 const cHIC = 4;
 
+function getData(_iso, _year) {
+    var objIso = popnested.filter(function (d) {
+        return d.key == _iso
+    });
+    if (objIso.length > 0) {
+        if (_year == -1) {
+            return objIso[0].values;
+        } else {
+            var objIsoYear = objIso[0].values.filter(function (d) {
+                return d.key == _year
+            })
+            if (objIsoYear.length > 0) {
+                return objIsoYear[0].values[0];
+            }
+        }
+    }
+}
+
 function getColor(_cid, _year, _method) {
     var value = getResult(_cid, _year, _method);
-    var dataRowPopulations = countryByIdPopulation.get(_cid + _year);
+    var dataRowPopulations = getData(_cid, _year);
+    
     if (!isNaN(value)) {
         if (country == "$-ALL" //|| country == _cid
             ||
@@ -131,8 +151,8 @@ function getText(d) {
     if (d.id[0] == "$") {
         return "";
     }
-    //!!var dataRowSimulations = countryByIdSimulations.get(d.id + year);
-    var dataRowPopulations = countryByIdPopulation.get(d.id + year);
+    
+    var dataRowPopulations = getData(d.id, year);
     if (dataRowPopulations) {
         return makeText(dataRowPopulations);
     } else {
@@ -144,8 +164,7 @@ function getText(d) {
 }
 
 function getResult(_cid, _year, _method) {
-    //!!var dataRowSimulations = countryByIdSimulations.get(_cid + _year);
-    var dataRowPopulations = countryByIdPopulation.get(_cid + _year);
+    var dataRowPopulations = getData(_cid, _year);
     if (dataRowPopulations) {
         var revenues = getRevenue(dataRowPopulations, _method);
         var result = computeResult(dataRowPopulations, outcome,
@@ -359,7 +378,6 @@ function setupMenus(countries, outcomes) {
     /*
     d3.selectAll("#govList").on("change", function(d){
             govtype = this.value;
-            console.log(govtype);
             mainUpdate();
     })
     */
@@ -399,8 +417,7 @@ function getplotdata(_firstyear, _country, _outcome) {
     var res = []
     var grpcPcIncrease = 0;
     for (y = _firstyear; y < lastyear && ((y - _firstyear) < 10); y++) {
-        //var sim = countryByIdSimulations.get(_country + y);
-        var pop = countryByIdPopulation.get(_country + y);
+        var pop = getData(_country, y);
         if (pop) {
             var revenues = getRevenue(pop, method);
             if (y == _firstyear) {
@@ -429,36 +446,7 @@ function updateplot() {
         var data = getplotdata(year, country, outcome);
 
         d3.select("#plotwrapper").style("display", "block");
-        
-        //!! TODO:
-        // read all data from single file
-        // unlink old files, remove from repository
-        // have a tidy of dead code, logging and comments
        
-        /*
-        var outcome1 = {
-            x: data.map(a => a.year),
-            y: data.map(a => a.improved["Children < 5 with increased access"]),
-            type: 'scatter',
-            name: "Children < 5 with increased access"
-        };
-        
-        var outcome2 = {
-            x: data.map(a => a.year),
-            y: data.map(a => a.improved["Females 15-49 with increased access"]),
-            type: 'scatter',
-            name: "Females 15-49 with increased access"
-        };
-        
-         var outcome3 = {
-            x: data.map(a => a.year),
-            y: data.map(a => a.improved["People with increased access"]),
-            type: 'scatter',
-            name: "People with increased access"
-        };
-
-        var data1 = [outcome1, outcome2, outcome3];
-        */
         var plotdata = [];
         
         for (const prop in data[0].improved){
@@ -498,7 +486,7 @@ function updateLegend() {
         .text(theOutcome.desc);
 }
 
-function loaded(error, countries, populationsData) {
+function loaded(error, countries, _popdata) {
     /*
     // used to handle non-fixed variable extents - to be updated if required
     outcomesMap.forEach(function (v, k) {
@@ -511,6 +499,11 @@ function loaded(error, countries, populationsData) {
         return parseFloat(d[outcome]);
     }));
     */
+    
+    popnested = d3.nest()
+    .key(function(d) { return d.ISO; })
+    .key(function(d) { return d.year; })
+    .entries(_popdata);
     
     var theOutcome = outcomesMap.get(outcome)
     colorScale.domain(theOutcome.hasOwnProperty("fixedExtent") ? theOutcome.fixedExtent : theOutcome.extent);
@@ -566,7 +559,5 @@ function loaded(error, countries, populationsData) {
 
     setupMenus(countries, outcomesList);
     spinner.stop();
-    
-    //!!console.log(countryByIdPopulation);
 
 }

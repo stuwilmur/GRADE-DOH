@@ -139,13 +139,11 @@
             </div>
 
 
-            <h4><a href="BASE%20data.csv">Download raw data</a></h4>
-            <!---
+            <h4>Download raw data</h4>
             <ul>
-                <li><a href="MASTER%20used%20for%20GRADE%20DOH%20models%2012.8.2020%20for%20SH.csv">Population data (CSV)</a></li>
-                <li><a href="simulations_data.csv">Simulation data (CSV)</a></li>
+                <li><a href="BASE%20data.xlsx">Excel (including notes on data)</a></li>
+                <li><a href="BASE%20data.csv">CSV</a></li>
             </ul>
-            --->
             <p id="version">v0.6 18/12/2020</p>
             <div>
 
@@ -338,8 +336,6 @@
 
         queue()
             .defer(d3.json, "countries.json")
-            //!.defer(d3.csv, "population_data.csv", typeAndSetPopulation)
-            //!.defer(d3.csv, "simulations_data.csv", typeAndSetSimulations)
             .defer(d3.csv, "BASE data.csv", typeAndSetPopulation)
             .await(loaded);
 

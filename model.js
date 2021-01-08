@@ -1,6 +1,3 @@
-//!!var countryByIdSimulations = d3.map();
-var countryByIdPopulation = d3.map();
-
 // **** add or update coefficients here ****
 var coeffs = new Map([
 ["SANITBASIC",
@@ -371,38 +368,8 @@ function typeAndSetPopulation(d) {
     e["year"]                           =+d["year"]
     e["incomelevel"]                    =d["incomelevel"]
 
-   
-    countryByIdPopulation.set(e.countrycode + e.year, e);
     return e;
 }
-
-/*function typeAndSetSimulations(d) {
-    if (d === undefined) {
-        return undefined
-    } else {
-        d.CORRUPTION = +d.CORRUPTION
-        d.Country = d.Country
-        d.GOVEFFECT = +d.GOVEFFECT
-        d.GRPERCAP = +d.GRPERCAP
-        d.IMUNISATION = +d.IMUNISATION
-        d.ISO = d.ISO
-        d.POLSTAB = +d.POLSTAB
-        d.REGQUALITY = +d.REGQUALITY
-        d.RULELAW = +d.RULELAW
-        d.SANITBASIC = +d.SANITBASIC
-        d.SANITSAFE = +d.SANITSAFE
-        d.SCHOOLPERC = +d.SCHOOLPERC
-        d.VOICE = +d.VOICE
-        d.WATERBASIC = +d.WATERBASIC
-        d.WATERSAFE = +d.WATERSAFE
-        d.YEAR = +d["Year "]
-        d.U5MSURV = +d.U5MSURV
-        d.MMRSURV = +d.MMRSURV
-        countryByIdSimulations.set(d.ISO + d.YEAR, d);
-    }
-    return d;
-}
-*///!
 
 function getRevenue(_pop, m) {
     var ret;
