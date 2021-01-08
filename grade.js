@@ -565,6 +565,7 @@ function loaded(error, countries, populationsData) {
     });
 
     setupMenus(countries, outcomesList);
+    spinner.stop();
     
     //!!console.log(countryByIdPopulation);
 
