@@ -3,6 +3,7 @@ var legendCells = 10;
 var transitionTime = 500;
 var legendLinear;
 var popnested;
+var countrycodes = new Map();
 
 var govRevenue = 0;
 var enteredGrpc = 0;
@@ -43,6 +44,11 @@ function getData(_iso, _year) {
     }
 }
 
+function getCountryName(_iso)
+{
+    return countrycodes.get(_iso);
+}
+
 function getColor(_cid, _year, _method) {
     var value = getResult(_cid, _year, _method);
     var dataRowPopulations = getData(_cid, _year);
@@ -63,9 +69,9 @@ function getColor(_cid, _year, _method) {
     }
 }
 
-function makeText(dataRowPopulations) {
-    var revenues = getRevenue(dataRowPopulations, method);
-    var result = computeResult(dataRowPopulations, outcome, revenues["new grpc"], revenues["historical grpc"], governance);
+function makeText(_iso, _year) {
+    var revenues = getRevenue(_iso, _year, method);
+    var result = computeResult(_iso, _year, outcome, revenues["new grpc"], revenues["historical grpc"], governance);
     /*var revenues = getRevenue(dataRowSimulations, method);
     var newGovRev = 100 * revenues[0];
     var newGovAbsRev = revenues[1] / getPrefixValue(prefix);
@@ -105,7 +111,7 @@ function makeText(dataRowPopulations) {
     //+ "<\/strong>" + ": <span class='ar'>" + costs[2].toFixed(2) + "%<\/span><br/>";
     */
     var text = "";
-    text = text + "<h1 class='tooltip'> " + dataRowPopulations.countryname + "</h1>" +
+    text = text + "<h1 class='tooltip'> " + getCountryName(_iso) + "</h1>" +
         "<br/><strong>" + year + "</strong>" +
         "<br/>Current Gov. rev. per capita: <span class = 'ar'>$" + d3.format(",")(revenues["historical grpc"].toFixed(2)) + "</span>" +
         "<br/>New Gov. rev. per capita: <span class = 'ar'>$" + d3.format(",")(revenues["new grpc"].toFixed(2)) + "</span>" +
@@ -151,12 +157,11 @@ function getText(d) {
     if (d.id[0] == "$") {
         return "";
     }
-    
-    var dataRowPopulations = getData(d.id, year);
-    if (dataRowPopulations) {
-        return makeText(dataRowPopulations);
+
+    if (true) {
+        return makeText(d.id, year);
     } else {
-        if (d.hasOwnProperty("properties"))
+        if (d.hasOwnProperty("properties")) //!! HANDLE THIS
             return "<strong>" + d.properties.name + "<\/strong>" + ": No data";
         else
             return "<strong>No data<\/strong>";
@@ -164,15 +169,10 @@ function getText(d) {
 }
 
 function getResult(_cid, _year, _method) {
-    var dataRowPopulations = getData(_cid, _year);
-    if (dataRowPopulations) {
-        var revenues = getRevenue(dataRowPopulations, _method);
-        var result = computeResult(dataRowPopulations, outcome,
+        var revenues = getRevenue(_cid, _year, _method);
+        var result = computeResult(_cid, _year, outcome,
             revenues["new grpc"], revenues["historical grpc"], governance);
         return result.improved;
-    } else {
-        return NaN;
-    }
 }
 
 function setupMenus(countries, outcomes) {
@@ -417,24 +417,21 @@ function getplotdata(_firstyear, _country, _outcome) {
     var res = []
     var grpcPcIncrease = 0;
     for (y = _firstyear; y < lastyear && ((y - _firstyear) < 10); y++) {
-        var pop = getData(_country, y);
-        if (pop) {
-            var revenues = getRevenue(pop, method);
-            if (y == _firstyear) {
-                grpcPcIncrease = revenues["percentage increase"];
-                grpc = revenues["historical grpc"];
-            } else if ((y - _firstyear) < 5) {
-                grpc = revenues["historical grpc"];
-            } else {
-                grpc = revenues["historical grpc"] * (1 + grpcPcIncrease);
-            }
-            //var computed = compute(pop, _outcome, grpc, 0)
-            var computed = computeResult(pop, _outcome, grpc, revenues["historical grpc"], governance);
-            res.push({
-                "year": +y,
-                "improved": computed.additional
-            });
+        var revenues = getRevenue(_country, y, method);
+        if (y == _firstyear) {
+            grpcPcIncrease = revenues["percentage increase"];
+            grpc = revenues["historical grpc"];
+        } else if ((y - _firstyear) < 5) {
+            grpc = revenues["historical grpc"];
+        } else {
+            grpc = revenues["historical grpc"] * (1 + grpcPcIncrease);
         }
+
+        var computed = computeResult(_country, y, _outcome, grpc, revenues["historical grpc"], governance);
+        res.push({
+            "year": +y,
+            "improved": computed.additional
+        });  
     }
     return (res);
 }
@@ -509,6 +506,8 @@ function loaded(error, countries, _popdata) {
     colorScale.domain(theOutcome.hasOwnProperty("fixedExtent") ? theOutcome.fixedExtent : theOutcome.extent);
 
     var countries = topojson.feature(countries, countries.objects.units).features;
+    countries.forEach(function(d) {countrycodes.set(d.id, d.properties.name)})
+    console.log(countrycodes);
 
     svg.selectAll('path.countries')
         .data(countries)
