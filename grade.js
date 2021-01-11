@@ -26,6 +26,73 @@ const cLMIC = 2;
 const cUMIC = 3;
 const cHIC = 4;
 
+class PopData {
+    constructor()
+    {}
+    nestdata(_csvdata) {
+        this.nesteddata = d3.nest()
+            .key(function (d) {
+                return d.ISO;
+            })
+            .key(function (d) {
+                return d.year;
+            })
+            .entries(_csvdata);
+    }
+
+    getvalue(_iso, _year, _var) {
+        var row = this.getrow(_iso, _year);
+        if (!row) 
+        {
+            return NaN;
+        } 
+        else 
+        {
+            if (isNaN(row[_var])) 
+            {
+                if (_var == "GRPERCAP" || _var == "SCHOOLPERC") // Interpolate on these columns only
+                {
+                    var f = linearInterpolator(this.getseries(_iso)); //!! add licenses
+                    return f(_year);
+                }
+                else 
+                {
+                    return NaN;
+                }
+            }
+            else 
+            {
+                return row[_var];
+            }
+        }
+    }
+
+    getrow(_iso, _year=-1) {
+        var objIso = popnested.filter(function (d) {
+            return d.key == _iso
+        });
+        if (objIso.length > 0) {
+            if (_year == -1) {
+                return objIso[0].values;
+            } else {
+                var objIsoYear = objIso[0].values.filter(function (d) {
+                    return d.key == _year
+                })
+                if (objIsoYear.length > 0) {
+                    return objIsoYear[0].values[0];
+                }
+            }
+        }
+    }
+
+    getseries(_iso, _var){
+        var series = this.getrow(_iso);
+        if (!series) {return NaN};
+        return series.map(function(d){return [d.year, d[_var]];})
+    }
+}
+
+
 function getData(_iso, _year) {
     var objIso = popnested.filter(function (d) {
         return d.key == _iso
@@ -68,6 +135,8 @@ function getColor(_cid, _year, _method) {
         return "rgba(0, 0, 0, 0.6)";
     }
 }
+
+var popdata = new PopData();
 
 function makeText(_iso, _year) {
     var revenues = getRevenue(_iso, _year, method);
@@ -502,12 +571,13 @@ function loaded(error, countries, _popdata) {
     .key(function(d) { return d.year; })
     .entries(_popdata);
     
+    popdata.nestdata(_popdata);
+    
     var theOutcome = outcomesMap.get(outcome)
     colorScale.domain(theOutcome.hasOwnProperty("fixedExtent") ? theOutcome.fixedExtent : theOutcome.extent);
 
     var countries = topojson.feature(countries, countries.objects.units).features;
     countries.forEach(function(d) {countrycodes.set(d.id, d.properties.name)})
-    console.log(countrycodes);
 
     svg.selectAll('path.countries')
         .data(countries)

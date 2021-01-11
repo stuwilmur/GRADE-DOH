@@ -303,7 +303,7 @@ function computeResult(_iso, _year, _outcome, _grpc, _grpcOrig, _govImprovement)
     if (!pop)
         {return NaN;}
     var fitted = compute(pop, _outcome, _grpcOrig, 0)
-    var original = pop[_outcome]
+    var original = popdata.getvalue(_iso, _year, _outcome);
     var improved = compute(pop, _outcome, _grpc, _govImprovement)
     var govresults = computegovernance(pop, _govImprovement)
     var residual = original - fitted;
@@ -376,53 +376,53 @@ function typeAndSetPopulation(d) {
 
 function getRevenue(_iso, _year, m) {
     var ret;    
-    var pop = getData(_iso, _year);
-
-    if (!pop)
-        {return NaN}
+    var grpercap = popdata.getvalue(_iso, _year, "GRPERCAP");
+    var total_population = popdata.getvalue(_iso, _year, "Population, total");
+    
+    if (isNaN(grpercap)) {return NaN;}
     
     if (m == "percentage") {
-        var newAbsRev = (pop.GRPERCAP * (govRevenue)) * pop["Population, total"];
-        var additionalPerCapita = pop.GRPERCAP * govRevenue;
+        var newAbsRev = (grpercap * (govRevenue)) * total_population;
+        var additionalPerCapita = grpercap * govRevenue;
         ret = {
             "percentage increase": govRevenue,
             "new absolute revenue": newAbsRev,
             "additional revenue per capita": additionalPerCapita,
-            "new grpc": pop.GRPERCAP + additionalPerCapita,
-            "historical grpc": pop.GRPERCAP
+            "new grpc": grpercap + additionalPerCapita,
+            "historical grpc": grpercap
         };
     } else if (m == "pc") {
-        var newGRPC = pop.GRPERCAP + pcGovRev;
-        var newGovRev = newGRPC / pop.GRPERCAP - 1;
-        var newAbsRev = (pop.GRPERCAP * (newGovRev)) * pop["Population, total"];
+        var newGRPC = grpercap + pcGovRev;
+        var newGovRev = newGRPC / grpercap - 1;
+        var newAbsRev = (grpercap * (newGovRev)) * total_population;
         ret = {
             "percentage increase": newGovRev,
             "new absolute revenue": newAbsRev,
             "additional revenue per capita": pcGovRev,
             "new grpc": newGRPC,
-            "historical grpc": pop.GRPERCAP
+            "historical grpc": grpercap
         };
     } else if (m == "newgrpc") {
-        var newGRPC = enteredGrpc > pop.GRPERCAP ? enteredGrpc : pop.GRPERCAP;
-        var newGovRev = newGRPC / pop.GRPERCAP - 1;
-        var newAbsRev = (pop.GRPERCAP * (newGovRev)) * pop["Population, total"];
+        var newGRPC = enteredGrpc > grpercap ? enteredGrpc : grpercap;
+        var newGovRev = newGRPC / grpercap - 1;
+        var newAbsRev = (grpercap * (newGovRev)) * total_population;
         ret = {
             "percentage increase": newGovRev,
             "new absolute revenue": newAbsRev,
-            "additional revenue per capita": newGRPC - pop.GRPERCAP,
+            "additional revenue per capita": newGRPC - grpercap,
             "new grpc": newGRPC,
-            "historical grpc": pop.GRPERCAP
+            "historical grpc": grpercap
         };
     } else {
-        var newGRPC = pop.GRPERCAP + absGovRev / pop["Population, total"];
-        var newGovRev = newGRPC / pop.GRPERCAP - 1;
-        var additionalPerCapita = absGovRev / pop["Population, total"];
+        var newGRPC = grpercap + absGovRev / total_population;
+        var newGovRev = newGRPC / grpercap - 1;
+        var additionalPerCapita = absGovRev / total_population;
         ret = {
             "percentage increase": newGovRev,
             "new absolute revenue": absGovRev,
             "additional revenue per capita": additionalPerCapita,
             "new grpc": newGRPC,
-            "historical grpc": pop.GRPERCAP
+            "historical grpc": grpercap
         };
     }
     return ret;
