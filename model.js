@@ -311,7 +311,8 @@ function computeResult(_iso, _year, _outcome, _grpc, _grpcOrig, _govImprovement)
     var popBirths = popdata.getvalue(_iso, _year, "Number of births")
     
     var fitted = compute(_iso, _year, _outcome, _grpcOrig, 0)
-    var original = popdata.getvalue(_iso, _year, _outcome);
+    var bInterp = _outcome == "SCHOOLPERC" // interpolating for this outcome only
+    var original = popdata.getvalue(_iso, _year, _outcome, bInterp);
     var improved = compute(_iso, _year, _outcome, _grpc, _govImprovement)
     var govresults = computegovernance(_iso, _year, _govImprovement)
     var residual = original - fitted;
@@ -384,7 +385,7 @@ function typeAndSetPopulation(d) {
 
 function getRevenue(_iso, _year, m) {
     var ret;    
-    var grpercap = popdata.getvalue(_iso, _year, "GRPERCAP");
+    var grpercap = popdata.getvalue(_iso, _year, "GRPERCAP", true);
     var total_population = popdata.getvalue(_iso, _year, "Population, total");
     
     if (isNaN(grpercap)) {return undefined;}
