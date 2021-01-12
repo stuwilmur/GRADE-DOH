@@ -1,8 +1,10 @@
+//!! TODO
+// make first and last years dynamic in slider
+
 var subheight = 100;
 var legendCells = 10;
 var transitionTime = 500;
 var legendLinear;
-var popnested;
 var countrycodes = new Map();
 
 var govRevenue = 0;
@@ -15,119 +17,24 @@ var governance = 0;
 var country = "$-ALL";
 var method = "newgrpc";
 var prefix = "U";
-var lastyear = 2020; //!!
-var plottype = "population"
-
+var plottype = "population";
 var outcome = "SANITBASIC";
 var govtype = "GOVEFFECT";
 
-const cLIC = 1;
-const cLMIC = 2;
-const cUMIC = 3;
-const cHIC = 4;
-
-class PopData {
-    constructor()
-    {}
-    nestdata(_csvdata) {
-        this.nesteddata = d3.nest()
-            .key(function (d) {
-                return d.ISO;
-            })
-            .key(function (d) {
-                return d.year;
-            })
-            .entries(_csvdata);
-    }
-
-    getvalue(_iso, _year, _var) {
-        var row = this.getrow(_iso, _year);
-        if (!row) 
-        {
-            return NaN;
-        } 
-        else 
-        {
-            if (isNaN(row[_var])) 
-            {
-                if (_var == "GRPERCAP" || _var == "SCHOOLPERC") // Interpolate on these columns only
-                {
-                    var f = linearInterpolator(this.getseries(_iso)); //!! add licenses
-                    return f(_year);
-                }
-                else 
-                {
-                    return NaN;
-                }
-            }
-            else 
-            {
-                return row[_var];
-            }
-        }
-    }
-
-    getrow(_iso, _year=-1) {
-        var objIso = popnested.filter(function (d) {
-            return d.key == _iso
-        });
-        if (objIso.length > 0) {
-            if (_year == -1) {
-                return objIso[0].values;
-            } else {
-                var objIsoYear = objIso[0].values.filter(function (d) {
-                    return d.key == _year
-                })
-                if (objIsoYear.length > 0) {
-                    return objIsoYear[0].values[0];
-                }
-            }
-        }
-    }
-
-    getseries(_iso, _var){
-        var series = this.getrow(_iso);
-        if (!series) {return NaN};
-        return series.map(function(d){return [d.year, d[_var]];})
-    }
-}
-
-
-function getData(_iso, _year) {
-    var objIso = popnested.filter(function (d) {
-        return d.key == _iso
-    });
-    if (objIso.length > 0) {
-        if (_year == -1) {
-            return objIso[0].values;
-        } else {
-            var objIsoYear = objIso[0].values.filter(function (d) {
-                return d.key == _year
-            })
-            if (objIsoYear.length > 0) {
-                return objIsoYear[0].values[0];
-            }
-        }
-    }
-}
-
-function getCountryName(_iso)
-{
-    return countrycodes.get(_iso);
-}
+var popdata = new PopData();
 
 function getColor(_cid, _year, _method) {
     var value = getResult(_cid, _year, _method);
-    var dataRowPopulations = getData(_cid, _year);
+    var incomeLevel = popdata.getvalue(_cid, _year, "incomelevel");
     
     if (!isNaN(value)) {
         if (country == "$-ALL" //|| country == _cid
             ||
             country.slice(0, 1) != "$" ||
-            country == "$-LIC" && dataRowPopulations.incomelevel == "LIC" ||
-            country == "$-LMIC" && dataRowPopulations.incomelevel == "LMC" ||
-            country == "$-UMIC" && dataRowPopulations.incomelevel == "UMC" ||
-            country == "$-HIC" && dataRowPopulations.incomelevel == "HIC") {
+            country == "$-LIC" && incomelevel == "LIC" ||
+            country == "$-LMIC" && incomelevel == "LMC" ||
+            country == "$-UMIC" && incomelevel == "UMC" ||
+            country == "$-HIC" && incomelevel == "HIC") {
             return colorScale(value);
         } else
             return "rgba(0, 0, 0, 0.3)";
@@ -136,58 +43,20 @@ function getColor(_cid, _year, _method) {
     }
 }
 
-var popdata = new PopData();
-
 function makeText(_iso, _year) {
     var revenues = getRevenue(_iso, _year, method);
+    if (revenues === undefined)
+    {
+        return "<strong>" + countrycodes.get(_iso) + "<\/strong>" + ": No data";
+    }
     var result = computeResult(_iso, _year, outcome, revenues["new grpc"], revenues["historical grpc"], governance);
-    /*var revenues = getRevenue(dataRowSimulations, method);
-    var newGovRev = 100 * revenues[0];
-    var newGovAbsRev = revenues[1] / getPrefixValue(prefix);
-    var newAdditionalPCGovRev = revenues[2];
-    var livesSaved = result[1];
-    var costs = computeCostPerLife(dataRowSimulations, outcome, newAdditionalPCGovRev, livesSaved);
-    var countryname = dataRowSimulations.hasOwnProperty("COUNTRY") ? dataRowSimulations.COUNTRY : dataRowSimulations.name;
-    var text = "<h1 class='tooltip'> " + countryname + "<\/h2 class='tooltip'><br/>";
-    var delta = result[0] - result[2];
-    text = text
-    + "<strong> Year: <span class = 'ar'>" + year + "<\/span><br/>"
-    + "<strong> Population: <span class = 'ar'>" + d3.format(",")(dataRowSimulations.population) + "<\/span><br/>"
-    + "<h2 class='tooltip'> Revenue <\/h2><\/br>"
-    + "<strong>" + "Original GrPC"
-    + "<\/strong>" + ": <span class='ar'>$" + d3.format(",")(dataRowSimulations.govRevCap.toFixed(0)) + "<\/span><br/>"
-    + "<strong>" +  "Percentage GrPC increase"
-    + "<\/strong>" + ": <span class='ar'>" + newGovRev.toFixed(2) + "%<\/span><br/>"
-    + "<strong>" +  "Absolute extra revenue" 
-    + "<\/strong>" + ": <span class='ar'>$" + d3.format(",")(newGovAbsRev.toFixed(2)) + getPrefix(prefix) + "<\/span><br/>"
-    + "<strong>" +  "Extra revenue per capita" 
-    + "<\/strong>" + ": <span class='ar'>$" + d3.format(",")(newAdditionalPCGovRev.toFixed(0)) + "<\/span><br/>"
-    + "<h2 class='tooltip'>" + outcomesMap.get(outcome).name + " <\/h2><\/br>"
-    + "<strong> Original " + outcomesMap.get(outcome).name 
-    + "<\/strong>" + ": <span class='ar'>" + result[2].toFixed(2) + "<\/span><br/>";
-    text = text     + "<strong> Improved " + outcomesMap.get(outcome).name 
-    + "<\/strong>" + ": <span class='ar'>" + result[0].toFixed(2) + "<\/span><br/>"
-    text = text     + "<strong> Improvement in " + outcomesMap.get(outcome).name 
-    + "<\/strong>" + ": <span class='ar'>" + delta.toFixed(2) + "<\/span><br/>" 
-    + "<strong>" +  " lives saved" 
-    + "<\/strong>" + ":<span class='ar'> " + result[1].toFixed(1) + "<\/span><br/>"
-    + "<h2 class='tooltip'> Cost per life saved <\/h2><\/br>"
-    //+ "<strong>" +  "Per-capita cost of single life"
-    //+ "<\/strong>" + ": <span class='ar'>$" + costs[0].toFixed(2) + "<\/span><br/>"
-    + "<strong>" +  "Absolute cost of single life" 
-    + "<\/strong>" + ": <span class='ar'>$" + d3.format(",")((costs[1] / getPrefixValue(prefix)).toFixed(2)) + getPrefix(prefix) + "<\/span><br/>"
-    //+ "<strong>" +  "Increase in GRpC" 
-    //+ "<\/strong>" + ": <span class='ar'>" + costs[2].toFixed(2) + "%<\/span><br/>";
-    */
     var text = "";
-    text = text + "<h1 class='tooltip'> " + getCountryName(_iso) + "</h1>" +
+    text = text + "<h1 class='tooltip'> " +  countrycodes.get(_iso) + "</h1>" +
         "<br/><strong>" + year + "</strong>" +
         "<br/>Current Gov. rev. per capita: <span class = 'ar'>$" + d3.format(",")(revenues["historical grpc"].toFixed(2)) + "</span>" +
         "<br/>New Gov. rev. per capita: <span class = 'ar'>$" + d3.format(",")(revenues["new grpc"].toFixed(2)) + "</span>" +
         "<br/><br/><strong>" + outcomesMap.get(outcome).name + "</strong><br/>" +
-        "Current % coverage: <span class = 'ar'>" + result.original.toFixed(3) + "</span>"
-        //+ "<br/>fitted: <span class = 'ar'>" 	+ result.original.toFixed(3) + "</span>" 
-        +
+        "Current % coverage: <span class = 'ar'>" + result.original.toFixed(3) + "</span>" +
         "<br/>New % coverage: <span class = 'ar'>" + result.improved.toFixed(3) + "</span>";
 
     if (result.hasOwnProperty("additional")) {
@@ -230,15 +99,14 @@ function getText(d) {
     if (true) {
         return makeText(d.id, year);
     } else {
-        if (d.hasOwnProperty("properties")) //!! HANDLE THIS
-            return "<strong>" + d.properties.name + "<\/strong>" + ": No data";
-        else
-            return "<strong>No data<\/strong>";
+        
     }
 }
 
 function getResult(_cid, _year, _method) {
         var revenues = getRevenue(_cid, _year, _method);
+        if (revenues === undefined)
+            {return NaN;}
         var result = computeResult(_cid, _year, outcome,
             revenues["new grpc"], revenues["historical grpc"], governance);
         return result.improved;
@@ -318,6 +186,7 @@ function setupMenus(countries, outcomes) {
         // make sure selection matches initial value
         d3.select('#outcomes').property('value', outcome);
 
+        // individual governance sliders
         /*
         d3.select("#govList")
         .selectAll("option")
@@ -485,8 +354,9 @@ function getplotdata(_firstyear, _country, _outcome) {
     // applying the percentage increase for all remaining years. 
     var res = []
     var grpcPcIncrease = 0;
-    for (y = _firstyear; y < lastyear && ((y - _firstyear) < 10); y++) {
+    for (y = _firstyear; y < popdata.lastyear && ((y - _firstyear) < 10); y++) {
         var revenues = getRevenue(_country, y, method);
+        console.log(y, revenues)
         if (y == _firstyear) {
             grpcPcIncrease = revenues["percentage increase"];
             grpc = revenues["historical grpc"];
@@ -565,11 +435,6 @@ function loaded(error, countries, _popdata) {
         return parseFloat(d[outcome]);
     }));
     */
-    
-    popnested = d3.nest()
-    .key(function(d) { return d.ISO; })
-    .key(function(d) { return d.year; })
-    .entries(_popdata);
     
     popdata.nestdata(_popdata);
     

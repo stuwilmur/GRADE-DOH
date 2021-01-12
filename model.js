@@ -226,7 +226,7 @@ var outcomesList = [
         */
 ];
 
-let outcomesMap = new Map(outcomesList);
+var outcomesMap = new Map(outcomesList);
 
 function C(_outcome, index) {
     return coeffs.get(_outcome).get(index);
@@ -238,23 +238,27 @@ function gg(_type, _d, _gov) {
     return limited;
 }
 
-function computegovernance(_d, _gov) {
+function computegovernance(_iso, _year, _gov) {
+    var pop = popdata.getrow(_iso, _year);
+    if (!pop) return NaN;
     var ret = new Map();
     govMeasures.forEach(function (measure, govtype) {
         ret.set(govtype, {
             desc: measure.desc,
-            value: gg(govtype, _d, _gov)
+            value: gg(govtype, pop, _gov)
         });
     })
     return ret;
 }
 
-function compute(_pop, _outcome, _grpc, _gov) {
+function compute(_iso, _year, _outcome, _grpc, _gov) {
+    var pop = popdata.getrow(_iso, _year);
+    if (!pop) return NaN;
     var l = _outcome;
     var improved;
 
     function g(_type) {
-        return gg(_type, _pop, _gov)
+        return gg(_type, pop, _gov)
     }
 
     if (_outcome == "SANITBASIC") {
@@ -299,38 +303,42 @@ function compute(_pop, _outcome, _grpc, _gov) {
 }
 
 function computeResult(_iso, _year, _outcome, _grpc, _grpcOrig, _govImprovement) {
-    var pop = getData(_iso, _year);
-    if (!pop)
-        {return NaN;}
-    var fitted = compute(pop, _outcome, _grpcOrig, 0)
+ 
+    var popTotal = popdata.getvalue(_iso, _year, "Population, total");
+    var popU5 = popdata.getvalue(_iso, _year, "Pop < 5");
+    var popFemale15_49 = popdata.getvalue(_iso, _year, "Number of females aged 15-49");
+    var popChildrenSurvive1 = popdata.getvalue(_iso, _year, "Children survive to 1 year");
+    var popBirths = popdata.getvalue(_iso, _year, "Number of births")
+    
+    var fitted = compute(_iso, _year, _outcome, _grpcOrig, 0)
     var original = popdata.getvalue(_iso, _year, _outcome);
-    var improved = compute(pop, _outcome, _grpc, _govImprovement)
-    var govresults = computegovernance(pop, _govImprovement)
+    var improved = compute(_iso, _year, _outcome, _grpc, _govImprovement)
+    var govresults = computegovernance(_iso, _year, _govImprovement)
     var residual = original - fitted;
     improved = Math.min(Math.max(improved + residual, 0), 100);
 
     var additional = {};
 
     if (_outcome == "SANITBASIC" || _outcome == "SANITSAFE" || _outcome == "WATERBASIC" || _outcome == "WATERSAFE") {
-        additional["People with increased access"] = (improved - original) / 100 * pop["Population, total"];
-        additional["Children < 5 with increased access"] = (improved - original) / 100 * pop["Pop < 5"];
-        additional["Females 15-49 with increased access"] = (improved - original) / 100 * pop["Number of females aged 15-49"];
+        additional["People with increased access"] = (improved - original) / 100 * popTotal;
+        additional["Children < 5 with increased access"] = (improved - original) / 100 * popU5;
+        additional["Females 15-49 with increased access"] = (improved - original) / 100 * popFemale15_49;
     } else if (_outcome == "IMUNISATION") {
-        additional["Number of infants immunised"] = (improved - original) / 100 * pop["Children survive to 1 year"]
+        additional["Number of infants immunised"] = (improved - original) / 100 * popChildrenSurvive1
     } else if (_outcome == "SCHOOLPERC") {
-        additional["Years of school life expectancy"] = 17 * (improved - original) / 100 * pop["Pop < 5"]
+        additional["Years of school life expectancy"] = 17 * (improved - original) / 100 * popU5
     } else if (_outcome == "U5MSURV"){
-        additional["Under-5 five deaths averted"] = (improved - original) / 100 * pop["Number of births"]
-        additional["Under-5 deaths"] = (1 - original / 100) * pop["Number of births"]
-        additional["Under-5 deaths with additional revenue"] = (1 - improved / 100) * pop["Number of births"]
+        additional["Under-5 five deaths averted"] = (improved - original) / 100 * popBirths
+        additional["Under-5 deaths"] = (1 - original / 100) * popBirths
+        additional["Under-5 deaths with additional revenue"] = (1 - improved / 100) * popBirths
     } else if (_outcome == "MMRSURV"){
-        additional["Maternal deaths averted"] = (improved - original) / 100 * pop["Number of births"]
-        additional["Maternal deaths"] = (1 - original / 100) * pop["Number of births"]
-        additional["Maternal deaths with additional revenue"] = (1 - improved / 100) * pop["Number of births"]
+        additional["Maternal deaths averted"] = (improved - original) / 100 * popBirths
+        additional["Maternal deaths"] = (1 - original / 100) * popBirths
+        additional["Maternal deaths with additional revenue"] = (1 - improved / 100) * popBirths
     }
 
     var ret = {
-        original: pop[_outcome],
+        "original": original,
         "improved": improved,
         "fitted": fitted,
         "additional": additional,
@@ -379,7 +387,7 @@ function getRevenue(_iso, _year, m) {
     var grpercap = popdata.getvalue(_iso, _year, "GRPERCAP");
     var total_population = popdata.getvalue(_iso, _year, "Population, total");
     
-    if (isNaN(grpercap)) {return NaN;}
+    if (isNaN(grpercap)) {return undefined;}
     
     if (m == "percentage") {
         var newAbsRev = (grpercap * (govRevenue)) * total_population;
