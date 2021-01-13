@@ -22,14 +22,13 @@ class PopData {
         } 
         else 
         {
-            if (isNaN(row[_var])) 
+            if (isNaN(row[_var]) || row[_var] === 0) 
             {
                 if (interp)
                 {
                     var series = this.getseries(_iso, _var);
-                    var seriesNoNaN = series.filter(function(d){return !isNaN(d[1])});
-                    var f = linearInterpolator(seriesNoNaN); //!! add licenses
-                    console.log(f(_year))
+                    var seriesFiltered = removeblanks(series);
+                    var f = linearInterpolator(seriesFiltered, false);
                     return f(_year);
                 }
                 else 
@@ -67,4 +66,9 @@ class PopData {
         if (!series) {return NaN};
         return series.map(function(d){return [d.year, d[_var]];})
     }
+}
+
+function removeblanks(_s){
+    // given array s remove NaNs and zeros
+    return _s.filter(function(d){return !isNaN(d[1]) && !(d[1] === 0)});
 }

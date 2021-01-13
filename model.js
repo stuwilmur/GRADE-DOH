@@ -311,8 +311,11 @@ function computeResult(_iso, _year, _outcome, _grpc, _grpcOrig, _govImprovement)
     var popBirths = popdata.getvalue(_iso, _year, "Number of births")
     
     var fitted = compute(_iso, _year, _outcome, _grpcOrig, 0)
-    var bInterp = _outcome == "SCHOOLPERC" // interpolating for this outcome only
+    var bInterp = _outcome == "SCHOOLPERC" // interpolating for this outcome only //!! do nicer
     var original = popdata.getvalue(_iso, _year, _outcome, bInterp);
+    
+    // treat zero as "no data"
+    if (original === 0){return undefined;} //!!??
     var improved = compute(_iso, _year, _outcome, _grpc, _govImprovement)
     var govresults = computegovernance(_iso, _year, _govImprovement)
     var residual = original - fitted;

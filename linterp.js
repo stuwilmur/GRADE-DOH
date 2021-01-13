@@ -1,8 +1,10 @@
+// linear interpolation function adapted from https://github.com/feklee/linear-interpolator
+
 /*jslint node: true, maxerr: 50, maxlen: 80 */
 
 'use strict';
 
-function linearInterpolator (points) {
+function linearInterpolator (points, bExtrapolate = true) {
     var first, n = points.length - 1,
         interpolated,
         leftExtrapolated,
@@ -43,13 +45,23 @@ function linearInterpolator (points) {
         var i;
 
         if (x <= first[0]) {
-            return leftExtrapolated(x);
+            if (bExtrapolate){
+                return leftExtrapolated(x);
+            }
+            else{
+                return NaN;
+            }
         }
         for (i = 0; i < n; i += 1) {
             if (x > points[i][0] && x <= points[i + 1][0]) {
                 return interpolated(x, points[i], points[i + 1]);
             }
         }
-        return rightExtrapolated(x);
+        if (bExtrapolate){
+            return rightExtrapolated(x);
+        }
+        else{
+            return NaN;
+        }
     };
 };

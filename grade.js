@@ -1,5 +1,6 @@
 //!! TODO
 // make first and last years dynamic in slider
+// decouple model from global variables
 
 var subheight = 100;
 var legendCells = 10;
@@ -50,6 +51,10 @@ function makeText(_iso, _year) {
         return "<strong>" + countrycodes.get(_iso) + "<\/strong>" + ": No data";
     }
     var result = computeResult(_iso, _year, outcome, revenues["new grpc"], revenues["historical grpc"], governance);
+    if (result === undefined)
+    {
+        return "<strong>" + countrycodes.get(_iso) + "<\/strong>" + ": No data";
+    }
     var text = "";
     text = text + "<h1 class='tooltip'> " +  countrycodes.get(_iso) + "</h1>" +
         "<br/><strong>" + year + "</strong>" +
@@ -109,6 +114,8 @@ function getResult(_cid, _year, _method) {
             {return NaN;}
         var result = computeResult(_cid, _year, outcome,
             revenues["new grpc"], revenues["historical grpc"], governance);
+        if (result === undefined)
+            {return NaN;}
         return result.improved;
 }
 
@@ -367,6 +374,8 @@ function getplotdata(_firstyear, _country, _outcome) {
         }
 
         var computed = computeResult(_country, y, _outcome, grpc, revenues["historical grpc"], governance);
+        if (computed === undefined) //!!??
+            {return undefined}
         res.push({
             "year": +y,
             "improved": computed.additional
