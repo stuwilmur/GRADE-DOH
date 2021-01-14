@@ -325,7 +325,7 @@ div.tooltip {
 }
 
 h1.tooltip {
-    color: #0099FF;
+    color: #000000;/*#0099FF;*/
     font-size: 150%;
     margin-top: 0px;
     margin-bottom: 0px;

@@ -309,6 +309,7 @@ function computeResult(_iso, _year, _outcome, _grpc, _grpcOrig, _govImprovement)
     var popFemale15_49 = popdata.getvalue(_iso, _year, "Number of females aged 15-49");
     var popChildrenSurvive1 = popdata.getvalue(_iso, _year, "Children survive to 1 year");
     var popBirths = popdata.getvalue(_iso, _year, "Number of births")
+    var popChildrenSurvive5 = popdata.getvalue(_iso, _year, "Number of children surviving to five");
     
     var fitted = compute(_iso, _year, _outcome, _grpcOrig, 0)
     var bInterp = _outcome == "SCHOOLPERC" // interpolating for this outcome only //!! do nicer
@@ -330,7 +331,7 @@ function computeResult(_iso, _year, _outcome, _grpc, _grpcOrig, _govImprovement)
     } else if (_outcome == "IMUNISATION") {
         additional["Number of infants immunised"] = (improved - original) / 100 * popChildrenSurvive1
     } else if (_outcome == "SCHOOLPERC") {
-        additional["Years of school life expectancy"] = 17 * (improved - original) / 100 * popU5
+        additional["Additional years of school life expectancy"] = 17 * (improved - original) / 100 * popChildrenSurvive5
     } else if (_outcome == "U5MSURV"){
         additional["Under-5 five deaths averted"] = (improved - original) / 100 * popBirths
         additional["Under-5 deaths"] = (1 - original / 100) * popBirths
@@ -373,15 +374,16 @@ function typeAndSetPopulation(d) {
     e.U5MSURV 	    =+d["U5 survival %"]
     e.MMRSURV 	    =+d["Maternal survival rate %"]
     
-    e["Population, total"]              =+d["Pop total"]
-    e["Pop < 5"]                        =+d["Pop<5"]
-    e["Number of females aged 15-49"]   =+d["Female Pop15-49"]
-    e["Children survive to 1 year"]     =+d["Number of infants surviving to 1yr"]
-    e["Number of births"]               =+d["Number of births"]
-    e["countrycode"]                    =d["countrycode"]
-    e["countryname"]                    =d["countryname"]
-    e["year"]                           =+d["year"]
-    e["incomelevel"]                    =d["incomelevel"]
+    e["Population, total"]                      =+d["Pop total"]
+    e["Pop < 5"]                                =+d["Pop<5"]
+    e["Number of females aged 15-49"]           =+d["Female Pop15-49"]
+    e["Children survive to 1 year"]             =+d["Number of infants surviving to 1yr"]
+    e["Number of births"]                       =+d["Number of births"]
+    e["countrycode"]                            = d["countrycode"]
+    e["countryname"]                            = d["countryname"]
+    e["year"]                                   =+d["year"]
+    e["incomelevel"]                            = d["incomelevel"]
+    e["Number of children surviving to five"]   =+d["Number of children surviving to five "]
 
     return e;
 }

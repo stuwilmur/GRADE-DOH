@@ -60,6 +60,7 @@ function makeText(_iso, _year) {
         "<br/><strong>" + year + "</strong>" +
         "<br/>Current Gov. rev. per capita: <span class = 'ar'>$" + d3.format(",")(revenues["historical grpc"].toFixed(2)) + "</span>" +
         "<br/>New Gov. rev. per capita: <span class = 'ar'>$" + d3.format(",")(revenues["new grpc"].toFixed(2)) + "</span>" +
+        "<br/>Increase in Gov. rev. per capita: <span class = 'ar'>" + revenues["percentage increase"].toFixed(1) + "%</span>" +
         "<br/><br/><strong>" + outcomesMap.get(outcome).name + "</strong><br/>" +
         "Current % coverage: <span class = 'ar'>" + result.original.toFixed(3) + "</span>" +
         "<br/>New % coverage: <span class = 'ar'>" + result.improved.toFixed(3) + "</span>";
@@ -363,7 +364,6 @@ function getplotdata(_firstyear, _country, _outcome) {
     var grpcPcIncrease = 0;
     for (y = _firstyear; y < popdata.lastyear && ((y - _firstyear) < 10); y++) {
         var revenues = getRevenue(_country, y, method);
-        console.log(y, revenues)
         if (y == _firstyear) {
             grpcPcIncrease = revenues["percentage increase"];
             grpc = revenues["historical grpc"];
