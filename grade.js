@@ -22,6 +22,12 @@ var plottype = "population";
 var outcome = "SANITBASIC";
 var govtype = "GOVEFFECT";
 
+var plotlayout = {
+    showlegend: true,
+	legend: {"orientation": "h"},
+    yaxis: {hoverformat: ',f0'},
+};
+
 var popdata = new PopData();
 
 function getColor(_cid, _year, _method) {
@@ -60,10 +66,10 @@ function makeText(_iso, _year) {
         "<br/><strong>" + year + "</strong>" +
         "<br/>Current Gov. rev. per capita: <span class = 'ar'>$" + d3.format(",")(revenues["historical grpc"].toFixed(2)) + "</span>" +
         "<br/>New Gov. rev. per capita: <span class = 'ar'>$" + d3.format(",")(revenues["new grpc"].toFixed(2)) + "</span>" +
-        "<br/>Increase in Gov. rev. per capita: <span class = 'ar'>" + revenues["percentage increase"].toFixed(1) + "%</span>" +
+        "<br/>Increase in Gov. rev. per capita: <span class = 'ar'>" + (revenues["percentage increase"] * 100).toFixed(2) + "%</span>" +
         "<br/><br/><strong>" + outcomesMap.get(outcome).name + "</strong><br/>" +
-        "Current % coverage: <span class = 'ar'>" + result.original.toFixed(3) + "</span>" +
-        "<br/>New % coverage: <span class = 'ar'>" + result.improved.toFixed(3) + "</span>";
+        "Current % coverage: <span class = 'ar'>" + result.original.toFixed(2) + "</span>" +
+        "<br/>New % coverage: <span class = 'ar'>" + result.improved.toFixed(2) + "</span>";
 
     if (result.hasOwnProperty("additional")) {
         for (const [key, value] of Object.entries(result.additional)) {
@@ -403,12 +409,52 @@ function updateplot() {
             };
             plotdata.push(outcomedata);
         }
-                
-        var layout = {showlegend: true,
-	       legend: {"orientation": "h"}};
+        
+        var theOutcome = outcomesMap.get(outcome);
+        plotlayout.title = "Projection for " + countrycodes.get(country) + ": " + theOutcome.name;
 
-        Plotly.newPlot('plot', plotdata, layout);
+        Plotly.newPlot('plot', plotdata, plotlayout);
     }
+}
+
+function getplotcsvdata(_year, _country, _outcome)
+{
+    var data = getplotdata(_year, _country, _outcome);
+    
+    if (data === undefined){
+        return undefined;
+    }
+    
+    var header = "country,iso,year";
+    for (const property in data[0].improved){
+        header += "," + property;
+    }
+    
+    header += "\n";
+    
+    var body = "";
+    data.forEach(function(datarow){
+        var row = "";
+        body += countrycodes.get(_country) + "," + _country + "," + datarow.year + ","
+        for (const property in datarow.improved){
+            body += datarow.improved[property] + ",";
+        }
+        body += row + "\n";
+    })
+    return header + body;
+}
+
+function download_csv() {
+    var csvdata = getplotcsvdata(year, country, outcome);
+    var button_title = country+"_"+year + ".csv";
+    if (csvdata === undefined){
+        return undefined;
+    }
+    var hiddenElement = document.createElement('a');
+    hiddenElement.href = 'data:text/csv;charset=utf-8,' + encodeURI(csvdata);
+    hiddenElement.target = '_blank';
+    hiddenElement.download = button_title;
+    hiddenElement.click();
 }
 
 function updateLegend() {

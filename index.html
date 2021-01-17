@@ -54,6 +54,9 @@
 
             <div>
                 <select id="countrylist" name="country">
+                    <option value="$-ALL">
+                        Show all countries
+                    </option>
                 </select>
 
                 <p>Specify revenue as:</p><select id="methodlist" name="method">
@@ -144,7 +147,7 @@
                 <li><a href="BASE%20data.xlsx">Excel (including notes on data)</a></li>
                 <li><a href="BASE%20data.csv">CSV</a></li>
             </ul>
-            <p id="version">v0.7 14/01/2021</p>
+            <p id="version">v0.8 17/01/2021</p>
             <div>
 
             </div>
@@ -163,6 +166,7 @@
             --->
             </div>
             <div class="plottools">
+                <button onclick="download_csv()">Download plot data</button> 
                 <!---
                 <select name="plottype" id="plottype">
                     <option value="u5m">Under-5 deaths averted</option>
