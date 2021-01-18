@@ -370,6 +370,9 @@ function getplotdata(_firstyear, _country, _outcome) {
     var grpcPcIncrease = 0;
     for (y = _firstyear; y < popdata.lastyear && ((y - _firstyear) < 10); y++) {
         var revenues = getRevenue(_country, y, method);
+        if (revenues === undefined){
+            return undefined;
+        }
         if (y == _firstyear) {
             grpcPcIncrease = revenues["percentage increase"];
             grpc = revenues["historical grpc"];
@@ -395,6 +398,11 @@ function updateplot() {
         d3.select("#plotwrapper").style("display", "none");
     } else {
         var data = getplotdata(year, country, outcome);
+        
+        if (data === undefined){
+            d3.select("#plotwrapper").style("display", "none");
+            return;
+        }
 
         d3.select("#plotwrapper").style("display", "block");
        
