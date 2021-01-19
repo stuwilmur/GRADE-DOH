@@ -1,6 +1,9 @@
 //!! TODO
 // make first and last years dynamic in slider
 // decouple model from global variables
+// relative sizing
+// move special country options to html
+// outcomes objects including functions
 
 var subheight = 100;
 var legendCells = 10;
