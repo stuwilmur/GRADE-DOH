@@ -5,15 +5,17 @@ body {
 
 .all {
     min-width: 100%;
+    white-space: nowrap;
 }
 
 .menu {
-    float: left;
+    display: inline-block;
+    white-space: normal;
     width: 20%;
 }
 
 .output {
-    float: left;
+    white-space: normal;
     border-radius: 0px;
     color: #000000;
     padding: 10px 15px;
@@ -23,15 +25,17 @@ body {
     border-width: 1px;
     display: none;
     pointer-events: none;
+    vertical-align: top;
 }
 
 .plotwrapper {
-    float: left;
+    white-space: normal;
     border-style: solid;
     border-color: lightgray;
     border-width: 1px;
     background: rgba(255, 255, 255, 1);
     display: none;
+    vertical-align: top;
 }
 
 .plot {
@@ -48,18 +52,21 @@ body {
 }
 
 vis {
-    float: left;
+    display: inline-block;
+    white-space: normal;
     margin-left: 10px;
     margin-top: 10px;
-    width: 0px;
-    min-width: 0px;
+    width: 0%;
+    min-width: 0%;
 }
 
 #vis {
-    float: left;
+    display: inline-block;
+    white-space: normal;
     margin-left: 10px;
-    width: 0px;
-    min-width: 0px;
+    width: 0%;
+    min-width: 0%;
+    vertical-align: top;
 }
 
 #countrydata,
@@ -161,7 +168,7 @@ input[type=number] {
 
 svg {
     display: block;
-    margin: auto;
+    /*margin: auto;*/
 }
 
 .slidecontainer {

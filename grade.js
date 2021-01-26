@@ -360,7 +360,7 @@ function updateCountries() {
     d3.select("#countrytext").
     html(text);
     d3.select("#countrydata")
-        .style("display", text.length > 0 ? "block" : "none");
+        .style("display", text.length > 0 ? "inline-block" : "none");
     colourCountries();
     updateplot();
 }
@@ -413,7 +413,7 @@ function updateplot() {
         var x_annotation = plotdata.start_of_effect;
         console.log(plotdata.start_of_effect)
 
-        d3.select("#plotwrapper").style("display", "block");
+        d3.select("#plotwrapper").style("display", "inline-block");
        
         var plotdata = [];
         
