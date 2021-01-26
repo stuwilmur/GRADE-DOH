@@ -41,9 +41,17 @@ body {
     background: rgba(255, 255, 255, 1);
     display: none;
     vertical-align: top;
-    width: 60%;
     height: 100%;
     padding: 10px;
+}
+
+#plotwrapper {
+    width: 60%;
+}
+
+#ploterror{
+    display: none;
+    margin-top: 10px;
 }
 
 #mapoverlay{

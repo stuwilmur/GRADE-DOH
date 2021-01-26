@@ -28,7 +28,8 @@ var govtype = "GOVEFFECT";
 var plotlayout = {
     showlegend: true,
 	legend: {"orientation": "h"},
-    yaxis: {hoverformat: ',f0'},
+    yaxis: {hoverformat: ',f0', tickformat : ',f0'},
+    xaxis: {tickformat: 'd'}
 };
 
 var popdata = new PopData();
@@ -369,12 +370,13 @@ function getplotdata(_firstyear, _country, _outcome) {
     // Takes a baseline year an increase in revenue, and calculates the corresponding % increase in grpc:
     // projects this by: allowing five years for increased revenue to act, where there is no effect;
     // applying the percentage increase for all remaining years. 
-    var ret = {data: []};
+    var ret = {data: [], error: null};
     var grpcPcIncrease = 0;
     for (y = _firstyear; y < popdata.lastyear && ((y - _firstyear) < 10); y++) {
         var revenues = getRevenue(_country, y, method);
         if (revenues === undefined){
-            return undefined;
+            ret.error = "GRPC not available for " + y;
+            return ret;
         }
         if (y == _firstyear) {
             grpcPcIncrease = revenues["percentage increase"];
@@ -386,8 +388,12 @@ function getplotdata(_firstyear, _country, _outcome) {
         }
 
         var computed = computeResult(_country, y, _outcome, grpc, revenues["historical grpc"], governance);
-        if (computed === undefined) //!!??
-            {return undefined}
+        if (computed === undefined) {
+            var outcome_name = (outcomesMap.get(outcome)).name;
+            ret.error = outcome_name + " not available for " + y
+            return ret;
+            }
+        
         ret.data.push({
             "year": +y,
             "improved": computed.additional
@@ -404,16 +410,20 @@ function updateplot() {
     } else {
         var plotdata = getplotdata(+year, country, outcome);
         
-        if (plotdata === undefined){
+        if (plotdata.error){
             d3.select("#plotwrapper").style("display", "none");
+            d3.select("#ploterrortext").html(plotdata.error);
+            d3.select("#ploterror").style("display", "inline-block");
             return;
         }
         
         var data = plotdata.data;
+        console.log(data);
         var x_annotation = plotdata.start_of_effect;
         console.log(plotdata.start_of_effect)
 
         d3.select("#plotwrapper").style("display", "inline-block");
+        d3.select("#ploterror").style("display", "none");
        
         var plotdata = [];
         
@@ -426,6 +436,8 @@ function updateplot() {
             };
             plotdata.push(outcomedata);
         }
+        
+        var y_var_max = Math.max(plotdata.map(d => Math.max(d.y)));
         
         var theOutcome = outcomesMap.get(outcome);
         plotlayout.title = "Projection for " + countrycodes.get(country) + ": " + theOutcome.name;
@@ -441,6 +453,11 @@ function updateplot() {
                 ay: -50
             }
           ]
+        
+        console.log(y_var_max);
+        if (y_var_max < 1E-6){
+            plotlayout.yaxis.range = [-1,1];
+        }
 
         Plotly.newPlot('plot', plotdata, plotlayout);
     }
@@ -450,7 +467,7 @@ function getplotcsvdata(_year, _country, _outcome)
 {
     var plotdata = getplotdata(_year, _country, _outcome);
     
-    if (plotdata === undefined){
+    if (plotdata.error){
         return undefined;
     }
     

@@ -316,7 +316,7 @@ function computeResult(_iso, _year, _outcome, _grpc, _grpcOrig, _govImprovement)
     var original = popdata.getvalue(_iso, _year, _outcome, bInterp);
     
     // treat zero as "no data"
-    if (original === 0){return undefined;} //!!??
+    if (original === 0 || isNaN(original)){return undefined;} //!!??
     var improved = compute(_iso, _year, _outcome, _grpc, _govImprovement)
     var govresults = computegovernance(_iso, _year, _govImprovement)
     var residual = original - fitted;
