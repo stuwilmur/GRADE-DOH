@@ -369,7 +369,7 @@ function getplotdata(_firstyear, _country, _outcome) {
     // Takes a baseline year an increase in revenue, and calculates the corresponding % increase in grpc:
     // projects this by: allowing five years for increased revenue to act, where there is no effect;
     // applying the percentage increase for all remaining years. 
-    var res = []
+    var ret = {data: []};
     var grpcPcIncrease = 0;
     for (y = _firstyear; y < popdata.lastyear && ((y - _firstyear) < 10); y++) {
         var revenues = getRevenue(_country, y, method);
@@ -388,24 +388,30 @@ function getplotdata(_firstyear, _country, _outcome) {
         var computed = computeResult(_country, y, _outcome, grpc, revenues["historical grpc"], governance);
         if (computed === undefined) //!!??
             {return undefined}
-        res.push({
+        ret.data.push({
             "year": +y,
             "improved": computed.additional
         });  
     }
-    return (res);
+    
+    ret.start_of_effect = Math.min(popdata.lastyear, _firstyear + 4);
+    return (ret);
 }
 
 function updateplot() {
     if (country.slice(0, 2) == "$-") {
         d3.select("#plotwrapper").style("display", "none");
     } else {
-        var data = getplotdata(year, country, outcome);
+        var plotdata = getplotdata(+year, country, outcome);
         
-        if (data === undefined){
+        if (plotdata === undefined){
             d3.select("#plotwrapper").style("display", "none");
             return;
         }
+        
+        var data = plotdata.data;
+        var x_annotation = plotdata.start_of_effect;
+        console.log(plotdata.start_of_effect)
 
         d3.select("#plotwrapper").style("display", "block");
        
@@ -423,6 +429,18 @@ function updateplot() {
         
         var theOutcome = outcomesMap.get(outcome);
         plotlayout.title = "Projection for " + countrycodes.get(country) + ": " + theOutcome.name;
+        plotlayout.annotations = [{
+                x: x_annotation,
+                y: 0,
+                xref: 'x',
+                yref: 'y',
+                text: 'Start of effect',
+                showarrow: true,
+                arrowhead: 20,
+                ax: 0,
+                ay: -50
+            }
+          ]
 
         Plotly.newPlot('plot', plotdata, plotlayout);
     }
@@ -430,11 +448,13 @@ function updateplot() {
 
 function getplotcsvdata(_year, _country, _outcome)
 {
-    var data = getplotdata(_year, _country, _outcome);
+    var plotdata = getplotdata(_year, _country, _outcome);
     
-    if (data === undefined){
+    if (plotdata === undefined){
         return undefined;
     }
+    
+    var data = plotdata.data;
     
     var header = "country,iso,year";
     for (const property in data[0].improved){
