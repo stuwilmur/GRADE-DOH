@@ -239,8 +239,7 @@
             //if (active.node() === this) return reset();
             //active.classed("active", false);
             //active = d3.select(this).classed("active", true);
-
-
+        
             const maxScale = 0.85;
             const maxiScale = 8;
 
@@ -257,9 +256,11 @@
                 .call(zoom.translate(translate).scale(scale).event);
 
             if (d.hasOwnProperty("id")) {
-                country = d.id;
-                d3.select('#countrylist').property('value', d.id);
-                mainUpdate();
+                if (dataHasCountry(d.id)){ // allow transition but not selection if country absent from data
+                    country = d.id;
+                    d3.select('#countrylist').property('value', d.id);
+                    mainUpdate();
+                }
             }
         }
 
@@ -332,8 +333,12 @@
                     return d.id == country;
                 })
 
-            if (found_country.length == 1) {
+            if (found_country[0].length == 1) {
                 clicked(found_country.data()[0]);
+            }
+            else{
+                // country geometry absent
+                resetview();
             }
         }
 

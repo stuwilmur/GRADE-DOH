@@ -34,6 +34,10 @@ var plotlayout = {
 
 var popdata = new PopData();
 
+function dataHasCountry(_cid){
+    return (popdata.getrow(_cid, -1) !== undefined);
+}
+
 function getColor(_cid, _year, _method) {
     var value = getResult(_cid, _year, _method);
     var incomeLevel = popdata.getvalue(_cid, _year, "incomelevel");
@@ -133,9 +137,9 @@ function getResult(_cid, _year, _method) {
 function setupMenus(countries, outcomes) {
     function initMenus(countries, outcomes) {
         countries.sort(function (a, b) {
-            if (a.properties.name < b.properties.name) //sort string ascending
+            if (a.name < b.name) //sort string ascending
                 return -1;
-            if (a.properties.name > b.properties.name)
+            if (a.name > b.name)
                 return 1;
             return 0; //default return value (no sorting)
         });
@@ -143,33 +147,23 @@ function setupMenus(countries, outcomes) {
         // add some "special" countries representing aggregate options.
         countries.unshift({
             id: "$-HIC",
-            properties: {
-                name: "High-income countries"
-            }
+            name: "High-income countries"
         });
         countries.unshift({
-            id: "$-UMIC",
-            properties: {
-                name: "Upper-middle-income countries"
-            }
+            id: "$-UMIC", 
+            name: "Upper-middle-income countries"
         });
         countries.unshift({
             id: "$-LMIC",
-            properties: {
-                name: "Lower-middle-income countries"
-            }
+            name: "Lower-middle-income countries"
         });
         countries.unshift({
             id: "$-LIC",
-            properties: {
-                name: "Low-income countries"
-            }
+            name: "Low-income countries"
         });
         countries.unshift({
             id: "$-ALL",
-            properties: {
-                name: "Show all countries"
-            }
+            name: "Show all countries"
         });
 
         d3.select('#countrylist')
@@ -186,7 +180,7 @@ function setupMenus(countries, outcomes) {
                 return d.id;
             })
             .text(function (d) {
-                return d.properties.name;
+                return d.name;
             });
 
         d3.select("#outcomes")
@@ -540,13 +534,24 @@ function loaded(error, countries, _popdata) {
     }));
     */
     
-    popdata.nestdata(_popdata);
+    popdata.nestdata(_popdata); // create the popdata object
     
     var theOutcome = outcomesMap.get(outcome)
     colorScale.domain(theOutcome.hasOwnProperty("fixedExtent") ? theOutcome.fixedExtent : theOutcome.extent);
 
     var countries = topojson.feature(countries, countries.objects.units).features;
-    countries.forEach(function(d) {countrycodes.set(d.id, d.properties.name)})
+    countries.forEach(function(d) {countrycodes.set(d.id, d.properties.name)});
+    
+    var popcountries = popdata.nesteddata.map(function(d) { return {id : d.key, name : d.values[0].values[0].countryname}});
+    popcountries.forEach(function(d) {countrycodes.set(d.id, d.name)});
+    
+    c2 = new Set(countries.map( d => d.id));
+    c1 = new Set(popdata.nesteddata.map(d=> d.key));
+    
+    let difference1 = new Set([...c2].filter(x => !c1.has(x))); // in countries, not popdata
+    let difference2 = new Set([...c1].filter(x => !c2.has(x))); // in popdata, not countries
+    
+    console.log(difference1, difference2);
 
     svg.selectAll('path.countries')
         .data(countries)
@@ -595,7 +600,7 @@ function loaded(error, countries, _popdata) {
         enteredGrpc = this.value * 1;
     });
 
-    setupMenus(countries, outcomesList);
+    setupMenus(popcountries, outcomesList);
     spinner.stop();
 
 }
