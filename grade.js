@@ -407,6 +407,7 @@ function getplotdata(_firstyear, _country, _outcome) {
 function updateplot() {
     if (country.slice(0, 2) == "$-") {
         d3.select("#plotwrapper").style("display", "none");
+        d3.select("#ploterror").style("display", "none");
     } else {
         var plotdata = getplotdata(+year, country, outcome);
         
