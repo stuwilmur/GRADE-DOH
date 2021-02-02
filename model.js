@@ -393,7 +393,7 @@ function getRevenue(_iso, _year, m) {
     var grpercap = popdata.getvalue(_iso, _year, "GRPERCAP", true);
     var total_population = popdata.getvalue(_iso, _year, "Population, total");
     
-    if (isNaN(grpercap)) {return undefined;}
+    if (isNaN(grpercap) || grpercap == 0) {return undefined;}
     
     if (m == "percentage") {
         var newAbsRev = (grpercap * (govRevenue)) * total_population;

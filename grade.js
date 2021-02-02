@@ -17,6 +17,7 @@ var absGovRev = 0;
 var absGovRevSlider = 0;
 var pcGovRev = 0;
 var year = 2016;
+var years_to_project = 10;
 var governance = 0;
 var country = "$-ALL";
 var method = "newgrpc";
@@ -40,7 +41,7 @@ function dataHasCountry(_cid){
 
 function getColor(_cid, _year, _method) {
     var value = getResult(_cid, _year, _method);
-    var incomeLevel = popdata.getvalue(_cid, _year, "incomelevel");
+    var incomelevel = popdata.getstring(_cid, _year, "incomelevel");
     
     if (!isNaN(value)) {
         if (country == "$-ALL" //|| country == _cid
@@ -62,12 +63,12 @@ function makeText(_iso, _year) {
     var revenues = getRevenue(_iso, _year, method);
     if (revenues === undefined)
     {
-        return "<strong>" + countrycodes.get(_iso) + "<\/strong>" + ": No data";
+        return "<strong>" + countrycodes.get(_iso) + "<\/strong>" + ": No GRPC data available";
     }
     var result = computeResult(_iso, _year, outcome, revenues["new grpc"], revenues["historical grpc"], governance);
     if (result === undefined)
     {
-        return "<strong>" + countrycodes.get(_iso) + "<\/strong>" + ": No data";
+        return "<strong>" + countrycodes.get(_iso) + "<\/strong>" + ": No data for " + outcomesMap.get(outcome).name;
     }
     var text = "";
     text = text + "<h1 class='tooltip'> " +  countrycodes.get(_iso) + "</h1>" +
@@ -318,6 +319,12 @@ function setupMenus(countries, outcomes) {
         d3.select("#yearVal").text(year);
         mainUpdate();
     });
+    
+    d3.select("#yearsProjectSlider").on("input", function (d) {
+        years_to_project = this.value;
+        d3.select("#yearsProjectVal").text(years_to_project);
+        mainUpdate();
+    });
 
     d3.selectAll("#outcomes").on("change", function (d) {
         outcome = this.options[this.selectedIndex].value
@@ -360,13 +367,13 @@ function updateCountries() {
     updateplot();
 }
 
-function getplotdata(_firstyear, _country, _outcome) {
+function getplotdata(_firstyear, _country, _outcome, _years_to_project) {
     // Takes a baseline year an increase in revenue, and calculates the corresponding % increase in grpc:
     // projects this by: allowing five years for increased revenue to act, where there is no effect;
-    // applying the percentage increase for all remaining years. 
+    // applying the percentage increase for all remaining years (up to a total of years_to_project years). 
     var ret = {data: [], error: null};
     var grpcPcIncrease = 0;
-    for (y = _firstyear; y < popdata.lastyear && ((y - _firstyear) < 10); y++) {
+    for (y = _firstyear; y < popdata.lastyear && ((y - _firstyear) <= _years_to_project); y++) {
         var revenues = getRevenue(_country, y, method);
         if (revenues === undefined){
             ret.error = "GRPC not available for " + y;
@@ -390,11 +397,15 @@ function getplotdata(_firstyear, _country, _outcome) {
         
         ret.data.push({
             "year": +y,
-            "improved": computed.additional
+            "improved"  : computed.additional,
+            "grpc" : {
+                "historical grpc" : revenues["historical grpc"],
+                "improved grpc" : grpc
+            },
         });  
     }
     
-    ret.start_of_effect = Math.min(popdata.lastyear, _firstyear + 4);
+    ret.start_of_effect = Math.min(popdata.lastyear, _firstyear + 5);
     return (ret);
 }
 
@@ -403,7 +414,7 @@ function updateplot() {
         d3.select("#plotwrapper").style("display", "none");
         d3.select("#ploterror").style("display", "none");
     } else {
-        var plotdata = getplotdata(+year, country, outcome);
+        var plotdata = getplotdata(+year, country, outcome, +years_to_project);
         
         if (plotdata.error){
             d3.select("#plotwrapper").style("display", "none");
@@ -413,9 +424,7 @@ function updateplot() {
         }
         
         var data = plotdata.data;
-        console.log(data);
         var x_annotation = plotdata.start_of_effect;
-        console.log(plotdata.start_of_effect)
 
         d3.select("#plotwrapper").style("display", "inline-block");
         d3.select("#ploterror").style("display", "none");
@@ -445,11 +454,10 @@ function updateplot() {
                 showarrow: true,
                 arrowhead: 20,
                 ax: 0,
-                ay: -50
+                ay: +50
             }
           ]
         
-        console.log(y_var_max);
         if (y_var_max < 1E-6){
             plotlayout.yaxis.range = [-1,1];
         }
@@ -458,9 +466,9 @@ function updateplot() {
     }
 }
 
-function getplotcsvdata(_year, _country, _outcome)
+function getplotcsvdata(_year, _country, _outcome, _years_to_project)
 {
-    var plotdata = getplotdata(_year, _country, _outcome);
+    var plotdata = getplotdata(_year, _country, _outcome, _years_to_project);
     
     if (plotdata.error){
         return undefined;
@@ -469,6 +477,11 @@ function getplotcsvdata(_year, _country, _outcome)
     var data = plotdata.data;
     
     var header = "country,iso,year";
+    
+    for (const property in data[0].grpc){
+        header += "," + property;
+    }
+    
     for (const property in data[0].improved){
         header += "," + property;
     }
@@ -479,6 +492,11 @@ function getplotcsvdata(_year, _country, _outcome)
     data.forEach(function(datarow){
         var row = "";
         body += countrycodes.get(_country) + "," + _country + "," + datarow.year + ","
+        
+        for (const property in datarow.grpc){
+            body += datarow.grpc[property] + ",";        
+        }
+        
         for (const property in datarow.improved){
             body += datarow.improved[property] + ",";
         }
@@ -488,8 +506,9 @@ function getplotcsvdata(_year, _country, _outcome)
 }
 
 function download_csv() {
-    var csvdata = getplotcsvdata(year, country, outcome);
-    var button_title = country+"_"+year + ".csv";
+    var final_year = (+year) + (+years_to_project);
+    var csvdata = getplotcsvdata(year, country, outcome, years_to_project);
+    var button_title = country + "_" + year + "-" + final_year + ".csv";
     if (csvdata === undefined){
         return undefined;
     }
@@ -548,10 +567,10 @@ function loaded(error, countries, _popdata) {
     c2 = new Set(countries.map( d => d.id));
     c1 = new Set(popdata.nesteddata.map(d=> d.key));
     
+    /*
     let difference1 = new Set([...c2].filter(x => !c1.has(x))); // in countries, not popdata
     let difference2 = new Set([...c1].filter(x => !c2.has(x))); // in popdata, not countries
-    
-    console.log(difference1, difference2);
+    */
 
     svg.selectAll('path.countries')
         .data(countries)

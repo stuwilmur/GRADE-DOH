@@ -12,7 +12,7 @@ body {
     display: inline-block;
     white-space: normal;
     width: 20%;
-    min-width: 300px;
+    min-width: 350px;
 }
 
 .output {
@@ -47,6 +47,7 @@ body {
 
 #plotwrapper {
     width: 60%;
+    pointer-events: all;
 }
 
 #ploterror{

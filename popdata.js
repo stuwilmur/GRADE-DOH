@@ -42,6 +42,15 @@ class PopData {
             }
         }
     }
+    
+    getstring(_iso, _year, _var){
+        var row = this.getrow(_iso, _year);
+        if (!row)
+            {
+                return NaN;
+            }
+        return row[_var];
+    }
 
     getrow(_iso, _year=-1) {
         var objIso = this.nesteddata.filter(function (d) {
