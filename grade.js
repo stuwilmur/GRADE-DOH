@@ -72,19 +72,24 @@ function makeText(_iso, _year) {
     }
     var text = "";
     text = text + "<h1 class='tooltip'> " +  countrycodes.get(_iso) + "</h1>" +
-        "<br/><strong>" + year + "</strong>" +
-        "<br/>Current Gov. rev. per capita: <span class = 'ar'>$" + d3.format(",")(revenues["historical grpc"].toFixed(2)) + "</span>" +
-        "<br/>New Gov. rev. per capita: <span class = 'ar'>$" + d3.format(",")(revenues["new grpc"].toFixed(2)) + "</span>" +
-        "<br/>Increase in Gov. rev. per capita: <span class = 'ar'>" + (revenues["percentage increase"] * 100).toFixed(2) + "%</span>" +
-        "<br/><br/><strong>" + outcomesMap.get(outcome).name + "</strong><br/>" +
-        "Current % coverage: <span class = 'ar'>" + result.original.toFixed(2) + "</span>" +
-        "<br/>New % coverage: <span class = 'ar'>" + result.improved.toFixed(2) + "</span>";
+    "<br/><strong>" + year + "</strong>" +
+    "<br/>Current Gov. rev. per capita: <span class = 'ar'>$" + d3.format(",")(revenues["historical grpc"].toFixed(2)) + "</span>" +
+    "<br/>New Gov. rev. per capita: <span class = 'ar'>$" + d3.format(",")(revenues["new grpc"].toFixed(2)) + "</span>" +
+    "<br/>Increase in Gov. rev. per capita: <span class = 'ar'>" + (revenues["percentage increase"] * 100).toFixed(2) + "%</span>" 
+    
+    // 04/02/21 hide instatenous effect values so as not to confuse with plot
+    /*
+    +
+    "<br/><br/><strong>" + outcomesMap.get(outcome).name + "</strong><br/>" +
+    "Current % coverage: <span class = 'ar'>" + result.original.toFixed(2) + "</span>" +
+    "<br/>New % coverage: <span class = 'ar'>" + result.improved.toFixed(2) + "</span>";
 
     if (result.hasOwnProperty("additional")) {
         for (const [key, value] of Object.entries(result.additional)) {
             text = text + "<br/>" + key + ":&nbsp&nbsp<span class = 'arb'>" + d3.format(",")(value.toFixed(0)) + "</span>";
         }
     }
+    */
 
     var govtext = "";
     result.gov.forEach(function (result, govmeasure) {
@@ -436,7 +441,8 @@ function updateplot() {
                 x: data.map(a => a.year),
                 y: data.map(a => a.improved[prop]),
                 type: "scatter",
-                name: prop
+                name: prop,
+                visible : true
             };
             plotdata.push(outcomedata);
         }
