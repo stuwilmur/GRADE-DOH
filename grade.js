@@ -58,6 +58,47 @@ function getColor(_cid, _year, _method) {
     }
 }
 
+function makeText2(_year, _iso, _outcome, _years_to_project)
+{
+    // accompanies makeText() (which does the instantaneous calculation)
+    // as version that is specific to the projection. This is useful
+    // in case we need makeText again in the future
+    
+    var end_year = getProjectionEnd(_year, _years_to_project)
+    var projection = calcprojection(+year, country, outcome, +years_to_project)
+    var text = "";
+    text = text 
+        + "<h1 class='tooltip'> " +  countrycodes.get(_iso) + "</h1>"
+        + "<br/><strong>Projection for " + year + " - " + end_year + "</strong>"
+    
+    if (projection.error){
+        text = text 
+        + "<br/> Unable to project: "
+        + projection.error.join("<br>"); 
+    }
+    else{
+        var revenues = getRevenue(_iso, _year, method);
+        if (revenues === undefined)
+        {
+            // shouldn't happen as plotdata would give error
+            text += "<strong>" + countrycodes.get(_iso) + "<\/strong>" + ": No GRPC data available";
+        }
+        else{
+            text = text 
+            + "<br/><br/><strong>" + _year + "</strong>"
+            + "<br/>Current Gov. rev. per capita: <span class = 'ar'>$" + d3.format(",")(revenues["historical grpc"].toFixed(2)) + "</span>" 
+            + "<br/>New Gov. rev. per capita: <span class = 'ar'>$" + d3.format(",")(revenues["new grpc"].toFixed(2)) + "</span>"
+            + "<br/>Increase in Gov. rev. per capita: <span class = 'ar'>" + (revenues["percentage increase"] * 100).toFixed(2) + "%</span>"
+            + "<br/><br/><strong>Projected effect</strong>"
+            
+            projection.forEach(function(value, result){
+              text += "<br/>" + result + ": <span class = 'ar'>" + d3.format(",")(value.toFixed(0)) + "</span>"; 
+            })
+        }
+}
+    return text;
+}
+
 function makeText(_iso, _year) {
     var revenues = getRevenue(_iso, _year, method);
     if (revenues === undefined)
@@ -67,7 +108,7 @@ function makeText(_iso, _year) {
     var result = computeResult(_iso, _year, outcome, revenues["new grpc"], revenues["historical grpc"], governance);
     if (result.error)
     {
-        return "<strong>" + countrycodes.get(_iso) + "<\/strong>" + ": " + result.error;
+        return "<strong>" + countrycodes.get(_iso) + "<\/strong>" + ": " + result.error.join("<br>");
     }
     var text = "";
     text = text + "<h1 class='tooltip'> " +  countrycodes.get(_iso) + "</h1>" +
@@ -76,7 +117,8 @@ function makeText(_iso, _year) {
     "<br/>New Gov. rev. per capita: <span class = 'ar'>$" + d3.format(",")(revenues["new grpc"].toFixed(2)) + "</span>" +
     "<br/>Increase in Gov. rev. per capita: <span class = 'ar'>" + (revenues["percentage increase"] * 100).toFixed(2) + "%</span>" 
     
-    // 04/02/21 hide instatenous effect values so as not to confuse with plot
+    // 04/02/21 hide instantaenous effect values so as not to confuse with plot
+    // 09/02/21 hide governance so we can use this more generally
     /*
     +
     "<br/><br/><strong>" + outcomesMap.get(outcome).name + "</strong><br/>" +
@@ -88,7 +130,6 @@ function makeText(_iso, _year) {
             text = text + "<br/>" + property.name + ":&nbsp&nbsp<span class = 'arb'>" + d3.format(",")(property.value.toFixed(0)) + "</span>";
         })
     }
-    */
 
     var govtext = "";
     result.gov.forEach(function (result, govmeasure) {
@@ -96,6 +137,7 @@ function makeText(_iso, _year) {
     })
 
     text = text + "<br/><br/><strong>Governance</strong><br/>" + govtext;
+    */
 
     return text;
 }
@@ -116,15 +158,15 @@ function getPrefixValue(p) {
         return 1;
 }
 
-function getText(d) {
-    if (d.id[0] == "$") {
+function getText(d, _bProjection = false) {
+    if (d.id.slice(0, 2) == "$-") { //!! replace with slice
         return "";
     }
 
-    if (true) {
-        return makeText(d.id, year);
+    if (_bProjection) {
+        return makeText2(+year, d.id, outcome, +years_to_project);
     } else {
-        
+        return makeText(d.id, year)
     }
 }
 
@@ -275,11 +317,14 @@ function setupMenus(countries, outcomes) {
                 mainUpdate();
             })
         
+        /*
+        //!! remove
         d3.select("#plottype")
         .on("change", function(d){
             plottype = this.options[this.selectedIndex].value;
             updateplot();
             })
+        */
     }
 
     initMenus(countries, outcomes);
@@ -362,16 +407,18 @@ function updateCountries() {
     var d = {
         "id": country
     };
-    var text = getText(d);
-    d3.select("#countrytext").
-    html(text);
-    d3.select("#countrydata")
-        .style("display", text.length > 0 ? "inline-block" : "none");
+    if (true){ // set true to show instantaneous box
+        var text = getText(d, true);
+        d3.select("#countrytext").
+        html(text);
+        d3.select("#countrydata")
+            .style("display", text.length > 0 ? "inline-block" : "none");
+    }
     colourCountries();
     updateplot();
 }
 
-function getplotdata(_firstyear, _country, _outcome, _years_to_project) {
+function getprojecteddata(_firstyear, _country, _outcome, _years_to_project) {
     //!! move to model.js
     
     // Takes a baseline year an increase in revenue, and calculates the corresponding % increase in grpc:
@@ -382,7 +429,8 @@ function getplotdata(_firstyear, _country, _outcome, _years_to_project) {
     for (y = _firstyear; y < popdata.lastyear && ((y - _firstyear) <= _years_to_project); y++) {
         var revenues = getRevenue(_country, y, method);
         if (revenues === undefined){
-            ret.error = "GRPC not available for " + y;
+            if (ret.error === null) {ret.error = []}
+            ret.error.push("GRPC not available for " + y);
             return ret;
         }
         if (y == _firstyear) {
@@ -396,7 +444,8 @@ function getplotdata(_firstyear, _country, _outcome, _years_to_project) {
 
         var computed = computeResult(_country, y, _outcome, grpc, revenues["historical grpc"], governance);
         if (computed.error) {
-            ret.error = computed.error;
+            if (ret.error === null) {ret.error = []}
+            ret.error = ret.error.concat(computed.error);
             return ret;
             }
         
@@ -418,14 +467,14 @@ function getplotdata(_firstyear, _country, _outcome, _years_to_project) {
 function updateplot() {
     if (country.slice(0, 2) == "$-") {
         d3.select("#plotwrapper").style("display", "none");
-        d3.select("#ploterror").style("display", "none");
+        //d3.select("#ploterror").style("display", "none"); //!! remove
     } else {
-        var plotdata = getplotdata(+year, country, outcome, +years_to_project);
+        var plotdata = getprojecteddata(+year, country, outcome, +years_to_project);
         
         if (plotdata.error){
             d3.select("#plotwrapper").style("display", "none");
-            d3.select("#ploterrortext").html(plotdata.error);
-            d3.select("#ploterror").style("display", "inline-block");
+            //d3.select("#ploterrortext").html(plotdata.error.join("<br>")); //!! remove
+            //d3.select("#ploterror").style("display", "inline-block"); //!! remove
             return;
         }
         
@@ -433,7 +482,7 @@ function updateplot() {
         var x_annotation = plotdata.start_of_effect;
 
         d3.select("#plotwrapper").style("display", "inline-block");
-        d3.select("#ploterror").style("display", "none");
+        //d3.select("#ploterror").style("display", "none"); //!! remove
        
         var plotdata = [];
         
@@ -481,15 +530,12 @@ function updateplot() {
         }
 
         Plotly.newPlot('plot', plotdata, plotlayout);
-        
-        //!! test
-        console.log(calcprojection(+year, country, outcome, +years_to_project));
     }
 }
 
 function getplotcsvdata(_year, _country, _outcome, _years_to_project)
 {
-    var plotdata = getplotdata(_year, _country, _outcome, _years_to_project);
+    var plotdata = getprojecteddata(_year, _country, _outcome, _years_to_project);
     
     if (plotdata.error){
         return undefined;
@@ -530,10 +576,10 @@ function calcprojection(_year, _country, _outcome, _years_to_project)
 {
     // calculate the totals of projected effects for flow variables, and the
     // averages for stock variables.
-    var plotdata = getplotdata(_year, _country, _outcome, _years_to_project);
+    var plotdata = getprojecteddata(_year, _country, _outcome, _years_to_project);
     
     if (plotdata.error){
-        return undefined;
+        return plotdata.error;
     }
     
      var theOutcome = outcomesMap.get(outcome);
@@ -552,7 +598,6 @@ function calcprojection(_year, _country, _outcome, _years_to_project)
     
     if (theOutcome.isStockVar){
         var averages = new Map();
-        console.log("stock")
         totals.forEach( function(value, result){
             var result_avg = value / plotdata.data.length;
             averages.set(result, result_avg);            
@@ -565,8 +610,8 @@ function calcprojection(_year, _country, _outcome, _years_to_project)
 }
 
 function download_csv() {
-    var final_year = (+year) + (+years_to_project);
-    var csvdata = getplotcsvdata(year, country, outcome, years_to_project);
+    var final_year = getProjectionEnd(+year, +years_to_project); 
+    var csvdata = getplotcsvdata(+year, country, outcome, +years_to_project);
     var button_title = country + "_" + year + "-" + final_year + ".csv";
     if (csvdata === undefined){
         return undefined;
@@ -681,4 +726,8 @@ function loaded(error, countries, _popdata) {
     setupMenus(popcountries, outcomesList);
     spinner.stop();
 
+}
+
+function getProjectionEnd(_year, _years_to_project){
+    return Math.min(popdata.lastyear, _year + _years_to_project)
 }

@@ -324,23 +324,23 @@ function computeResult(_iso, _year, _outcome, _grpc, _grpcOrig, _govImprovement)
     
     // treat zero as "no data"
     if (original === 0 || isNaN(original)){
-        var outcome_name = (outcomesMap.get(outcome)).name;
-        return {error : outcome_name + " not available for " + _year};
+        var outcome_name = (outcomesMap.get(_outcome)).name;
+        return {error : [outcome_name + " not available for " + _year]};
     }
     var improved = compute(_iso, _year, _outcome, _grpc, _govImprovement)
     if (isNaN(improved)){
-        var outcome_name = (outcomesMap.get(outcome)).name;
-        var err_str = "unable to calculate " + outcome_name + ", " + _year;
+        var outcome_name = (outcomesMap.get(_outcome)).name;
+        var errs = ["Unable to calculate " + outcome_name + ", " + _year];
         // temporary hack to check governance values
         var govresults = computegovernance(_iso, _year, _govImprovement);
         var hasNan = false
-        govresults.forEach(function(v, k){
+        govresults.forEach(function(v){
             hasNan = hasNan || isNaN(v);
         })
         if (hasNan){
-            err_str += "\n governance measures data unavailable";
+            errs.push("Governance measures data unavailable");
         }
-        return {error : err_str};
+        return {error : errs};
     }
     var govresults = computegovernance(_iso, _year, _govImprovement)
     var residual = original - fitted;
