@@ -1,7 +1,6 @@
 //!! TODO
 // make first and last years dynamic in slider
 // decouple model from global variables
-// relative sizing
 // move special country options to html
 // outcomes objects including functions
 
@@ -66,9 +65,9 @@ function makeText(_iso, _year) {
         return "<strong>" + countrycodes.get(_iso) + "<\/strong>" + ": No GRPC data available";
     }
     var result = computeResult(_iso, _year, outcome, revenues["new grpc"], revenues["historical grpc"], governance);
-    if (result === undefined)
+    if (result.error)
     {
-        return "<strong>" + countrycodes.get(_iso) + "<\/strong>" + ": No data for " + outcomesMap.get(outcome).name;
+        return "<strong>" + countrycodes.get(_iso) + "<\/strong>" + ": " + result.error;
     }
     var text = "";
     text = text + "<h1 class='tooltip'> " +  countrycodes.get(_iso) + "</h1>" +
@@ -85,9 +84,9 @@ function makeText(_iso, _year) {
     "<br/>New % coverage: <span class = 'ar'>" + result.improved.toFixed(2) + "</span>";
 
     if (result.hasOwnProperty("additional")) {
-        for (const [key, value] of Object.entries(result.additional)) {
-            text = text + "<br/>" + key + ":&nbsp&nbsp<span class = 'arb'>" + d3.format(",")(value.toFixed(0)) + "</span>";
-        }
+        result.additional.forEach(function(property) {
+            text = text + "<br/>" + property.name + ":&nbsp&nbsp<span class = 'arb'>" + d3.format(",")(property.value.toFixed(0)) + "</span>";
+        })
     }
     */
 
@@ -135,7 +134,7 @@ function getResult(_cid, _year, _method) {
             {return NaN;}
         var result = computeResult(_cid, _year, outcome,
             revenues["new grpc"], revenues["historical grpc"], governance);
-        if (result === undefined)
+        if (result.error)
             {return NaN;}
         return result.improved;
 }
@@ -373,6 +372,8 @@ function updateCountries() {
 }
 
 function getplotdata(_firstyear, _country, _outcome, _years_to_project) {
+    //!! move to model.js
+    
     // Takes a baseline year an increase in revenue, and calculates the corresponding % increase in grpc:
     // projects this by: allowing five years for increased revenue to act, where there is no effect;
     // applying the percentage increase for all remaining years (up to a total of years_to_project years). 
@@ -394,19 +395,19 @@ function getplotdata(_firstyear, _country, _outcome, _years_to_project) {
         }
 
         var computed = computeResult(_country, y, _outcome, grpc, revenues["historical grpc"], governance);
-        if (computed === undefined) {
-            var outcome_name = (outcomesMap.get(outcome)).name;
-            ret.error = outcome_name + " not available for " + y
+        if (computed.error) {
+            ret.error = computed.error;
             return ret;
             }
         
         ret.data.push({
             "year": +y,
-            "improved"  : computed.additional,
+            "additional"  : computed.additional,
             "grpc" : {
                 "historical grpc" : revenues["historical grpc"],
                 "improved grpc" : grpc
             },
+            "gov" : computed.gov,
         });  
     }
     
@@ -436,21 +437,32 @@ function updateplot() {
        
         var plotdata = [];
         
-        for (const prop in data[0].improved){
+        (data[0]).additional.forEach(function(property,i){
             var outcomedata = {
                 x: data.map(a => a.year),
-                y: data.map(a => a.improved[prop]),
+                y: data.map(a => a.additional[i].value),
+                text: data.map(function(a){
+                                var s = "";
+                                a.gov.forEach(function(gov_result,k){
+                                    s += gov_result.desc + " " 
+                                        + gov_result.value.toFixed(2) + "<br>";
+                                })
+                                return s;
+                               }),
                 type: "scatter",
-                name: prop,
-                visible : true
+                name: property.name,
+                meta: property.name, // make visible to hovertemplate
+                visible : property.keyvariable ? true : "legendonly",
+                hovertemplate : "%{meta}<br>%{x}:<b> %{y}</b><br>%{text}<extra></extra>",
             };
             plotdata.push(outcomedata);
-        }
+        })
         
         var y_var_max = Math.max(plotdata.map(d => Math.max(d.y)));
         
         var theOutcome = outcomesMap.get(outcome);
         plotlayout.title = "Projection for " + countrycodes.get(country) + ": " + theOutcome.name;
+        plotlayout.hovermode = "closest"
         plotlayout.annotations = [{
                 x: x_annotation,
                 y: 0,
@@ -469,6 +481,9 @@ function updateplot() {
         }
 
         Plotly.newPlot('plot', plotdata, plotlayout);
+        
+        //!! test
+        console.log(calcprojection(+year, country, outcome, +years_to_project));
     }
 }
 
@@ -488,9 +503,9 @@ function getplotcsvdata(_year, _country, _outcome, _years_to_project)
         header += "," + property;
     }
     
-    for (const property in data[0].improved){
-        header += "," + property;
-    }
+    data[0].additional.forEach(function(property){
+        header += "," + property.name;
+    })
     
     header += "\n";
     
@@ -503,12 +518,50 @@ function getplotcsvdata(_year, _country, _outcome, _years_to_project)
             body += datarow.grpc[property] + ",";        
         }
         
-        for (const property in datarow.improved){
-            body += datarow.improved[property] + ",";
-        }
+        datarow.additional.forEach(function(property){
+            body += property.value + ",";
+        })
         body += row + "\n";
     })
     return header + body;
+}
+
+function calcprojection(_year, _country, _outcome, _years_to_project)
+{
+    // calculate the totals of projected effects for flow variables, and the
+    // averages for stock variables.
+    var plotdata = getplotdata(_year, _country, _outcome, _years_to_project);
+    
+    if (plotdata.error){
+        return undefined;
+    }
+    
+     var theOutcome = outcomesMap.get(outcome);
+    
+     var totals = new Map();
+     plotdata.data.forEach(function(d){
+         d.additional.forEach(function(result){
+             if (totals.has(result.name)){
+                 totals.set(result.name, totals.get(result.name) + result.value )
+             }
+             else{
+                 totals.set(result.name, result.value);
+             }
+         })
+     })
+    
+    if (theOutcome.isStockVar){
+        var averages = new Map();
+        console.log("stock")
+        totals.forEach( function(value, result){
+            var result_avg = value / plotdata.data.length;
+            averages.set(result, result_avg);            
+        })
+        return averages;
+    }
+    else{
+        return totals;
+    }
 }
 
 function download_csv() {

@@ -163,7 +163,8 @@ var outcomesList = [
             loCol: "#dee5f8",
             hiCol: "#e09900",
             fixedExtent: [0, 100],
-            desc: "The percentage of the population drinking water from an improved source, provided collection time is not more than 30 minutes for a round trip."
+            desc: "The percentage of the population drinking water from an improved source, provided collection time is not more than 30 minutes for a round trip.",
+            isStockVar : true,
         }],
 		["WATERSAFE",
         {
@@ -171,7 +172,8 @@ var outcomesList = [
             loCol: "#dee5f8",
             hiCol: "#e09900",
             fixedExtent: [0, 100],
-            desc: "The percentage of the population using drinking water from an improved source that is accessible on premises, available when needed and free from faecal and priority chemical contamination."
+            desc: "The percentage of the population using drinking water from an improved source that is accessible on premises, available when needed and free from faecal and priority chemical contamination.",
+            isStockVar : true,
         }],
         ["SANITBASIC",
         {
@@ -179,7 +181,8 @@ var outcomesList = [
             loCol: "#dee5f8",
             hiCol: "#e09900",
             fixedExtent: [0, 100],
-            desc: "The percentage of the population using at least, that is, improved sanitation facilities that are not shared with other households."
+            desc: "The percentage of the population using at least, that is, improved sanitation facilities that are not shared with other households.",
+            isStockVar : true,
         }],
 		["SANITSAFE",
         {
@@ -187,7 +190,8 @@ var outcomesList = [
             loCol: "#dee5f8",
             hiCol: "#e09900",
             fixedExtent: [0, 100],
-            desc: "The percentage of the population using improved sanitation facilities that are not shared with other households and where excreta are safely disposed of in situ or transported and treated offsite."
+            desc: "The percentage of the population using improved sanitation facilities that are not shared with other households and where excreta are safely disposed of in situ or transported and treated offsite.",
+            isStockVar : true,
         }],
 		["SCHOOLPERC",
         {
@@ -195,7 +199,8 @@ var outcomesList = [
             loCol: "#dee5f8",
             hiCol: "#e09900",
             fixedExtent: [0, 100],
-            desc: "The number of years a person of school entrance age can expect to spend within the specified level of education"
+            desc: "The number of years a person of school entrance age can expect to spend within the specified level of education",
+            isStockVar : false,
         }],
         ["U5MSURV",
         {
@@ -203,7 +208,8 @@ var outcomesList = [
             loCol: "#dee5f8",
             hiCol: "#e09900",
             fixedExtent: [0, 100],
-            desc: "Under-5 survival"
+            desc: "Under-5 survival",
+            isStockVar : false,
          }],
         ["MMRSURV",
         {
@@ -211,7 +217,8 @@ var outcomesList = [
             loCol: "#dee5f8",
             hiCol: "#e09900",
             fixedExtent: [0, 100],
-            desc: "Maternal survival"
+            desc: "Maternal survival",
+            isStockVar : true,
          }],
 
 /*
@@ -316,33 +323,53 @@ function computeResult(_iso, _year, _outcome, _grpc, _grpcOrig, _govImprovement)
     var original = popdata.getvalue(_iso, _year, _outcome, bInterp);
     
     // treat zero as "no data"
-    if (original === 0 || isNaN(original)){return undefined;} //!!??
+    if (original === 0 || isNaN(original)){
+        var outcome_name = (outcomesMap.get(outcome)).name;
+        return {error : outcome_name + " not available for " + _year};
+    }
     var improved = compute(_iso, _year, _outcome, _grpc, _govImprovement)
+    if (isNaN(improved)){
+        var outcome_name = (outcomesMap.get(outcome)).name;
+        var err_str = "unable to calculate " + outcome_name + ", " + _year;
+        // temporary hack to check governance values
+        var govresults = computegovernance(_iso, _year, _govImprovement);
+        var hasNan = false
+        govresults.forEach(function(v, k){
+            hasNan = hasNan || isNaN(v);
+        })
+        if (hasNan){
+            err_str += "\n governance measures data unavailable";
+        }
+        return {error : err_str};
+    }
     var govresults = computegovernance(_iso, _year, _govImprovement)
     var residual = original - fitted;
     improved = Math.min(Math.max(improved + residual, 0), 100);
 
-    var additional = {};
+    var additional = [];
+    
+    //!! consider rounding numbers of people here to integers
 
     if (_outcome == "SANITBASIC" || _outcome == "SANITSAFE" || _outcome == "WATERBASIC" || _outcome == "WATERSAFE") {
-        additional["People with increased access"] = (improved - original) / 100 * popTotal;
-        additional["Children < 5 with increased access"] = (improved - original) / 100 * popU5;
-        additional["Females 15-49 with increased access"] = (improved - original) / 100 * popFemale15_49;
+        additional.push({name : "People with increased access",  value : (improved - original) / 100 * popTotal, keyvariable : true});
+        additional.push({name : "Children < 5 with increased access", value : (improved - original) / 100 * popU5, keyvariable : true});
+        additional.push({name : "Females 15-49 with increased access", value: (improved - original) / 100 * popFemale15_49, keyvariable : true});
     } else if (_outcome == "IMUNISATION") {
-        additional["Number of infants immunised"] = (improved - original) / 100 * popChildrenSurvive1
+        additional.push({name : "Number of infants immunised", value : (improved - original) / 100 * popChildrenSurvive1, keyvariable : true})
     } else if (_outcome == "SCHOOLPERC") {
-        additional["Additional years of school life expectancy"] = 17 * (improved - original) / 100 * popChildrenSurvive5
+        additional.push({name : "Additional years of school life expectancy", value : 17 * (improved - original) / 100 * popChildrenSurvive5, keyvariable : true})
     } else if (_outcome == "U5MSURV"){
-        additional["Under-5 five deaths averted"] = (improved - original) / 100 * popBirths
-        additional["Under-5 deaths"] = (1 - original / 100) * popBirths
-        additional["Under-5 deaths with additional revenue"] = (1 - improved / 100) * popBirths
+        additional.push({name : "Under-5 five deaths averted", value : (improved - original) / 100 * popBirths, keyvariable : true})
+        additional.push({name : "Under-5 deaths", value : (1 - original / 100) * popBirths, keyvariable : false})
+        additional.push({name : "Under-5 deaths with additional revenue", value : (1 - improved / 100) * popBirths, keyvariable : false})
     } else if (_outcome == "MMRSURV"){
-        additional["Maternal deaths averted"] = (improved - original) / 100 * popBirths
-        additional["Maternal deaths"] = (1 - original / 100) * popBirths
-        additional["Maternal deaths with additional revenue"] = (1 - improved / 100) * popBirths
+        additional.push({name : "Maternal deaths averted", value : (improved - original) / 100 * popBirths, keyvariable : true})
+        additional.push({name : "Maternal deaths", value : (1 - original / 100) * popBirths, keyvariable : false})
+        additional.push({name : "Maternal deaths with additional revenue", value : (1 - improved / 100) * popBirths, keyvariable : false})
     }
 
     var ret = {
+        "error" : null,
         "original": original,
         "improved": improved,
         "fitted": fitted,
@@ -352,38 +379,47 @@ function computeResult(_iso, _year, _outcome, _grpc, _grpcOrig, _govImprovement)
     return ret;
 }
 
+function convertNumber(s){
+    // utility function; as +() but ensures null strings convert to NaN
+    if (!s){
+        return NaN;
+    }
+    else
+        return +s;
+}
+
 function typeAndSetPopulation(d) {
     
     var e = {}
     
-    e.CORRUPTION    =+d["Control of Corruption: Estimate"]
+    e.CORRUPTION    =convertNumber(d["Control of Corruption: Estimate"])
     e.Country 	    =d["countryname"]                                      
-    e.GOVEFFECT 	=+d["Government Effectiveness: Estimate"]
-    e.GRPERCAP 	    =+d["GRpc UNU WIDER"]
-    e.IMUNISATION	=+d["Immunization, DPT (% of children ages 12-23 months)"]
+    e.GOVEFFECT 	=convertNumber(d["Government Effectiveness: Estimate"])
+    e.GRPERCAP 	    =convertNumber(d["GRpc UNU WIDER"])
+    e.IMUNISATION	=convertNumber(d["Immunization, DPT (% of children ages 12-23 months)"])
     e.ISO 	        =d["countrycode"]
-    e.POLSTAB 	    =+d["Political Stability and Absence of Violence/Terrorism: Estimate"]
-    e.REGQUALITY	=+d["Regulatory Quality: Estimate"]
-    e.RULELAW 	    =+d["Rule of Law: Estimate"]
-    e.SANITBASIC 	=+d["People using at least basic sanitation services (% of population)"]
-    e.SANITSAFE 	=+d["People using safely managed sanitation services (% of population)"]
-    e.SCHOOLPERC 	=+d["School percent"]
-    e.VOICE 	    =+d["Voice and Accountability: Estimate"]
-    e.WATERBASIC 	=+d["People using at least basic drinking water services (% of population)"]
-    e.WATERSAFE 	=+d["People using safely managed drinking water services (% of population)"]
-    e.U5MSURV 	    =+d["U5 survival %"]
-    e.MMRSURV 	    =+d["Maternal survival rate %"]
+    e.POLSTAB 	    =convertNumber(d["Political Stability and Absence of Violence/Terrorism: Estimate"])
+    e.REGQUALITY	=convertNumber(d["Regulatory Quality: Estimate"])
+    e.RULELAW 	    =convertNumber(d["Rule of Law: Estimate"])
+    e.SANITBASIC 	=convertNumber(d["People using at least basic sanitation services (% of population)"])
+    e.SANITSAFE 	=convertNumber(d["People using safely managed sanitation services (% of population)"])
+    e.SCHOOLPERC 	=convertNumber(d["School percent"])
+    e.VOICE 	    =convertNumber(d["Voice and Accountability: Estimate"])
+    e.WATERBASIC 	=convertNumber(d["People using at least basic drinking water services (% of population)"])
+    e.WATERSAFE 	=convertNumber(d["People using safely managed drinking water services (% of population)"])
+    e.U5MSURV 	    =convertNumber(d["U5 survival %"])
+    e.MMRSURV 	    =convertNumber(d["Maternal survival rate %"])
     
-    e["Population, total"]                      =+d["Pop total"]
-    e["Pop < 5"]                                =+d["Pop<5"]
-    e["Number of females aged 15-49"]           =+d["Female Pop15-49"]
-    e["Children survive to 1 year"]             =+d["Number of infants surviving to 1yr"]
-    e["Number of births"]                       =+d["Number of births"]
+    e["Population, total"]                      =convertNumber(d["Pop total"])
+    e["Pop < 5"]                                =convertNumber(d["Pop<5"])
+    e["Number of females aged 15-49"]           =convertNumber(d["Female Pop15-49"])
+    e["Children survive to 1 year"]             =convertNumber(d["Number of infants surviving to 1yr"])
+    e["Number of births"]                       =convertNumber(d["Number of births"])
     e["countrycode"]                            = d["countrycode"]
     e["countryname"]                            = d["countryname"]
-    e["year"]                                   =+d["year"]
+    e["year"]                                   =convertNumber(d["year"])
     e["incomelevel"]                            = d["incomelevel"]
-    e["Number of children surviving to five"]   =+d["Number of children surviving to five "]
+    e["Number of children surviving to five"]   =convertNumber(d["Number of children surviving to five "])
 
     return e;
 }
