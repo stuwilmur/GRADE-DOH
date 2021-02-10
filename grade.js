@@ -93,7 +93,7 @@ function makeText2(_year, _iso, _outcome, _years_to_project)
             + "<br/>Increase in Gov. rev. per capita: <span class = 'ar'>" + (revenues["percentage increase"] * 100).toFixed(2) + "%</span>"
             + "<br><br>"
             + "<div class = 'cumulative'>"
-            + "<strong>Cumulative projected effect</strong>"
+            + "<strong>Cumulative effect over the projected period:</strong>"
             
             projection.data.forEach(function(value, result){
               text += "<br/>" + result + ":<br/> <span class = 'ar'>" + d3.format(",")(value.toFixed(0)) + "</span>"; 
@@ -124,10 +124,13 @@ function makeText(_iso, _year) {
     
     // 04/02/21 hide instantaenous effect values so as not to confuse with plot
     // 09/02/21 hide governance so we can use this more generally
+    // 10/02/21 turn instantaneous effect back on
     
     +
-    "<br/><br/><strong>" + outcomesMap.get(outcome).name + "</strong><br/>" +
-    "Current % coverage: <span class = 'ar'>" + result.original.toFixed(2) + "</span>" +
+    "<br/><br/><strong>" + outcomesMap.get(outcome).name + "</strong>" 
+    +
+    "<br/>(instantaneous effect)"
+    +"<br/>Current % coverage: <span class = 'ar'>" + result.original.toFixed(2) + "</span>" +
     "<br/>New % coverage: <span class = 'ar'>" + result.improved.toFixed(2) + "</span>";
 
     if (result.hasOwnProperty("additional")) {
@@ -430,7 +433,8 @@ function getprojecteddata(_firstyear, _country, _outcome, _years_to_project) {
     // Takes a baseline year an increase in revenue, and calculates the corresponding % increase in grpc:
     // projects this by: allowing five years for increased revenue to act, where there is no effect;
     // applying the percentage increase for all remaining years (up to a total of years_to_project years). 
-    var ret = {data: [], error: null};
+    var years_to_wait = 5;
+    var ret = {data: [], error: null, years_of_effect : 0};
     var grpcPcIncrease = 0;
     for (y = _firstyear; y < popdata.lastyear && ((y - _firstyear) <= _years_to_project); y++) {
         var revenues = getRevenue(_country, y, method);
@@ -442,10 +446,11 @@ function getprojecteddata(_firstyear, _country, _outcome, _years_to_project) {
         if (y == _firstyear) {
             grpcPcIncrease = revenues["percentage increase"];
             grpc = revenues["historical grpc"];
-        } else if ((y - _firstyear) < 5) {
+        } else if ((y - _firstyear) < years_to_wait) {
             grpc = revenues["historical grpc"];
         } else {
             grpc = revenues["historical grpc"] * (1 + grpcPcIncrease);
+            ret.years_of_effect += 1;
         }
 
         var computed = computeResult(_country, y, _outcome, grpc, revenues["historical grpc"], governance);
@@ -466,7 +471,7 @@ function getprojecteddata(_firstyear, _country, _outcome, _years_to_project) {
         });  
     }
     
-    ret.start_of_effect = Math.min(popdata.lastyear, _firstyear + 5);
+    ret.start_of_effect = Math.min(popdata.lastyear, _firstyear + years_to_wait);
     return (ret);
 }
 
@@ -607,7 +612,7 @@ function calcprojection(_year, _country, _outcome, _years_to_project)
     if (theOutcome.isStockVar){
         var averages = new Map();
         totals.forEach( function(value, result){
-            var result_avg = value / plotdata.data.length;
+            var result_avg = plotdata.years_of_effect > 0 ? value / plotdata.years_of_effect : 0;
             averages.set(result, result_avg);            
         })
         ret.data = averages;
