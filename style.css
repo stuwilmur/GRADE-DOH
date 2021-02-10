@@ -16,6 +16,7 @@ body {
 }
 
 .output {
+    font-size: 100%;
     white-space: normal;
     border-radius: 0px;
     color: #000000;
@@ -46,7 +47,7 @@ body {
 }
 
 #plotwrapper {
-    width: 60%;
+    width: 55%;
     pointer-events: all;
 }
 
@@ -338,7 +339,8 @@ a {
 }
 
 .ar {
-    float: right
+    float: right;
+    display: inline-block;
 }
 
 .arb {
@@ -387,4 +389,14 @@ button {
   font-size: 16px;
   margin-bottom: 10px;
   cursor: pointer;
+}
+
+.cumulative {
+    background-color: #ffdb8d;
+    border-style: solid;
+    border-color: #e09900;
+    border-width: 1px;
+    padding: 5px;
+    height: 100%;
+    padding-bottom: 20px; /*hack to get bottom span to stay within div*/
 }

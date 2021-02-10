@@ -11,6 +11,7 @@ class PopData {
             })
             .entries(_csvdata);
         
+        this.firstyear = d3.min(_csvdata, d => d.year);
         this.lastyear = d3.max(_csvdata, d => d.year);
     }
 

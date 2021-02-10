@@ -1,8 +1,9 @@
 //!! TODO
-// make first and last years dynamic in slider
 // decouple model from global variables
-// move special country options to html
+// move special country options to index
 // outcomes objects including functions
+// rounding error for small values
+// precision of reporting for integer values
 
 var subheight = 100;
 var legendCells = 10;
@@ -71,9 +72,10 @@ function makeText2(_year, _iso, _outcome, _years_to_project)
         + "<h1 class='tooltip'> " +  countrycodes.get(_iso) + "</h1>"
         + "<br/><strong>Projection for " + year + " - " + end_year + "</strong>"
     
+    
     if (projection.error){
         text = text 
-        + "<br/> Unable to project: "
+        + "<br/> Projection unavailable: "
         + projection.error.join("<br>"); 
     }
     else{
@@ -89,11 +91,14 @@ function makeText2(_year, _iso, _outcome, _years_to_project)
             + "<br/>Current Gov. rev. per capita: <span class = 'ar'>$" + d3.format(",")(revenues["historical grpc"].toFixed(2)) + "</span>" 
             + "<br/>New Gov. rev. per capita: <span class = 'ar'>$" + d3.format(",")(revenues["new grpc"].toFixed(2)) + "</span>"
             + "<br/>Increase in Gov. rev. per capita: <span class = 'ar'>" + (revenues["percentage increase"] * 100).toFixed(2) + "%</span>"
-            + "<br/><br/><strong>Projected effect</strong>"
+            + "<br><br>"
+            + "<div class = 'cumulative'>"
+            + "<strong>Cumulative projected effect</strong>"
             
-            projection.forEach(function(value, result){
-              text += "<br/>" + result + ": <span class = 'ar'>" + d3.format(",")(value.toFixed(0)) + "</span>"; 
+            projection.data.forEach(function(value, result){
+              text += "<br/>" + result + ":<br/> <span class = 'ar'>" + d3.format(",")(value.toFixed(0)) + "</span>"; 
             })
+            text += "</div>"
         }
 }
     return text;
@@ -119,7 +124,7 @@ function makeText(_iso, _year) {
     
     // 04/02/21 hide instantaenous effect values so as not to confuse with plot
     // 09/02/21 hide governance so we can use this more generally
-    /*
+    
     +
     "<br/><br/><strong>" + outcomesMap.get(outcome).name + "</strong><br/>" +
     "Current % coverage: <span class = 'ar'>" + result.original.toFixed(2) + "</span>" +
@@ -131,6 +136,7 @@ function makeText(_iso, _year) {
         })
     }
 
+    /*
     var govtext = "";
     result.gov.forEach(function (result, govmeasure) {
         govtext = govtext + result.desc + ": <span class = 'ar'>" + result.value.toFixed(2) + "</span><br/>"
@@ -576,10 +582,12 @@ function calcprojection(_year, _country, _outcome, _years_to_project)
 {
     // calculate the totals of projected effects for flow variables, and the
     // averages for stock variables.
+    var ret = {data : null, error : null};
     var plotdata = getprojecteddata(_year, _country, _outcome, _years_to_project);
     
     if (plotdata.error){
-        return plotdata.error;
+        ret.error = plotdata.error;
+        return ret;
     }
     
      var theOutcome = outcomesMap.get(outcome);
@@ -602,11 +610,13 @@ function calcprojection(_year, _country, _outcome, _years_to_project)
             var result_avg = value / plotdata.data.length;
             averages.set(result, result_avg);            
         })
-        return averages;
+        ret.data = averages;
     }
     else{
-        return totals;
+        ret.data = totals;   
     }
+    
+    return ret;
 }
 
 function download_csv() {
@@ -722,6 +732,9 @@ function loaded(error, countries, _popdata) {
     d3.select("#grpcSlider").on("change", function () {
         enteredGrpc = this.value * 1;
     });
+    d3.select("#yearSlider")
+        //.attr("min", popdata.firstyear) // min set manually to 1980
+        .attr("max", popdata.lastyear)
 
     setupMenus(popcountries, outcomesList);
     spinner.stop();
