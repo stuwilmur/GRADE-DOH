@@ -32,7 +32,7 @@
     </script>
 
     <div class="all">
-        <div class="menu">
+        <div class="menu" id="menu">
             <div class="inline-div">
                 <div class="item">
                     <a href=http://med.st-andrews.ac.uk/grade />
@@ -317,6 +317,9 @@
             .call(zoom)
             //.on("zoom", redraw))
             .append("g");
+        
+        d3.select("#menu")
+        .style("height", window.innerHeight - 25 + "px");
 
         svg
             .call(zoom) // delete this line to disable free zooming
