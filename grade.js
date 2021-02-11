@@ -66,7 +66,7 @@ function makeText2(_year, _iso, _outcome, _years_to_project)
     // in case we need makeText again in the future
     
     var end_year = getProjectionEnd(_year, _years_to_project)
-    var projection = calcprojection(+year, country, outcome, +years_to_project)
+    var projection = calcprojection(_year, _iso, _outcome, _years_to_project)
     var text = "";
     text = text 
         + "<h1 class='tooltip'> " +  countrycodes.get(_iso) + "</h1>"
@@ -86,6 +86,10 @@ function makeText2(_year, _iso, _outcome, _years_to_project)
             text += "<strong>" + countrycodes.get(_iso) + "<\/strong>" + ": No GRPC data available";
         }
         else{
+            
+            var theOutcome = outcomesMap.get(_outcome);
+            var varText = theOutcome.isStockVar ? "Average" : "Cumulative";
+            
             text = text 
             + "<br/><br/><strong>" + _year + "</strong>"
             + "<br/>Current Gov. rev. per capita: <span class = 'ar'>$" + d3.format(",")(revenues["historical grpc"].toFixed(2)) + "</span>" 
@@ -93,7 +97,7 @@ function makeText2(_year, _iso, _outcome, _years_to_project)
             + "<br/>Increase in Gov. rev. per capita: <span class = 'ar'>" + (revenues["percentage increase"] * 100).toFixed(2) + "%</span>"
             + "<br><br>"
             + "<div class = 'cumulative'>"
-            + "<strong>Cumulative effect over the projected period:</strong>"
+            + "<strong>" + varText + " effect over the projected period:</strong>"
             
             projection.data.forEach(function(value, result){
               text += "<br/>" + result + ":<br/> <span class = 'ar'>" + d3.format(",")(value.toFixed(0)) + "</span>"; 
