@@ -747,6 +747,8 @@ function loaded(error, countries, _popdata) {
 
     setupMenus(popcountries, outcomesList);
     spinner.stop();
+    d3.select("#loading")
+    .style("display", "none");
 
 }
 

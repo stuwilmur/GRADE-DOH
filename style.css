@@ -403,3 +403,17 @@ button {
     height: 100%;
     padding-bottom: 20px; /*hack to get bottom span to stay within div*/
 }
+
+#loading{
+    position: absolute;
+    top: 45%;
+    left: 45%;
+    width: 10%;
+    text-align: center;
+    height: 10%;
+    display: flex;
+    justify-content: center;
+    align-content: center;
+    flex-direction: column;
+    color: #e09900;
+}
