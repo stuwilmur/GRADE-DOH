@@ -4,6 +4,7 @@
 // outcomes objects including functions
 // rounding error for small values
 // precision of reporting for integer values
+// ensure initial options consistent (without resorting to on change)
 
 var subheight = 100;
 var legendCells = 10;
@@ -11,6 +12,7 @@ var transitionTime = 500;
 var legendLinear;
 var countrycodes = new Map();
 
+// inputs / initial values
 var govRevenue = 0;
 var enteredGrpc = 0;
 var absGovRev = 0;
@@ -20,8 +22,8 @@ var year = 2016;
 var years_to_project = 10;
 var governance = 0;
 var country = "$-ALL";
-var method = "newgrpc";
-var prefix = "U";
+var method = "absolute";
+var prefix = "M";
 var plottype = "population";
 var outcome = "SANITBASIC";
 var govtype = "GOVEFFECT";
@@ -255,9 +257,15 @@ function setupMenus(countries, outcomes) {
                 return d[1].name;
             });
 
-        // make sure selection matches initial value
+        // make sure all selections match initial values
+        d3.select('#countrylist').property('value', country);
         d3.select('#outcomes').property('value', outcome);
-
+        d3.select('#methodlist').property('value', method);
+        d3.select('#prefix').property('value', prefix);
+        d3.select('#yearslider').property('value', year);
+        d3.select('#yearsProjectVal').property('value', years_to_project);
+        d3.select('#govVal').property('value', governance);
+        
         // individual governance sliders
         /*
         d3.select("#govList")
@@ -269,6 +277,7 @@ function setupMenus(countries, outcomes) {
         .text(function(d){return d.desc;})
         */
 
+        //!! refactor
         d3.select("#methodlist")
             .on("change", function (d) {
                 method = this.options[this.selectedIndex].value;

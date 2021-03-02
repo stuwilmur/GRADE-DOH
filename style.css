@@ -262,20 +262,13 @@ svg {
 }
 
 
-#revDiv {
+#revDiv, #pcRevDiv, #grpcdiv {
     display: none;
 }
 
-#absRevDiv {
-    display: none;
-}
 
-#pcRevDiv {
-    display: none;
-}
-
-#prefix {
-    display: none;
+#absRevDiv, #prefix {
+    display: block;
 }
 
 
@@ -344,7 +337,7 @@ a {
 
 .ar {
     float: right;
-    display: inline-block;
+    /*display: inline-block;*/
 }
 
 .arb {
