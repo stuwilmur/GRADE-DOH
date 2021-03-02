@@ -172,7 +172,7 @@ function getPrefixValue(p) {
 }
 
 function getText(d, _bProjection = false) {
-    if (d.id.slice(0, 2) == "$-") { //!! replace with slice
+    if (d.id.slice(0, 2) == "$-") {
         return "";
     }
 

@@ -60,20 +60,20 @@
                 </select>
 
                 <p>Specify revenue as:</p><select id="methodlist" name="method">
-                    <option value="newgrpc">
-                        New government revenue per capita
-                    </option>
-
-                    <option value="percentage">
-                        Increase as percentage of gov. rev. per capita
-                    </option>
-
                     <option value="absolute">
                         Absolute additional revenue
                     </option>
 
                     <option value="pc">
                         Additional revenue per capita
+                    </option>
+
+                    <option value="percentage">
+                        Increase as percentage of gov. rev. per capita
+                    </option>
+
+                    <option value="newgrpc">
+                        New government revenue per capita
                     </option>
                 </select>
 
@@ -124,14 +124,8 @@
         <p>Governance measure:</p><select id="govList" name="gov">
         </select>
         -->
-
-                <div class="slidecontainer">
-                    <input type="range" name="govSlider" id="govSlider" class="slider" min="0" max="200" value="100" />
-                    <img src="img/larrow.png" style="width: 60px; height: auto;" />worsening&nbsp&nbsp&nbsp<span class="ar">improving <img src="img/rarrow.png" style="width: 60px; height : auto" /></span>
-
-                    <p>Governance quality: <span id="govVal">0</span></p>
-                </div>
-
+                <select id="outcomes" name="outcome">
+                </select>
                 <div class="slidecontainer">
                     <input type="range" name="yearSlider" id="yearSlider" class="slider" min="1980" max="2100" value="2017" />
 
@@ -142,8 +136,13 @@
 
                     <p> Period of projection: <span id="yearsProjectVal">10</span> years</p>
                 </div>
-                <select id="outcomes" name="outcome">
-                </select>
+
+                <div class="slidecontainer">
+                    <input type="range" name="govSlider" id="govSlider" class="slider" min="0" max="200" value="100" />
+                    <img src="img/larrow.png" style="width: 60px; height: auto;" />worsening&nbsp&nbsp&nbsp<span class="ar">improving <img src="img/rarrow.png" style="width: 60px; height : auto" /></span>
+
+                    <p>Governance quality: <span id="govVal">0</span></p>
+                </div>
             </div>
 
 

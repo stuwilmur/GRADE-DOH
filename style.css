@@ -16,6 +16,7 @@ body {
     overflow-y: scroll;
     overflow-x: hidden;
     height: 500px;
+    padding-right: 15px;
 }
 
 .output {

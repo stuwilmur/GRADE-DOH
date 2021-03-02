@@ -218,7 +218,7 @@ var outcomesList = [
             hiCol: "#e09900",
             fixedExtent: [0, 100],
             desc: "Maternal survival",
-            isStockVar : true,
+            isStockVar : false,
          }],
 
 /*
