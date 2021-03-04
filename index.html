@@ -1,387 +1,393 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
-
 <html lang="en" xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">
+    <head>
+        <meta name="generator" content="HTML Tidy for Linux (vers 25 March 2009), see www.w3.org" />
+        <title>GRADE Determinants of Health/Fundamental economic and social rights</title>
+        <meta http-equiv="content-type" lang="en" content="text/html; charset=us-ascii" xml:lang="en" />
+        <link href="https://fonts.googleapis.com/css?family=Open+Sans&amp;display=swap" rel="stylesheet" type="text/css" />
+        <link rel="icon" href="data:," />
+        <link rel="stylesheet" type="text/css" href="style.css">
+    </head>
+    <body>
+        <script src="https://d3js.org/d3.v3.min.js" type="text/javascript"></script>
+        <script src="https://d3js.org/queue.v1.min.js" type="text/javascript"></script>
+        <script src="https://d3js.org/topojson.v1.min.js" type="text/javascript"></script>
+        <script src='https://cdn.plot.ly/plotly-latest.min.js'></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/spin.js/2.3.2/spin.js"></script>
+        <script src="tooltip.js" type="text/javascript"></script>
+        <script src="d3-legend.min.js" type="text/javascript"></script>
+        <script src="popdata.js" type="text/javascript"></script>
+        <script src="grade.js" type="text/javascript"></script>
+        <script src="model.js" type="text/javascript"></script>
+        <script src="linterp.js" type="text/javascript"></script>
 
-<head>
-    <meta name="generator" content="HTML Tidy for Linux (vers 25 March 2009), see www.w3.org" />
-
-    <title>GRADE Determinants of Health/Fundamental economic and social rights</title>
-    <meta http-equiv="content-type" lang="en" content="text/html; charset=us-ascii" xml:lang="en" />
-    <link href="https://fonts.googleapis.com/css?family=Open+Sans&amp;display=swap" rel="stylesheet" type="text/css" />
-    <link rel="icon" href="data:," />
-    <link rel="stylesheet" type="text/css" href="style.css">
-    </style>
-</head>
-
-<body>
-
-    <script src="https://d3js.org/d3.v3.min.js" type="text/javascript">
-    </script>
-    <script src="https://d3js.org/queue.v1.min.js" type="text/javascript">
-    </script>
-    <script src="https://d3js.org/topojson.v1.min.js" type="text/javascript">
-    </script>
-    <script src='https://cdn.plot.ly/plotly-latest.min.js'>
-    </script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/spin.js/2.3.2/spin.js">
-    </script>
-
-    <script src="tooltip.js" type="text/javascript">
-    </script>
-    <script src="d3-legend.min.js" type="text/javascript">
-    </script>
-
-    <div class="all">
-        <div class="menu" id="menu">
-            <div class="inline-div">
-                <div class="item">
-                    <a href=http://med.st-andrews.ac.uk/grade />
-                    <h2 class="label success new-label"><span class="align">GRADE Homepage</span></h2>
-                    </a>
-                </div>
-            </div>
-
-            <h2>GRADE Determinants of Health/Fundamental economic and social rights</h2>
-
-            <p>
-            <ul>
-                <li>Hover over a country to show information</li>
-                <li>Click a country/select from the list to focus</li>
-                <li>Click oceans to reset view</li>
-                <li></li>
-            </ul>
-            </p>
-
-            <div>
-                <select id="countrylist" name="country">
-                    <option value="$-ALL">
-                        Show all countries
-                    </option>
-                </select>
-
-                <p>Specify revenue as:</p><select id="methodlist" name="method">
-                    <option value="absolute">
-                        Absolute additional revenue
-                    </option>
-
-                    <option value="pc">
-                        Additional revenue per capita
-                    </option>
-
-                    <option value="percentage">
-                        Increase as percentage of gov. rev. per capita
-                    </option>
-
-                    <!--- removed 02/0
-                    <option value="newgrpc">
-                        New government revenue per capita
-                    </option>
-                    --->
-                </select>
-
-                <select id="prefix" name="prefix">
-                    <option value="U">
-                        USD
-                    </option>
-
-                    <option value="M">
-                        Millions (M) USD
-                    </option>
-
-                    <option value="B">
-                        Billions (B) USD
-                    </option>
-                </select>
-            </div>
-
-            <div class="sliders">
-                <div class="slidecontainer">
-                    <div id="revDiv">
-                        <input type="number" name="revSlider" id="revSlider" class="numeric" min="0" max="100" value="0" />
-
-                        <p>Additional Revenue (% of GRpC): <span id="revenueVal">0%</span></p>
-                    </div>
-
-                    <div id="absRevDiv">
-                        <input type="number" name="absRevSlider" id="absRevSlider" class="numeric" min="0" max="1000" value="0" />
-
-                        <p>Additional Revenue (USD): <span id="absRevenueVal">$0M</span></p>
-                    </div>
-
-                    <div id="pcRevDiv">
-                        <input type="number" name="pcRevSlider" id="pcRevSlider" class="numeric" min="0" max="1000" value="0" />
-
-                        <p>Additional Revenue (USD per capita): <span id="perCapitaRevenueVal">$0</span></p>
-                    </div>
-
-                    <div id="grpcdiv">
-                        <input type="number" name="grpcSlider" id="grpcSlider" class="numeric" min="0" max="1000" value="0" />
-
-                        <p>New gov. rev. per capita(USD): <span id="grpcVal">$0</span></p>
+        <div class="all">
+            <div class="menu" id="menu">
+                <div class="inline-div">
+                    <div class="item">
+                        <a href=http://med.st-andrews.ac.uk/grade />
+                        <h2 class="label success new-label"><span class="align">GRADE Homepage</span></h2>
+                        </a>
                     </div>
                 </div>
-
-
-                <!--
-        <p>Governance measure:</p><select id="govList" name="gov">
-        </select>
-        -->
-                <select id="outcomes" name="outcome">
-                </select>
-                <div class="slidecontainer">
-                    <input type="range" name="yearSlider" id="yearSlider" class="slider" min="1980" max="2100" value="2017" />
-
-                    <p>Year: <span id="yearVal"></span></p>
-                </div>
-                <div class="slidecontainer">
-                    <input type="range" name="yearsProjectSlider" id="yearsProjectSlider" class="slider" min="1" max="20" value="10" />
-
-                    <p> Period of projection: <span id="yearsProjectVal">10</span> years</p>
-                </div>
-
-                <div class="slidecontainer">
-                    <input type="range" name="govSlider" id="govSlider" class="slider" min="0" max="200" value="100" />
-                    <img src="img/larrow.png" style="width: 60px; height: auto;" />worsening&nbsp&nbsp&nbsp<span class="ar">improving <img src="img/rarrow.png" style="width: 60px; height : auto" /></span>
-
-                    <p>Governance quality: <span id="govVal">0</span></p>
-                </div>
-            </div>
-
-
-            <h4>Download raw data</h4>
-            <ul>
-                <li><a href="BASE%20data.xlsx">Excel (including notes on data)</a></li>
-                <li><a href="BASE%20data.csv">CSV</a></li>
-            </ul>
-            <p id="version">v1.2 03/03/2021</p>
-            <div>
-
-            </div>
-        </div>
-        <div id="vis">
-            <div id="loading">
-                Loading...
-            </div>
-        </div>
-        <div id="mapoverlay">
-            <div class="output" , id="countrydata">
-                <div id="countrytext">
-                </div>
-            </div>
-            <!---
-            <div class="plotwrapper", id = "ploterror">
-                <p id = "ploterrortext">
+                <h2>GRADE Determinants of Health/Fundamental economic and social rights</h2>
+                <p id="info">
+                <ul>
+                    <li>Hover over a country to show information</li>
+                    <li>Click a country/select from the list to focus</li>
+                    <li>Click oceans to reset view</li>
+                    <li></li>
+                </ul>
                 </p>
-            </div>
-            --->
-            <div class="plotwrapper" id = "plotwrapper">
-                <div class="plot" id="plot">
-                    <!---
-                 Result to show <select id="countrylist" name="country">
+                <div class="uiouter">
+                    <p>Country</p>
+                    <div class="uicontainer">
+                    <select id="countrylist" name="country">
+                        <option value="$-ALL">
+                            Show all countries
+                        </option>
+                        <option value="$-LIC">
+                            Low-income countries
+                        </option>
+                        <option value="$-LMIC">
+                            Lower-middle-income countries
+                        </option>
+                        <option value="$-UMIC">
+                            Upper-middle-income countries
+                        </option>
+                        <option value="$-HIC">
+                            High-income countries
+                        </option>
                     </select>
+                    </div>
+                </div>
+                <div class="uiouter">
+                    <p>Specify revenue as:</p>
+                    <div class="uicontainer">
+                        <select id="methodlist" name="method">
+                            <option value="absolute">
+                                Absolute additional revenue
+                            </option>
+
+                            <option value="pc">
+                                Additional revenue per capita
+                            </option>
+
+                            <option value="percentage">
+                                Increase as percentage of gov. rev. per capita
+                            </option>
+
+                            <!--- removed 02/0
+                            <option value="newgrpc">
+                                New government revenue per capita
+                            </option>
+                            --->
+                        </select>
+                        <select id="prefix" name="prefix">
+                            <option value="U">
+                                USD
+                            </option>
+
+                            <option value="M">
+                                Millions (M) USD
+                            </option>
+
+                            <option value="B">
+                                Billions (B) USD
+                            </option>
+                        </select>
+                    </div>
+                </div>
+                <div class = "uiouter", id="revDiv">
+                    <p>Additional Revenue (% of GRpC): <span id="revenueVal">0%</span></p>
+                    <div class="uicontainer">
+                        <input type="number" name="revSlider" id="revSlider" class="numeric" min="0" max="100" value="0" />
+                    </div>
+                </div>
+                <div class = "uiouter", id="absRevDiv">
+                    <p>Additional Revenue (USD): <span id="absRevenueVal">$0M</span></p>
+                    <div class="uicontainer">
+                        <input type="number" name="absRevSlider" id="absRevSlider" class="numeric" min="0" max="1000" value="0" />
+                    </div>
+                </div>
+                <div class = "uiouter", id="pcRevDiv">
+                    <p>Additional Revenue (USD per capita): <span id="perCapitaRevenueVal">$0</span></p>
+                    <div class="uicontainer">
+                        <input type="number" name="pcRevSlider" id="pcRevSlider" class="numeric" min="0" max="1000" value="0" />
+                    </div>
+                </div>
+                <div class = "uiouter", id="grpcdiv">
+                    <p>New gov. rev. per capita(USD): <span id="grpcVal">$0</span></p>
+                    <div class="uicontainer">
+                        <input type="number" name="grpcSlider" id="grpcSlider" class="numeric" min="0" max="1000" value="0" />
+                    </div>
+                </div>
+                <!--<p>Governance measure
+                    :</p><select id="govList" name="gov">
+                </select>
+                -->
+                <div class="uiouter">
+                    <p>Outcome</p>
+                    <div class="uicontainer">       
+                        <select id="outcomes" name="outcome">
+                        </select>
+                    </div>  
+                </div>
+                <div class="uiouter">
+                    <p>Year: <span id="yearVal"></span></p>
+                    <div class="uicontainer">
+                        <input type="range" name="yearSlider" id="yearSlider" class="slider" min="1980" max="2100" value="2017" />
+                    </div>
+                </div>
+                <div class="uiouter">
+                    <p> Period of projection: <span id="yearsProjectVal">10</span> years</p>
+                    <div class="uicontainer">
+                        <input type="range" name="yearsProjectSlider" id="yearsProjectSlider" class="slider" min="1" max="20" value="10" /> 
+                    </div>
+                </div>
+                <div class="uiouter">
+                    <p>Change in governance quality: <span id="govVal">0</span></p>
+                    <div class="uicontainer">
+                        <input type="range" name="govSlider" id="govSlider" class="slider" min="0" max="200" value="100" />
+                        <img src="img/larrow.png" style="width: 60px; height: auto;" />worsening&nbsp&nbsp&nbsp<span class="ar">improving <img src="img/rarrow.png" style="width: 60px; height : auto" /></span>
+                    </div>
+                </div>
+                <div class="uiouter">
+                <div class="uicontainer">
+                    <select id="multicountrylist" name="multicountry">
+                    </select>
+                </div>
+                </div>
+                <h4>Download raw data</h4>
+                <ul>
+                    <li><a href="BASE%20data.xlsx">Excel (including notes on data)</a></li>
+                    <li><a href="BASE%20data.csv">CSV</a></li>
+                </ul>
+                <p id="version">v1.2 03/03/2021</p>
+                <div>
+
+                </div>
+            </div>
+            <div id="vis">
+                <div id="loading">
+                    Loading...
+                </div>
+            </div>
+            <div id="mapoverlay">
+                <div class="output" , id="countrydata">
+                    <div id="countrytext">
+                    </div>
+                </div>
+                <!---
+                <div class="plotwrapper", id = "ploterror">
+                    <p id = "ploterrortext">
+                    </p>
+                </div>
                 --->
-                </div>
-                <div class="plottools">
-                    <button onclick="download_csv()">Download plot data</button> 
-                    <!---
-                    <select name="plottype" id="plottype">
-                        <option value="u5m">Under-5 deaths averted</option>
-                        <option value="mmr">Maternal deaths averted</option>
-                        <option value="population">Population affected</option>
-                    </select>
+                <div class="plotwrapper" id = "plotwrapper">
+                    <div class="plot" id="plot">
+                        <!---
+                    Result to show <select id="countrylist" name="country">
+                        </select>
                     --->
+                    </div>
+                    <div class="plottools">
+                        <button onclick="download_csv()">Download plot data</button> 
+                        <!---
+                        <select name="plottype" id="plottype">
+                            <option value="u5m">Under-5 deaths averted</option>
+                            <option value="mmr">Maternal deaths averted</option>
+                            <option value="population">Population affected</option>
+                        </select>
+                        --->
+                    </div>
                 </div>
-            </div>
-    </div>
-    </div>
-    <script src="popdata.js" type="text/javascript"></script>
-    <script src="grade.js" type="text/javascript"></script>
-    <script src="model.js" type="text/javascript"></script>
-    <script src="linterp.js" type="text/javascript"></script>
-    <script type="text/javascript">
-        
-        // menu width 20%, map %80 - 30px extra for margins, or if too big (because
-        // menu has a limited smallest size of 370) then just take up the reamining 
-        // screen, allowing an extra 40px for margins.
-        //
-        // map height 100% - 120px for legend
-        
-        var width = Math.min(window.innerWidth * 0.8, window.innerWidth - 370 - 40)
-        //var width = window.innerWidth * 0.8 - 30;
-        var height = window.innerHeight - 120;
-        
-        /*var fontpx = width * fontscale;
-        d3.select("body")
-        .style("font-size", fontpx.toFixed() + "px");*/
-        
-        // spinner
-        var opts = {
-        lines: 20, // The number of lines to draw
-        length: 0, // The length of each line
-        width: 15, // The line thickness
-        radius: 47, // The radius of the inner circle
-        scale: 0.85, // Scales overall size of the spinner
-        corners: 1, // Corner roundness (0..1)
-        color: ["#e09900"], // CSS color or array of colors
-        fadeColor: ["#dee5f8"], // CSS color or array of colors
-        opacity: 0.05, // Opacity of the lines
-        rotate: 0, // The rotation offset
-        direction: 1, // 1: clockwise, -1: counterclockwise
-        speed: 1, // Rounds per second
-        trail: 74, // Afterglow percentage
-        fps: 20, // Frames per second when using setTimeout() as a fallback in IE 9
-        zIndex: 2e9, // The z-index (defaults to 2000000000)
-        className: 'spinner', // The CSS class to assign to the spinner
-        top: '50%', // Top position relative to parent
-        left: '50%', // Left position relative to parent
-        shadow: 0, // Box-shadow for the lines
-        position: 'absolute' // Element positioning
-        };
+        </div>
+        </div>
 
-        var target = document.getElementById('vis');
-        var spinner = new Spinner(opts).spin(target);
+        <script type="text/javascript">
+            
+            // menu width 20%, map %80 - 30px extra for margins, or if too big (because
+            // menu has a limited smallest size of 370) then just take up the reamining 
+            // screen, allowing an extra 40px for margins.
+            //
+            // map height 100% - 120px for legend
+            
+            var width = Math.min(window.innerWidth * 0.8, window.innerWidth - 370 - 40)
+            //var width = window.innerWidth * 0.8 - 30;
+            var height = window.innerHeight - 120;
+            
+            /*var fontpx = width * fontscale;
+            d3.select("body")
+            .style("font-size", fontpx.toFixed() + "px");*/
+            
+            // spinner
+            var opts = {
+            lines: 20, // The number of lines to draw
+            length: 0, // The length of each line
+            width: 15, // The line thickness
+            radius: 47, // The radius of the inner circle
+            scale: 0.85, // Scales overall size of the spinner
+            corners: 1, // Corner roundness (0..1)
+            color: ["#e09900"], // CSS color or array of colors
+            fadeColor: ["#dee5f8"], // CSS color or array of colors
+            opacity: 0.05, // Opacity of the lines
+            rotate: 0, // The rotation offset
+            direction: 1, // 1: clockwise, -1: counterclockwise
+            speed: 1, // Rounds per second
+            trail: 74, // Afterglow percentage
+            fps: 20, // Frames per second when using setTimeout() as a fallback in IE 9
+            zIndex: 2e9, // The z-index (defaults to 2000000000)
+            className: 'spinner', // The CSS class to assign to the spinner
+            top: '50%', // Top position relative to parent
+            left: '50%', // Left position relative to parent
+            shadow: 0, // Box-shadow for the lines
+            position: 'absolute' // Element positioning
+            };
 
-        const zoom = d3.behavior.zoom()
-            .scaleExtent([1, 8])
-            .on("zoom", zoomed);
+            var target = document.getElementById('vis');
+            var spinner = new Spinner(opts).spin(target);
 
-        function zoomed(event) {
-            svg.style("stroke-width", 1.5 / d3.event.scale + "px");
-            svg.attr("transform", "translate(" + d3.event.translate + ")scale(" + d3.event.scale + ")");
-        }
+            const zoom = d3.behavior.zoom()
+                .scaleExtent([1, 8])
+                .on("zoom", zoomed);
 
-        function clicked(d) {
-            //if (active.node() === this) return reset();
-            //active.classed("active", false);
-            //active = d3.select(this).classed("active", true);
-        
-            const maxScale = 0.85;
-            const maxiScale = 8;
+            function zoomed(event) {
+                svg.style("stroke-width", 1.5 / d3.event.scale + "px");
+                svg.attr("transform", "translate(" + d3.event.translate + ")scale(" + d3.event.scale + ")");
+            }
 
-            var bounds = path.bounds(d),
-                ww = bounds[1][0] - bounds[0][0],
-                hh = bounds[1][1] - bounds[0][1],
-                x = (bounds[0][0] + bounds[1][0]) / 2,
-                y = (bounds[0][1] + bounds[1][1]) / 2,
-                scale = Math.max(1, Math.min(maxiScale, maxScale / Math.max(ww / width, hh / height))),
-                translate = [width / 2 - scale * x, height / 2 - scale * y];
+            function clicked(d) {
+                //if (active.node() === this) return reset();
+                //active.classed("active", false);
+                //active = d3.select(this).classed("active", true);
+            
+                const maxScale = 0.85;
+                const maxiScale = 8;
 
-            svg.transition()
-                .duration(transitionTime * 2)
-                .call(zoom.translate(translate).scale(scale).event);
+                var bounds = path.bounds(d),
+                    ww = bounds[1][0] - bounds[0][0],
+                    hh = bounds[1][1] - bounds[0][1],
+                    x = (bounds[0][0] + bounds[1][0]) / 2,
+                    y = (bounds[0][1] + bounds[1][1]) / 2,
+                    scale = Math.max(1, Math.min(maxiScale, maxScale / Math.max(ww / width, hh / height))),
+                    translate = [width / 2 - scale * x, height / 2 - scale * y];
 
-            if (d.hasOwnProperty("id")) {
-                if (dataHasCountry(d.id)){ // allow transition but not selection if country absent from data
-                    country = d.id;
-                    d3.select('#countrylist').property('value', d.id);
-                    mainUpdate();
+                svg.transition()
+                    .duration(transitionTime * 2)
+                    .call(zoom.translate(translate).scale(scale).event);
+
+                if (d.hasOwnProperty("id")) {
+                    if (dataHasCountry(d.id)){ // allow transition but not selection if country absent from data
+                        country = d.id;
+                        d3.select('#countrylist').property('value', d.id);
+                        mainUpdate();
+                    }
                 }
             }
-        }
 
-        function reset() {
-            //active.classed("active", false);
-            //active = d3.select(null);
+            function reset() {
+                //active.classed("active", false);
+                //active = d3.select(null);
 
-            resetview();
-
-            country = "$-ALL"
-            d3.select('#countrylist').property('value', "$-ALL");
-            mainUpdate();
-
-            d3.event.stopPropagation();
-        }
-
-        function resetview() {
-            svg.transition()
-                .duration(transitionTime * 2)
-                .call(zoom.translate([0, 0]).scale(1).event);
-        }
-
-        function stop() {
-            if (d3.event.defaultPrevented) d3.event.stopPropagation();
-        }
-
-        var svg = d3.select('#vis').append('svg')
-            .attr('width', width)
-            .attr('height', height)
-            .call(zoom)
-            //.on("zoom", redraw))
-            .on("click", stop, true)
-            .append("g");
-
-        svg.append("rect")
-            .attr("width", width)
-            .attr("height", height)
-            .style("fill", "white")
-            .on("click", reset);
-
-        var svg2 = d3.select('#vis').append('svg')
-            .attr('width', width)
-            .attr('height', subheight)
-            .call(zoom)
-            //.on("zoom", redraw))
-            .append("g");
-        
-        d3.select("#menu")
-        .style("height", window.innerHeight - 25 + "px");
-
-        svg
-            .call(zoom) // delete this line to disable free zooming
-            .call(zoom.event);
-
-        svg2
-            .call(zoom) // delete this line to disable free zooming
-            .call(zoom.event);
-
-        function redraw() {
-            svg.attr("transform", "translate(" + d3.event.translate +
-                ")scale(" + d3.event.scale + ")");
-        }
-
-        function focusCountry() {
-            if (country.slice(0, 2) == "$-") {
                 resetview();
-                return;
+
+                country = "$-ALL"
+                d3.select('#countrylist').property('value', "$-ALL");
+                mainUpdate();
+
+                d3.event.stopPropagation();
             }
 
-            //svg.transition(transitionTime * 2).attr("transform", "translate(10,10)scale(5)");
-            var found_country = svg.selectAll('path.countries')
-                .filter(function(d, i) {
-                    return d.id == country;
-                })
-
-            if (found_country[0].length == 1) {
-                clicked(found_country.data()[0]);
+            function resetview() {
+                svg.transition()
+                    .duration(transitionTime * 2)
+                    .call(zoom.translate([0, 0]).scale(1).event);
             }
-            else{
-                // country geometry absent
-                resetview();
+
+            function stop() {
+                if (d3.event.defaultPrevented) d3.event.stopPropagation();
             }
-        }
 
-        function mainUpdate() {
-            //updateLegend();
-            updateCountries();
-        }
+            var svg = d3.select('#vis').append('svg')
+                .attr('width', width)
+                .attr('height', height)
+                .call(zoom)
+                //.on("zoom", redraw))
+                .on("click", stop, true)
+                .append("g");
 
-        var projection = d3.geo.mercator()
-            .scale(225)
-            .translate([width / 2, height / 2]);
+            svg.append("rect")
+                .attr("width", width)
+                .attr("height", height)
+                .style("fill", "white")
+                .on("click", reset);
 
-        var path = d3.geo.path()
-            .projection(projection);
+            var svg2 = d3.select('#vis').append('svg')
+                .attr('width', width)
+                .attr('height', subheight)
+                .call(zoom)
+                //.on("zoom", redraw))
+                .append("g");
+            
+            d3.select("#menu")
+            .style("height", window.innerHeight - 25 + "px");
 
-        var colorScale = d3.scale.linear().
-        range([outcomesMap.get(outcome).loCol, outcomesMap.get(outcome).hiCol]).
-        interpolate(d3.interpolateLab);
+            svg
+                .call(zoom) // delete this line to disable free zooming
+                .call(zoom.event);
 
-        queue()
-            .defer(d3.json, "countries.json")
-            .defer(d3.csv, "BASE data.csv", typeAndSetPopulation)
-            .await(loaded);
+            svg2
+                .call(zoom) // delete this line to disable free zooming
+                .call(zoom.event);
 
-    </script>
-</body>
+            function redraw() {
+                svg.attr("transform", "translate(" + d3.event.translate +
+                    ")scale(" + d3.event.scale + ")");
+            }
 
+            function focusCountry() {
+                if (country.slice(0, 2) == "$-") {
+                    resetview();
+                    return;
+                }
+
+                //svg.transition(transitionTime * 2).attr("transform", "translate(10,10)scale(5)");
+                var found_country = svg.selectAll('path.countries')
+                    .filter(function(d, i) {
+                        return d.id == country;
+                    })
+
+                if (found_country[0].length == 1) {
+                    clicked(found_country.data()[0]);
+                }
+                else{
+                    // country geometry absent
+                    resetview();
+                }
+            }
+
+            function mainUpdate() {
+                //updateLegend();
+                updateCountries();
+            }
+
+            var projection = d3.geo.mercator()
+                .scale(225)
+                .translate([width / 2, height / 2]);
+
+            var path = d3.geo.path()
+                .projection(projection);
+
+            var colorScale = d3.scale.linear().
+            range([outcomesMap.get(outcome).loCol, outcomesMap.get(outcome).hiCol]).
+            interpolate(d3.interpolateLab);
+
+            queue()
+                .defer(d3.json, "countries.json")
+                .defer(d3.csv, "BASE data.csv", typeAndSetPopulation)
+                .await(loaded);
+
+        </script>
+    </body>
 </html>
