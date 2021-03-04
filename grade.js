@@ -1,6 +1,5 @@
 //!! TODO
 // decouple model from global variables
-// move special country options to index
 // outcomes objects including functions
 // rounding error for small values
 // precision of reporting for integer values
@@ -204,28 +203,6 @@ function setupMenus(countries, outcomes) {
             if (a.name > b.name)
                 return 1;
             return 0; //default return value (no sorting)
-        });
-
-        // add some "special" countries representing aggregate options.
-        countries.unshift({
-            id: "$-HIC",
-            name: "High-income countries"
-        });
-        countries.unshift({
-            id: "$-UMIC", 
-            name: "Upper-middle-income countries"
-        });
-        countries.unshift({
-            id: "$-LMIC",
-            name: "Lower-middle-income countries"
-        });
-        countries.unshift({
-            id: "$-LIC",
-            name: "Low-income countries"
-        });
-        countries.unshift({
-            id: "$-ALL",
-            name: "Show all countries"
         });
 
         d3.select('#countrylist')

@@ -211,11 +211,14 @@ svg {
 }
 
 .uicontainer {
-    width: 100%;
+    width: 97%;
     margin-top: 0px;
     margin-bottom: 0px;
     background-color:rgba(240, 240, 240, 0.85);
     border-radius: 10px;
+    padding-top: 5px;
+    padding-bottom: 5px;
+    padding-left: 3%;
 }
 
 .uiouter {
@@ -223,7 +226,7 @@ svg {
     margin-bottom: 10px;
 }
 
-div.uiouter > p {
+div.uiouter p, div.uicontainer  p {
     font-size: 85%;
 }
 
