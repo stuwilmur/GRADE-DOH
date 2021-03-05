@@ -305,6 +305,10 @@ div.uiouter p, div.uicontainer  p {
 
 h2 {
     display: inline-block;
+    /*
+    margin-top: 5px;
+    margin-bottom: 5px;
+    */
 }
 
 h3 {

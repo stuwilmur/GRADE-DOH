@@ -17,7 +17,7 @@ var enteredGrpc = 0;
 var absGovRev = 0;
 var absGovRevSlider = 0;
 var pcGovRev = 0;
-var year = 2016;
+var year = 2002;
 var years_to_project = 10;
 var governance = 0;
 var country = "$-ALL";
@@ -243,6 +243,7 @@ function setupMenus(countries, outcomes) {
         d3.select('#yearsProjectVal').property('value', years_to_project);
         d3.select('#govVal').property('value', governance);
         
+        
         // individual governance sliders
         /*
         d3.select("#govList")
@@ -362,6 +363,7 @@ function setupMenus(countries, outcomes) {
     });
 
 
+    /*
     d3.select("#yearSlider").on("input", function (d) {
         year = this.value;
         d3.select("#yearVal").text(year);
@@ -373,6 +375,7 @@ function setupMenus(countries, outcomes) {
         d3.select("#yearsProjectVal").text(years_to_project);
         mainUpdate();
     });
+    */
 
     d3.selectAll("#outcomes").on("change", function (d) {
         outcome = this.options[this.selectedIndex].value
@@ -415,6 +418,12 @@ function updateCountries() {
     }
     colourCountries();
     updateplot();
+}
+
+function updateYears(_firstyear, _lastyear){
+    year = _firstyear;
+    years_to_project = _lastyear - _firstyear;
+    mainUpdate();
 }
 
 function getprojecteddata(_firstyear, _country, _outcome, _years_to_project) {
