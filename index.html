@@ -6,6 +6,7 @@
         <meta http-equiv="content-type" lang="en" content="text/html; charset=us-ascii" xml:lang="en" />
         <link href="https://fonts.googleapis.com/css?family=Open+Sans&amp;display=swap" rel="stylesheet" type="text/css" />
         <link rel="icon" href="data:," />
+        <link rel="stylesheet" href="//code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
         <link rel="stylesheet" type="text/css" href="style.css">
     </head>
     <body>
@@ -20,7 +21,8 @@
         <script src="grade.js" type="text/javascript"></script>
         <script src="model.js" type="text/javascript"></script>
         <script src="linterp.js" type="text/javascript"></script>
-
+        <script src="https://code.jquery.com/jquery-1.12.4.js"></script>
+        <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
         <div class="all">
             <div class="menu" id="menu">
                 <div class="inline-div">
@@ -130,6 +132,17 @@
                         </select>
                     </div>  
                 </div>
+
+                <div class="uiouter">
+                    <p>
+                        <label for="yearrange"></label>
+                    </p>
+                    <input type="text" id="yearrange" readonly>
+                    <div class="uicontainer">
+                        <div id="slider-range"></div>
+                    </div>
+                </div>
+
                 <div class="uiouter">
                     <p>Starting Year: <span id="yearVal"></span></p>
                     <div class="uicontainer">
@@ -146,7 +159,7 @@
                     <p>Change in governance quality: <span id="govVal">0</span></p>
                     <div class="uicontainer">
                         <input type="range" name="govSlider" id="govSlider" class="slider" min="0" max="200" value="100" />
-                        <img src="img/larrow.png" style="width: 60px; height: auto;" />worsening&nbsp&nbsp&nbsp<span class="ar">improving <img src="img/rarrow.png" style="width: 60px; height : auto" /></span>
+                        <img src="img/larrow.png" style="width: 60px; height: auto;" />worsening&nbsp&nbsp<span class="ar">improving <img src="img/rarrow.png" style="width: 60px; height : auto" /></span>
                     </div>
                 </div>
                 <!---div class="uiouter">
@@ -385,6 +398,21 @@
                 .defer(d3.csv, "BASE data.csv", typeAndSetPopulation)
                 .await(loaded);
 
+        </script>
+        <script>
+        $( function() {
+            $( "#slider-range" ).slider({
+            range: true,
+            min: 1980,
+            max: 2020,
+            values: [ 2000, 2010 ],
+            slide: function( event, ui ) {
+                $( "#yearrange" ).val( "Projection period: " + ui.values[ 0 ] + " - " + ui.values[ 1 ] );
+            }
+            });
+            $( "#yearrange" ).val( "Projection period: " + $( "#slider-range" ).slider( "values", 0 ) +
+            " - " + $( "#slider-range" ).slider( "values", 1 ) );
+        } );
         </script>
     </body>
 </html>

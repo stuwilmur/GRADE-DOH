@@ -2,3 +2,6 @@
 .vscode/launch.json
 .brackets.json
 testslider.html
+.DS_Store
+img/larrow_old.png
+img/rarrow_old.png
