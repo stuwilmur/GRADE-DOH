@@ -13,7 +13,7 @@ body {
     white-space: normal;
     width: 20%;
     min-width: 370px;
-    overflow-y: scroll;
+    overflow-y: auto;
     overflow-x: hidden;
     height: 500px;
     padding-right: 15px;

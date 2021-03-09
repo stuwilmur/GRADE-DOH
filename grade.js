@@ -27,6 +27,7 @@ var prefix = "M";
 var plottype = "population";
 var outcome = "SANITBASIC";
 var govtype = "GOVEFFECT";
+var multiplecountries = [];
 
 var plotlayout = {
     showlegend: true,
@@ -223,8 +224,27 @@ function setupMenus(countries, outcomes) {
                 return d.name;
             });
 
+            d3.select('#multicountrylist')
+            .on('change', function (d) {
+                if (!(multiplecountries.includes(this.options[this.selectedIndex].value))){
+                    multiplecountries.push(this.options[this.selectedIndex].value);
+                    updateCountryFilters();
+                }
+            })
+            .selectAll('option')
+            .data(countries)
+            .enter()
+            .append('option')
+            .attr('value', function (d) {
+                return d.id;
+            })
+            .text(function (d) {
+                return d.name;
+            });
+
         d3.select("#outcomes")
             .selectAll("option")
+            .remove()
             .data(outcomes)
             .enter()
             .append("option")
@@ -233,7 +253,8 @@ function setupMenus(countries, outcomes) {
             })
             .text(function (d) {
                 return d[1].name;
-            });
+            })
+
 
         // make sure all selections match initial values
         d3.select('#countrylist').property('value', country);
@@ -750,4 +771,31 @@ function loaded(error, countries, _popdata) {
 
 function getProjectionEnd(_year, _years_to_project){
     return Math.min(popdata.lastyear, _year + _years_to_project)
+}
+
+function updateCountryFilters(){
+    var u = d3.select("#countryfilter").selectAll('button')
+    .data(multiplecountries);
+
+    function gethtml(d){
+        var s_html = '<i class="fa fa-close"></i> ' + countrycodes.get(d);
+        return s_html;
+    }
+
+    function removecountry(d)
+    {
+        multiplecountries.splice(multiplecountries.indexOf(d), 1);
+        updateCountryFilters()
+    }
+
+    u.enter()
+    .append("button")
+    .attr("class", "btn")
+    .html(gethtml)
+    .on("click", removecountry)
+  
+
+    u.html(gethtml);
+
+    u.exit().remove();
 }
