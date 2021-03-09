@@ -517,10 +517,15 @@ function updateplot() {
     }
 }
 
-function download_csv() {
-    var final_year = getProjectionEnd(+year, +years_to_project); 
-    var csvdata = getplotcsvdata(+year, country, outcome, +years_to_project);
-    var button_title = country + "_" + year + "-" + final_year + ".csv";
+function download_csv(_year, _years_to_project, _countries, _outcome) {
+    var final_year = getProjectionEnd(_year, _years_to_project);
+    console.log(_countries); 
+    var csvdata = getplotcsvdata(_year, _countries, _outcome, _years_to_project);
+    var button_title =  year + "-" + final_year + ".csv";
+    if (_countries.length == 1)
+    {
+        button_title = _countries[0] + "_" + button_title;
+    }
     if (csvdata === undefined){
         return undefined;
     }
@@ -529,6 +534,15 @@ function download_csv() {
     hiddenElement.target = '_blank';
     hiddenElement.download = button_title;
     hiddenElement.click();
+}
+
+function download_csv_plot()
+{
+    download_csv(+year, +years_to_project, [country,], outcome);
+}
+
+function download_csv_multi(){
+    download_csv(+year, +years_to_project, multiplecountries, outcome);
 }
 
 function updateLegend() {

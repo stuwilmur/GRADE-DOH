@@ -46,42 +46,48 @@ function getprojecteddata(_firstyear, _country, _outcome, _years_to_project) {
     return (ret);
 }
 
-function getplotcsvdata(_year, _country, _outcome, _years_to_project)
+function getplotcsvdata(_year, _countries, _outcome, _years_to_project)
 {
-    var plotdata = getprojecteddata(_year, _country, _outcome, _years_to_project);
-    
-    if (plotdata.error){
-        return undefined;
-    }
-    
-    var data = plotdata.data;
-    
     var header = "country,iso,year";
-    
-    for (const property in data[0].grpc){
-        header += "," + property;
-    }
-    
-    data[0].additional.forEach(function(property){
-        header += "," + property.name;
-    })
-    
-    header += "\n";
-    
     var body = "";
-    data.forEach(function(datarow){
-        var row = "";
-        body += countrycodes.get(_country) + "," + _country + "," + datarow.year + ","
-        
-        for (const property in datarow.grpc){
-            body += datarow.grpc[property] + ",";        
-        }
-        
-        datarow.additional.forEach(function(property){
-            body += property.value + ",";
+    _countries.forEach((_country, i) => {
+
+            console.log(_country, i)
+            var plotdata = getprojecteddata(_year, _country, _outcome, _years_to_project);
+
+            if (plotdata.error) {
+                return undefined;
+            }
+
+            var data = plotdata.data;
+            
+            if(i == 0){
+                for (const property in data[0].grpc) {
+                    header += "," + property;
+                }
+
+                data[0].additional.forEach(function (property) {
+                    header += "," + property.name;
+                });
+
+                header += "\n";
+            }
+
+            data.forEach(function (datarow) {
+                var row = "";
+                body += countrycodes.get(_country) + "," + _country + "," + datarow.year + ",";
+
+                for (const property in datarow.grpc) {
+                    body += datarow.grpc[property] + ",";
+                }
+
+                datarow.additional.forEach(function (property) {
+                    body += property.value + ",";
+                });
+                body += row + "\n";
+            });
         })
-        body += row + "\n";
-    })
+
     return header + body;
 }
 
