@@ -155,7 +155,8 @@
                         <input type="range" name="yearsProjectSlider" id="yearsProjectSlider" class="slider" min="1" max="20" value="10" /> 
                     </div>
                 </div--->
-                <div class="uiouter">
+                <button class="accordion">Advanced inputs</button>
+                <div class="uiouter panel">
                     <p>Change in governance quality: <span id="govVal">0</span></p>
                     <div class="uicontainer">
                         <input type="range" name="govSlider" id="govSlider" class="slider" min="0" max="200" value="100" />
@@ -261,6 +262,21 @@
             const zoom = d3.behavior.zoom()
                 .scaleExtent([1, 8])
                 .on("zoom", zoomed);
+
+                var acc = document.getElementsByClassName("accordion");
+                var i;
+
+                for (i = 0; i < acc.length; i++) {
+                acc[i].addEventListener("click", function() {
+                    this.classList.toggle("active");
+                    var panel = this.nextElementSibling;
+                    if (panel.style.maxHeight) {
+                    panel.style.maxHeight = null;
+                    } else {
+                    panel.style.maxHeight = panel.scrollHeight + "px";
+                    } 
+                });
+                }
 
             function zoomed(event) {
                 svg.style("stroke-width", 1.5 / d3.event.scale + "px");
