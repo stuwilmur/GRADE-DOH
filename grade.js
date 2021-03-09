@@ -5,7 +5,6 @@
 // precision of reporting for integer values
 // ensure initial options consistent (without resorting to on change)
 // sort projection range size
-// fix validation errors
 
 var subheight = 100;
 var legendCells = 10;

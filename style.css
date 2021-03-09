@@ -445,7 +445,9 @@ button {
 
 input#yearrange {
     font-family: inherit;
+    font-size: 85%;
     border: 0;
+    padding-left: 0;
 }
 
 .ui-slider .ui-slider-handle {
