@@ -1,6 +1,6 @@
 const years_to_wait = 5;
 
-function getprojecteddata(_firstyear, _country, _outcome, _years_to_project) {
+function getProjectionData(_firstyear, _country, _outcome, _years_to_project) {
     // Takes a baseline year an increase in revenue, and calculates the corresponding % increase in grpc:
     // projects this by: allowing five years for increased revenue to act, where there is no effect;
     // applying the percentage increase for all remaining years (up to a total of years_to_project years). 
@@ -46,22 +46,28 @@ function getprojecteddata(_firstyear, _country, _outcome, _years_to_project) {
     return (ret);
 }
 
-function getplotcsvdata(_year, _countries, _outcome, _years_to_project)
+function getProjectionCSVData(_year, _countries, _outcome, _years_to_project)
 {
     var header = "country,iso,year";
     var body = "";
+    var ret = {str : null, errors : null};
+    var headerDone = false;
     _countries.forEach((_country, i) => {
 
             console.log(_country, i)
-            var plotdata = getprojecteddata(_year, _country, _outcome, _years_to_project);
+            var plotdata = getProjectionData(_year, _country, _outcome, _years_to_project);
 
             if (plotdata.error) {
-                return undefined;
+                if (ret.errors === null){
+                    ret.errors = []
+                }
+                ret.errors.push(countrycodes.get(_country) + ": " + plotdata.error);
+                return;
             }
 
             var data = plotdata.data;
             
-            if(i == 0){
+            if(!headerDone){
                 for (const property in data[0].grpc) {
                     header += "," + property;
                 }
@@ -71,6 +77,7 @@ function getplotcsvdata(_year, _countries, _outcome, _years_to_project)
                 });
 
                 header += "\n";
+                ret.str = header;
             }
 
             data.forEach(function (datarow) {
@@ -86,17 +93,17 @@ function getplotcsvdata(_year, _countries, _outcome, _years_to_project)
                 });
                 body += row + "\n";
             });
-        })
-
-    return header + body;
+            ret.str += body;
+        });
+        return ret;
 }
 
-function calcprojection(_year, _country, _outcome, _years_to_project)
+function calcProjection(_year, _country, _outcome, _years_to_project)
 {
     // calculate the totals of projected effects for flow variables, and the
     // averages for stock variables.
     var ret = {data : null, error : null};
-    var plotdata = getprojecteddata(_year, _country, _outcome, _years_to_project);
+    var plotdata = getProjectionData(_year, _country, _outcome, _years_to_project);
     
     if (plotdata.error){
         ret.error = plotdata.error;

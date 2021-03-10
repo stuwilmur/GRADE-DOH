@@ -69,7 +69,7 @@ function makeText2(_year, _iso, _outcome, _years_to_project)
     // in case we need makeText again in the future
     
     var end_year = getProjectionEnd(_year, _years_to_project)
-    var projection = calcprojection(_year, _iso, _outcome, _years_to_project)
+    var projection = calcProjection(_year, _iso, _outcome, _years_to_project)
     var text = "";
     text = text 
         + "<h1 class='tooltip'> " +  countrycodes.get(_iso) + "</h1>"
@@ -453,7 +453,7 @@ function updateplot() {
         d3.select("#plotwrapper").style("display", "none");
         //d3.select("#ploterror").style("display", "none"); //!! remove
     } else {
-        var plotdata = getprojecteddata(+year, country, outcome, +years_to_project);
+        var plotdata = getProjectionData(+year, country, outcome, +years_to_project);
         
         if (plotdata.error){
             d3.select("#plotwrapper").style("display", "none");
@@ -518,31 +518,37 @@ function updateplot() {
 }
 
 function download_csv(_year, _years_to_project, _countries, _outcome) {
+    if (_countries.length < 1)
+    {
+        return ["No countries selected",];
+    }
     var final_year = getProjectionEnd(_year, _years_to_project);
     console.log(_countries); 
-    var csvdata = getplotcsvdata(_year, _countries, _outcome, _years_to_project);
+    var csvdata = getProjectionCSVData(_year, _countries, _outcome, _years_to_project);
     var button_title =  year + "-" + final_year + ".csv";
     if (_countries.length == 1)
     {
         button_title = _countries[0] + "_" + button_title;
     }
-    if (csvdata === undefined){
-        return undefined;
+    if (csvdata.errors){
+        return csvdata.errors;
     }
     var hiddenElement = document.createElement('a');
-    hiddenElement.href = 'data:text/csv;charset=utf-8,' + encodeURI(csvdata);
+    hiddenElement.href = 'data:text/csv;charset=utf-8,' + encodeURI(csvdata.str);
     hiddenElement.target = '_blank';
     hiddenElement.download = button_title;
     hiddenElement.click();
+    return null;
 }
 
-function download_csv_plot()
-{
+function download_csv_plot(){
     download_csv(+year, +years_to_project, [country,], outcome);
 }
 
 function download_csv_multi(){
-    download_csv(+year, +years_to_project, multiplecountries, outcome);
+    var error = download_csv(+year, +years_to_project, multiplecountries, outcome);
+    d3.select("#multicountryerror")
+    .html(error.join("<br />"));
 }
 
 function updateLegend() {
@@ -684,4 +690,7 @@ function updateCountryFilters(){
     u.html(gethtml);
 
     u.exit().remove();
+
+    var button = document.getElementById('multibutton')
+    //button.disabled = (multiplecountries.length == 0); // give an error instead
 }

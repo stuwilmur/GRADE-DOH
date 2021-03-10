@@ -419,6 +419,10 @@ button {
   cursor: pointer;
 }
 
+button:disabled{
+    background-color: #d3d3d3;
+}
+
 .cumulative {
     background-color: #ffdb8d;
     border-style: solid;
@@ -520,7 +524,7 @@ input#yearrange {
     background-color: white;
     max-height: 0;
     overflow: hidden;
-    transition: max-height 0.2s ease-out;
+    transition: max-height 0.4s ease-out;
   }
 
   .accordion:after {
