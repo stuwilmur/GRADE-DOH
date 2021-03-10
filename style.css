@@ -13,9 +13,9 @@ body {
     white-space: normal;
     width: 20%;
     min-width: 370px;
-    overflow-y: auto;
+    overflow-y: scroll;
     overflow-x: hidden;
-    height: 500px;
+    /*height: 500px;*/
     padding-right: 15px;
 }
 
@@ -228,6 +228,7 @@ svg {
 .uiouter {
     margin-top: 10px;
     margin-bottom: 10px;
+    display: block;
 }
 
 div.uiouter p, div.uicontainer  p {
@@ -523,7 +524,7 @@ input#yearrange {
     /*padding: 0 18px;*/
     background-color: white;
     max-height: 0;
-    overflow: hidden;
+    overflow: visible;
     transition: max-height 0.4s ease-out;
   }
 
