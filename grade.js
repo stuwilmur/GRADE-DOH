@@ -706,3 +706,8 @@ function updateCountryFilters(){
     var button = document.getElementById('multibutton')
     //button.disabled = (multiplecountries.length == 0); // give an error instead
 }
+
+function clear_multi(){
+    multiplecountries = []
+    updateCountryFilters();
+}
