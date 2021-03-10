@@ -52,7 +52,9 @@ function getProjectionCSVData(_year, _countries, _outcome, _years_to_project)
     var body = "";
     var ret = {str : null, errors : null};
     var headerDone = false;
-    _countries.forEach((_country, i) => {
+    for (i = 0; i < _countries.length; i++) 
+    {
+            var _country = _countries[i];
 
             console.log(_country, i)
             var plotdata = getProjectionData(_year, _country, _outcome, _years_to_project);
@@ -62,12 +64,13 @@ function getProjectionCSVData(_year, _countries, _outcome, _years_to_project)
                     ret.errors = []
                 }
                 ret.errors.push(countrycodes.get(_country) + ": " + plotdata.error);
-                return;
+                continue;
             }
 
             var data = plotdata.data;
             
             if(!headerDone){
+                headerDone = true;
                 for (const property in data[0].grpc) {
                     header += "," + property;
                 }
@@ -94,7 +97,7 @@ function getProjectionCSVData(_year, _countries, _outcome, _years_to_project)
                 body += row + "\n";
             });
             ret.str += body;
-        });
+        };
         return ret;
 }
 

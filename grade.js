@@ -530,15 +530,21 @@ function download_csv(_year, _years_to_project, _countries, _outcome) {
     {
         button_title = _countries[0] + "_" + button_title;
     }
+
+    if (csvdata.str)
+    {
+        var hiddenElement = document.createElement('a');
+        hiddenElement.href = 'data:text/csv;charset=utf-8,' + encodeURI(csvdata.str);
+        hiddenElement.target = '_blank';
+        hiddenElement.download = button_title;
+        hiddenElement.click();
+    }
     if (csvdata.errors){
         return csvdata.errors;
     }
-    var hiddenElement = document.createElement('a');
-    hiddenElement.href = 'data:text/csv;charset=utf-8,' + encodeURI(csvdata.str);
-    hiddenElement.target = '_blank';
-    hiddenElement.download = button_title;
-    hiddenElement.click();
-    return null;
+    else{
+        return null;
+    }
 }
 
 function download_csv_plot(){
@@ -547,8 +553,10 @@ function download_csv_plot(){
 
 function download_csv_multi(){
     var error = download_csv(+year, +years_to_project, multiplecountries, outcome);
-    d3.select("#multicountryerror")
-    .html(error.join("<br />"));
+    if (error){
+        d3.select("#multicountryerror")
+        .html(error.join("<br />"));
+    }
 }
 
 function updateLegend() {
@@ -679,6 +687,10 @@ function updateCountryFilters(){
         multiplecountries.splice(multiplecountries.indexOf(d), 1);
         updateCountryFilters()
     }
+
+    // clear errors since something has changed
+    d3.select("#multicountryerror")
+    .html("");
 
     u.enter()
     .append("button")
