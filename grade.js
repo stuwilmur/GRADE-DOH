@@ -523,7 +523,6 @@ function download_csv(_year, _years_to_project, _countries, _outcome) {
         return ["No countries selected",];
     }
     var final_year = getProjectionEnd(_year, _years_to_project);
-    console.log(_countries); 
     var csvdata = getProjectionCSVData(_year, _countries, _outcome, _years_to_project);
     var button_title =  year + "-" + final_year + ".csv";
     if (_countries.length == 1)
