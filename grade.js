@@ -604,7 +604,7 @@ function download_csv_multi(){
     }
 
     //console.log(multiplecountries,"\n",countries_to_export);
-    var error = download_csv(+year, +years_to_project, countries_to_export, outcome);
+    var error = download_csv(+year, +years_to_project, countries_to_export.sort(), outcome);
     if (error){
         d3.select("#multicountryerror")
         .html(error.join("<br />"));
