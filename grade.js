@@ -28,6 +28,33 @@ var plottype = "population";
 var outcome = "SANITBASIC";
 var govtype = "GOVEFFECT";
 var multiplecountries = [];
+var countryselections = [
+{   
+    id : "$-ALL",
+    desc : "Show all countries",
+    short_desc : "All",
+},
+{
+    id : "$-LIC",
+    desc : "Low-income countries",
+    short_desc : "LICs",
+},
+{   
+    id : "$-LMIC",
+    desc : "Lower-middle-income countries",
+    short_desc : "LMICs",
+},
+{   
+    id : "$-UMIC",
+    desc : "Upper-middle-income countries",
+    short_desc : "UMICs"
+},
+{
+    id : "$-HIC",
+    desc : "High-income countries",
+    short_desc : "HICs",
+},
+];
 
 var plotlayout = {
     showlegend: true,
@@ -551,7 +578,33 @@ function download_csv_plot(){
 }
 
 function download_csv_multi(){
-    var error = download_csv(+year, +years_to_project, multiplecountries, outcome);
+    // handle special selections
+    var countries_to_export = multiplecountries.filter(d => d.slice(0,1) != "$");
+    var special_selections = multiplecountries.filter(d => d.slice(0,2) == "$-")
+    //console.log(special_selections);
+    if (special_selections.includes("$-ALL"))
+    {
+        countries_to_export = Array.from(countrycodes.keys());
+    }
+    else
+    {
+        special_selections.forEach(function(_selection){
+            countrycodes.forEach(function(_v, _cid){
+                var inc = popdata.getstring(_cid, +year, "incomelevel");
+                if (   ( inc == "LIC" && _selection == "$-LIC" 
+                    ||  inc == "LMC" && _selection == "$-LMIC"
+                    ||  inc == "UMC" && _selection == "$-UMIC"
+                    ||  inc == "HIC" && _selection == "$-HIC")
+                    && !(countries_to_export.includes(_cid))
+                    ){
+                        countries_to_export.push(_cid);
+                    }
+            });
+        });
+    }
+
+    //console.log(multiplecountries,"\n",countries_to_export);
+    var error = download_csv(+year, +years_to_project, countries_to_export, outcome);
     if (error){
         d3.select("#multicountryerror")
         .html(error.join("<br />"));
@@ -677,7 +730,11 @@ function updateCountryFilters(){
     .data(multiplecountries);
 
     function gethtml(d){
-        var s_html = '<i class="fa fa-close"></i> ' + countrycodes.get(d);
+        // bit of a hack to get the selection names - simply add to existing map of ids and names
+        var country_and_selection_codes = new Map(countrycodes);
+        countryselections.forEach(function(d){country_and_selection_codes.set(d.id, d.short_desc)})
+        var str = country_and_selection_codes.get(d);
+        var s_html = '<i class="fa fa-close"></i> ' + str;
         return s_html;
     }
 
