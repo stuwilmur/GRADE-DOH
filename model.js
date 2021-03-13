@@ -159,7 +159,7 @@ var govMeasures = new Map([
 var outcomesList = [
         ["WATERBASIC",
         {
-            name: "Basic drinking water services",
+            name: "Basic water",
             loCol: "#dee5f8",
             hiCol: "#e09900",
             fixedExtent: [0, 100],
@@ -168,11 +168,13 @@ var outcomesList = [
         }],
 		["WATERSAFE",
         {
-            name: "Safely-managed drinking water services",
+            name: "Safe water",
             loCol: "#dee5f8",
             hiCol: "#e09900",
             fixedExtent: [0, 100],
-            desc: "The percentage of the population using drinking water from an improved source that is accessible on premises, available when needed and free from faecal and priority chemical contamination.",
+            desc: `The percentage of the population using drinking water from an 
+            improved source that is accessible on premises, available when needed 
+            and free from faecal and priority chemical contamination.`,
             isStockVar : true,
         }],
         ["SANITBASIC",
@@ -181,7 +183,8 @@ var outcomesList = [
             loCol: "#dee5f8",
             hiCol: "#e09900",
             fixedExtent: [0, 100],
-            desc: "The percentage of the population using at least, that is, improved sanitation facilities that are not shared with other households.",
+            desc: `The percentage of the population using at least improved 
+            sanitation facilities that are not shared with other households.`,
             isStockVar : true,
         }],
 		["SANITSAFE",
@@ -190,16 +193,19 @@ var outcomesList = [
             loCol: "#dee5f8",
             hiCol: "#e09900",
             fixedExtent: [0, 100],
-            desc: "The percentage of the population using improved sanitation facilities that are not shared with other households and where excreta are safely disposed of in situ or transported and treated offsite.",
+            desc: `The percentage of the population using improved sanitation 
+            facilities that are not shared with other households and where 
+            excreta are safely disposed of in situ or transported and treated 
+            offsite.`,
             isStockVar : true,
         }],
 		["SCHOOLPERC",
         {
-            name: "School life expectancy",
+            name: "Child school years",
             loCol: "#dee5f8",
             hiCol: "#e09900",
             fixedExtent: [0, 100],
-            desc: "The number of years a person of school entrance age can expect to spend within the specified level of education",
+            desc: `The number of child school years`,
             isStockVar : false,
         }],
         ["U5MSURV",
@@ -357,7 +363,7 @@ function computeResult(_iso, _year, _outcome, _grpc, _grpcOrig, _govImprovement)
     } else if (_outcome == "IMUNISATION") {
         additional.push({name : "Number of infants immunised", value : (improved - original) / 100 * popChildrenSurvive1, keyvariable : true})
     } else if (_outcome == "SCHOOLPERC") {
-        additional.push({name : "Additional years of school life expectancy", value : 17 * (improved - original) / 100 * popChildrenSurvive5, keyvariable : true})
+        additional.push({name : "Additional child school years", value : 17 * (improved - original) / 100 * popChildrenSurvive5, keyvariable : true})
     } else if (_outcome == "U5MSURV"){
         additional.push({name : "Under-5 five deaths averted", value : (improved - original) / 100 * popBirths, keyvariable : true})
         additional.push({name : "Under-5 deaths", value : (1 - original / 100) * popBirths, keyvariable : false})
@@ -420,6 +426,7 @@ function typeAndSetPopulation(d) {
     e["year"]                                   =convertNumber(d["year"])
     e["incomelevel"]                            = d["incomelevel"]
     e["Number of children surviving to five"]   =convertNumber(d["Number of children surviving to five "])
+    e["region"]                                 =d["region"]
 
     return e;
 }

@@ -269,12 +269,21 @@ function setupMenus(countries, outcomes) {
                 return d.name;
             });
 
-        d3.select("#outcomes")
+        console.log(outcomes);
+        var outcomes_options = d3.select("#outcomes")
             .selectAll("option")
-            .remove()
             .data(outcomes)
-            .enter()
+
+            outcomes_options.enter()
             .append("option")
+            .attr('value', function (d) {
+                return d[0];
+            })
+            .text(function (d) {
+                return d[1].name;
+            })
+
+            outcomes_options
             .attr('value', function (d) {
                 return d[0];
             })
