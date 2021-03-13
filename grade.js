@@ -28,33 +28,93 @@ var plottype = "population";
 var outcome = "SANITBASIC";
 var govtype = "GOVEFFECT";
 var multiplecountries = [];
-var countryselections = [
-{   
-    id : "$-ALL",
-    desc : "Show all countries",
-    short_desc : "All",
-},
-{
-    id : "$-LIC",
-    desc : "Low-income countries",
-    short_desc : "LICs",
-},
-{   
-    id : "$-LMIC",
-    desc : "Lower-middle-income countries",
-    short_desc : "LMICs",
-},
-{   
-    id : "$-UMIC",
-    desc : "Upper-middle-income countries",
-    short_desc : "UMICs"
-},
-{
-    id : "$-HIC",
-    desc : "High-income countries",
-    short_desc : "HICs",
-},
-];
+var selections = new Map([
+    [
+        "$-ALL",
+        {
+        desc : "Show all countries",
+        short_desc : "All",
+        fn : (d) => true,
+        }
+    ],
+    [
+        "$-LIC",
+        {
+        desc : "Low-income countries",
+        short_desc : "LICs",
+        fn : (_cid, _year) => popdata.getstring(_cid, _year, "incomelevel") == "LIC",
+        }],
+    [
+        "$-LMIC",
+        {   
+        desc : "Lower-middle-income countries",
+        short_desc : "LMICs",
+        fn : (_cid, _year) => popdata.getstring(_cid, _year, "incomelevel") == "LMC",
+        }],
+    [
+        "$-UMIC",
+        {   
+        desc : "Upper-middle-income countries",
+        short_desc : "UMICs",
+        fn : (_cid, _year) => popdata.getstring(_cid, _year, "incomelevel") == "UMC",
+        }],
+    [
+        "$-HIC",
+        {
+        desc : "High-income countries",
+        short_desc : "HICs",
+        fn : (_cid, _year) => popdata.getstring(_cid, _year, "incomelevel") == "HIC",
+    }],
+    [
+        "$-REG-LCN",
+        {
+        desc : "Latin America and Caribbean",
+        short_desc : "Latin America & Caribbean",
+        fn : (_cid, _year) => popdata.getstring(_cid, _year, "region") == "LCN",
+    }],
+    [
+        "$-REG-NAC",
+        {
+        desc : "North America",
+        short_desc : "North America",
+        fn : (_cid, _year) => popdata.getstring(_cid, _year, "region") == "NAC",
+    }],
+    [
+        "$-REG-EAS",
+        {
+        desc : "East Asia and Pacific",
+        short_desc : "East Asia and Pacific",
+        fn : (_cid, _year) => popdata.getstring(_cid, _year, "region") == "EAS",
+    }],
+    [
+        "$-REG-ECS",
+        {
+        desc : "Europe and Central Asia",
+        short_desc : "Europe and Central Asia",
+        fn : (_cid, _year) => popdata.getstring(_cid, _year, "region") == "ECS",
+    }],
+    [
+        "$-REG-MEA",
+        {
+        desc : "Middle East and North Africa",
+        short_desc : "Middle East and North Africa",
+        fn : (_cid, _year) => popdata.getstring(_cid, _year, "region") == "MEA",
+    }],
+    [
+        "$-REG-SSF",
+        {
+        desc : "Sub-Saharan Africa",
+        short_desc : "Sub-Saharan Africa",
+        fn : (_cid, _year) => popdata.getstring(_cid, _year, "region") == "SSF",
+    }],
+    [
+        "$-REG-SAS",
+        {
+        desc : "South Asia",
+        short_desc : "South Asia",
+        fn : (_cid, _year) => popdata.getstring(_cid, _year, "region") == "SAS",
+    }],
+]);
 
 var plotlayout = {
     showlegend: true,
@@ -74,17 +134,26 @@ function getColor(_cid, _year, _method) {
     var incomelevel = popdata.getstring(_cid, _year, "incomelevel");
     
     if (!isNaN(value)) {
-        if (country == "$-ALL" //|| country == _cid
-            ||
-            country.slice(0, 1) != "$" ||
-            country == "$-LIC" && incomelevel == "LIC" ||
-            country == "$-LMIC" && incomelevel == "LMC" ||
-            country == "$-UMIC" && incomelevel == "UMC" ||
-            country == "$-HIC" && incomelevel == "HIC") {
+        if (country.slice(0,1) == "$")
+        {
+            // use selector
+            var selection = selections.get(country);
+            if (selection === undefined){
+                return  "rgba(0, 0, 0, 0.3)";
+            }
+            if (selection.fn(_cid, _year)){
+                return colorScale(value);
+            }
+            else
+            {
+                return "rgba(0, 0, 0, 0.3)";
+            }
+        }
+        else{
             return colorScale(value);
-        } else
-            return "rgba(0, 0, 0, 0.3)";
-    } else {
+        }
+    }
+        else {
         return "rgba(0, 0, 0, 0.6)";
     }
 }
@@ -234,6 +303,11 @@ function setupMenus(countries, outcomes) {
             return 0; //default return value (no sorting)
         });
 
+        // add selections to country list (just for the menus)
+        var selection_countries = [];
+        selections.forEach(function(selection, id) {selection_countries.push({id : id, name : selection.desc})});
+        countries = selection_countries.concat(countries);
+
         d3.select('#countrylist')
             .on('change', function (d) {
                 country = this.options[this.selectedIndex].value;
@@ -269,7 +343,6 @@ function setupMenus(countries, outcomes) {
                 return d.name;
             });
 
-        console.log(outcomes);
         var outcomes_options = d3.select("#outcomes")
             .selectAll("option")
             .data(outcomes)
@@ -591,26 +664,17 @@ function download_csv_multi(){
     var countries_to_export = multiplecountries.filter(d => d.slice(0,1) != "$");
     var special_selections = multiplecountries.filter(d => d.slice(0,2) == "$-")
     //console.log(special_selections);
-    if (special_selections.includes("$-ALL"))
-    {
-        countries_to_export = Array.from(countrycodes.keys());
-    }
-    else
-    {
-        special_selections.forEach(function(_selection){
+    special_selections.forEach(function(_selection){
+        var selection = selections.get(_selection);
+        if (selection)
+        {
             countrycodes.forEach(function(_v, _cid){
-                var inc = popdata.getstring(_cid, +year, "incomelevel");
-                if (   ( inc == "LIC" && _selection == "$-LIC" 
-                    ||  inc == "LMC" && _selection == "$-LMIC"
-                    ||  inc == "UMC" && _selection == "$-UMIC"
-                    ||  inc == "HIC" && _selection == "$-HIC")
-                    && !(countries_to_export.includes(_cid))
-                    ){
-                        countries_to_export.push(_cid);
-                    }
+                if ( !(countries_to_export.includes(_cid)) && selection.fn(_cid, +year)){
+                    countries_to_export.push(_cid);
+                }
             });
-        });
-    }
+        }
+    });
 
     //console.log(multiplecountries,"\n",countries_to_export);
     var error = download_csv(+year, +years_to_project, countries_to_export.sort(), outcome);
@@ -741,7 +805,7 @@ function updateCountryFilters(){
     function gethtml(d){
         // bit of a hack to get the selection names - simply add to existing map of ids and names
         var country_and_selection_codes = new Map(countrycodes);
-        countryselections.forEach(function(d){country_and_selection_codes.set(d.id, d.short_desc)})
+        selections.forEach(function(d,k){country_and_selection_codes.set(k, d.short_desc)})
         var str = country_and_selection_codes.get(d);
         var s_html = '<i class="fa fa-close"></i> ' + str;
         return s_html;
