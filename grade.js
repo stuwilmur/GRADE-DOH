@@ -32,7 +32,7 @@ var selections = new Map([
     [
         "$-ALL",
         {
-        desc : "Show all countries",
+        desc : "All countries",
         short_desc : "All",
         fn : (d) => true,
         }
