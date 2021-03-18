@@ -1,8 +1,5 @@
 //!! TODO
-// decouple model from global variables
-// outcomes objects including functions
 // rounding error for small values
-// precision of reporting for integer values
 // ensure initial options consistent (without resorting to on change)
 // sort projection range size
 
