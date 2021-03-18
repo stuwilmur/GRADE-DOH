@@ -316,14 +316,17 @@ var outcomesList = [
             inv_fn : function(_target, _pop, _gov){
                 g = _type => gg(_type, _pop, _gov);
                 var l = this.coeffs;
-
-                var res = Math.log(100.0 / _target - 1.0) / A + B;
+                var A = -(C(l, 1) + C(l, 11) * g("CORRUPTION") 
+                + C(l, 12) * g("POLSTAB") + 0 * g("REGQUALITY") + C(l, 14) * g("RULELAW") + C(l, 15) * g("GOVEFFECT") 
+                + C(l, 16) * g("VOICE"))
+                var B = (C(l, 2) + C(l, 21) * g("CORRUPTION") + C(l, 22) * g("POLSTAB") 
+                + C(l, 23) * g("REGQUALITY") + C(l, 24) * g("RULELAW") + C(l, 25) * g("GOVEFFECT") + C(l, 26) * g("VOICE"))
+                var res = Math.log((100.0 - 95.0) / (_target - 95) - 1) / A + B;
                 return res;
             },
          }],
 
-/*
-		["IMUNISATION",
+		/*["IMUNISATION",
         {
             name: "Child immunisation",
             loCol: "#dee5f8",
@@ -337,9 +340,22 @@ var outcomesList = [
                     [2, -25232.71],
                     [21, -8328.613]
                 ]),
-            }],
-            fn :    100 / (1 + Math.exp(-(C(l, 1) + C(l, 11) * g("POLSTAB")) * (_grpc - (C(l, 2) + C(l, 21) * g("POLSTAB"))))),
-        */
+            fn : function(_grpc, _pop, _gov){
+                g = _type => gg(_type, _pop, _gov);
+                var l = this.coeffs;
+                var res = 100 / (1 + Math.exp(-(C(l, 1) + C(l, 11) * g("POLSTAB")) * (_grpc - (C(l, 2) + C(l, 21) * g("POLSTAB")))));
+                return res;
+            },
+            inv_fn : function(_target, _pop, _gov){
+                g = _type => gg(_type, _pop, _gov);
+                var l = this.coeffs;
+                var A = -(C(l, 1) + C(l, 11) * g("POLSTAB"))
+                var B = (C(l, 2) + C(l, 21) * g("POLSTAB"))
+                var res = Math.log(100.0 / _target - 1.0) / A + B;
+                return res;
+            },
+        }],*/
+            
 ];
 
 var outcomesMap = new Map(outcomesList);
@@ -372,6 +388,36 @@ function compute(_iso, _year, _outcome, _grpc, _gov) {
     if (!pop) return NaN;
 
     return outcomesMap.get(_outcome).fn(_grpc, pop, _gov);
+}
+
+function compute_inv(_iso, _year, _outcome, _target, _gov) {
+    var pop = popdata.getrow(_iso, _year);
+    if (!pop) return NaN;
+
+    return outcomesMap.get(_outcome).inv_fn(_target, pop, _gov);
+}
+
+function computeTarget(_iso, _year, _outcome, _target)
+{
+    var original = popdata.getvalue(_iso, _year, _outcome, bInterp);
+    if (original > _target){
+        return {error : ["Target value " + _target + " is less than original " + original,]};
+    }
+    // treat zero as "no data"
+    if (original === 0 || isNaN(original)){
+        var outcome_name = (outcomesMap.get(_outcome)).name;
+        return {error : [outcome_name + " not available for " + _year]};
+    }  
+    var target_grpc = compute_inv(_iso, _year, _outcome, _target, 0);
+    if (isNaN(target_grpc)){
+        var outcome_name = (outcomesMap.get(_outcome)).name;
+        var errs = ["Unable to calculate " + outcome_name + ", " + _year];
+        return {error : errs};
+    }
+    return {
+        error : null,
+        grpc : target_grpc,
+    };
 }
 
 function computeResult(_iso, _year, _outcome, _grpc, _grpcOrig, _govImprovement) {
