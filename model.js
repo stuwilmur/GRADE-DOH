@@ -46,13 +46,23 @@ var outcomesList = [
                     [24, 247.8044]
                 ]),
             fn :    function(_grpc, _pop, _gov) {
-                        g = _type => gg(_type, _pop, _gov);
-                        var l = this.coeffs;
-                        var res = 100 / (1 + Math.exp(-(C(l, 1) + C(l, 12) * g("POLSTAB") + C(l, 14) * g("RULELAW") +
-                        C(l, 15) * g("GOVEFFECT")) * (_grpc - (C(l, 2) + C(l, 22) * g("POLSTAB") + C(l, 24) *
-                        g("RULELAW")))));
-                        return res;
-                    },
+                g = _type => gg(_type, _pop, _gov);
+                var l = this.coeffs;
+                var res = 100 / (1 + Math.exp(-(C(l, 1) + C(l, 12) * g("POLSTAB") + C(l, 14) * g("RULELAW") +
+                C(l, 15) * g("GOVEFFECT")) * (_grpc - (C(l, 2) + C(l, 22) * g("POLSTAB") + C(l, 24) *
+                g("RULELAW")))));
+                return res;
+                },
+            inv_fn : function(_target, _pop, _gov) {
+                g = _type => gg(_type, _pop, _gov);
+                var l = this.coeffs;
+                var A = -(C(l, 1) + C(l, 12) * g("POLSTAB") + C(l, 14) * g("RULELAW") +
+                C(l, 15) * g("GOVEFFECT"));
+                var B = (C(l, 2) + C(l, 22) * g("POLSTAB") + C(l, 24) * g("RULELAW"));
+                100 / (1 + Math.exp(A * (_grpc - B)));
+                var res = Math.log(100.0 / _target - 1.0) / A + B;
+                return res; 
+            },
         }],
 		["WATERSAFE",
         {
@@ -79,14 +89,24 @@ var outcomesList = [
                     [26, 168.7410]
                 ]),
             fn :    function(_grpc, _pop, _gov) {
-                        g = _type => gg(_type, _pop, _gov);
-                        var l = this.coeffs;
-                        var res = 100 / (1 + Math.exp(-(C(l, 1) + C(l, 11) * g("CORRUPTION") + 0 * g("POLSTAB") + 0 *
-                        g("REGQUALITY") + C(l, 14) * g("RULELAW") + C(l, 15) * g("GOVEFFECT") + C(l, 16) * g("VOICE")) *
-                        (_grpc - (C(l, 2) + C(l, 21) * g("CORRUPTION") + C(l, 22) * g("POLSTAB") + C(l, 23) *
-                        g("REGQUALITY") + 0 * g("RULELAW") + C(l, 25) * g("GOVEFFECT") + C(l, 26) * g("VOICE")))));
-                        return res;
-                    },
+                g = _type => gg(_type, _pop, _gov);
+                var l = this.coeffs;
+                var res = 100 / (1 + Math.exp(-(C(l, 1) + C(l, 11) * g("CORRUPTION") + 0 * g("POLSTAB") + 0 *
+                g("REGQUALITY") + C(l, 14) * g("RULELAW") + C(l, 15) * g("GOVEFFECT") + C(l, 16) * g("VOICE")) *
+                (_grpc - (C(l, 2) + C(l, 21) * g("CORRUPTION") + C(l, 22) * g("POLSTAB") + C(l, 23) *
+                g("REGQUALITY") + 0 * g("RULELAW") + C(l, 25) * g("GOVEFFECT") + C(l, 26) * g("VOICE")))));
+                return res;
+            },
+            inv :   function(_target, _pop, _gov) {
+                g = _type => gg(_type, _pop, _gov);
+                var l = this.coeffs;
+                var A = -(C(l, 1) + C(l, 11) * g("CORRUPTION") + 0 * g("POLSTAB") + 0 *
+                g("REGQUALITY") + C(l, 14) * g("RULELAW") + C(l, 15) * g("GOVEFFECT") + C(l, 16) * g("VOICE"))
+                var B = (C(l, 2) + C(l, 21) * g("CORRUPTION") + C(l, 22) * g("POLSTAB") + C(l, 23) *
+                g("REGQUALITY") + 0 * g("RULELAW") + C(l, 25) * g("GOVEFFECT") + C(l, 26) * g("VOICE"))
+                var res = Math.log(100.0 / _target - 1.0) / A + B;
+                return res; 
+            },
         }],
         ["SANITBASIC",
         {
@@ -114,15 +134,25 @@ var outcomesList = [
                     [26, 254.2561]
                 ]),
             fn :    function(_grpc, _pop, _gov) { 
-                        g = _type => gg(_type, _pop, _gov);
-                        var l = this.coeffs;
-                        res = 
-                        100 / (1 + Math.exp(-(C(l, 1) + C(l, 11) * g("CORRUPTION") + C(l, 12) * g("POLSTAB") +
-                        C(l, 13) * g("REGQUALITY") + C(l, 14) * g("RULELAW") + C(l, 15) * g("GOVEFFECT") + C(l, 16) *
-                        g("VOICE")) * (_grpc - (C(l, 2) + C(l, 21) * g("CORRUPTION") + C(l, 22) * g("POLSTAB") +
-                        C(l, 23) * g("REGQUALITY") + 0 * g("RULELAW") + C(l, 25) * g("GOVEFFECT") + C(l, 26) * g("VOICE")))));
-                        return res;
-                    },
+                g = _type => gg(_type, _pop, _gov);
+                var l = this.coeffs;
+                res = 100 / (1 + Math.exp(-(C(l, 1) + C(l, 11) * g("CORRUPTION") + C(l, 12) * g("POLSTAB") +
+                C(l, 13) * g("REGQUALITY") + C(l, 14) * g("RULELAW") + C(l, 15) * g("GOVEFFECT") + C(l, 16) *
+                g("VOICE")) * (_grpc - (C(l, 2) + C(l, 21) * g("CORRUPTION") + C(l, 22) * g("POLSTAB") +
+                C(l, 23) * g("REGQUALITY") + 0 * g("RULELAW") + C(l, 25) * g("GOVEFFECT") + C(l, 26) * g("VOICE")))));
+                return res;
+            },
+            inv_fn : function(_target, _pop, _gov) {
+                g = _type => gg(_type, _pop, _gov);
+                var l = this.coeffs;
+                var A = -(C(l, 1) + C(l, 11) * g("CORRUPTION") + C(l, 12) * g("POLSTAB") +
+                C(l, 13) * g("REGQUALITY") + C(l, 14) * g("RULELAW") + C(l, 15) * g("GOVEFFECT") + C(l, 16) *
+                g("VOICE"))
+                var B = (C(l, 2) + C(l, 21) * g("CORRUPTION") + C(l, 22) * g("POLSTAB") +
+                C(l, 23) * g("REGQUALITY") + 0 * g("RULELAW") + C(l, 25) * g("GOVEFFECT") + C(l, 26) * g("VOICE"))
+                var res = Math.log(100.0 / _target - 1.0) / A + B;
+                return res;
+            }
         }],
 		["SANITSAFE",
         {
@@ -149,14 +179,24 @@ var outcomesList = [
                     [26, 2870.706]
                 ]),
             fn :    function(_grpc, _pop, _gov) {
-                        g = _type => gg(_type, _pop, _gov);
-                        var l = this.coeffs;
-                        var res = 100 / (1 + Math.exp(-(C(l, 1) + C(l, 11) * g("CORRUPTION") + 0 * g("POLSTAB") + C(l, 13) *
-                        g("REGQUALITY") + 0 * g("RULELAW") + 0 * g("GOVEFFECT") + C(l, 16) * g("VOICE")) *
-                        (_grpc - (C(l, 2) + C(l, 21) * g("CORRUPTION") + 0 * g("POLSTAB") + C(l, 23) *
-                        g("REGQUALITY") + C(l, 24) * g("RULELAW") + C(l, 25) * g("GOVEFFECT") + C(l, 26) * g("VOICE")))));
-                        return res;
-                    },
+                g = _type => gg(_type, _pop, _gov);
+                var l = this.coeffs;
+                var res = 100 / (1 + Math.exp(-(C(l, 1) + C(l, 11) * g("CORRUPTION") + 0 * g("POLSTAB") + C(l, 13) *
+                g("REGQUALITY") + 0 * g("RULELAW") + 0 * g("GOVEFFECT") + C(l, 16) * g("VOICE")) *
+                (_grpc - (C(l, 2) + C(l, 21) * g("CORRUPTION") + 0 * g("POLSTAB") + C(l, 23) *
+                g("REGQUALITY") + C(l, 24) * g("RULELAW") + C(l, 25) * g("GOVEFFECT") + C(l, 26) * g("VOICE")))));
+                return res;
+            },
+            inv_fn : function(_target, _pop, _gov){
+                g = _type => gg(_type, _pop, _gov);
+                var l = this.coeffs;
+                var A = -(C(l, 1) + C(l, 11) * g("CORRUPTION") + 0 * g("POLSTAB") + C(l, 13) *
+                g("REGQUALITY") + 0 * g("RULELAW") + 0 * g("GOVEFFECT") + C(l, 16) * g("VOICE"))
+                var B = (C(l, 2) + C(l, 21) * g("CORRUPTION") + 0 * g("POLSTAB") + C(l, 23) *
+                g("REGQUALITY") + C(l, 24) * g("RULELAW") + C(l, 25) * g("GOVEFFECT") + C(l, 26) * g("VOICE"))
+                var res = Math.log(100.0 / _target - 1.0) / A + B;
+                return res;
+            },
         }],
 		["SCHOOLPERC",
         {
@@ -179,14 +219,24 @@ var outcomesList = [
                     [25, -17828.86]
                 ]),
             fn :    function(_grpc, _pop, _gov) { 
-                        g = _type => gg(_type, _pop, _gov);
-                        var l = this.coeffs;
-                        var res = 100 / (1 + Math.exp(-(C(l, 1) + 0 * g("CORRUPTION") + C(l, 12) * g("POLSTAB") + 0 *
-                        g("REGQUALITY") + 0 * g("RULELAW") + C(l, 15) * g("GOVEFFECT") + C(l, 16) * g("VOICE")) *
-                        (_grpc - (C(l, 2) + C(l, 21) * g("CORRUPTION") + C(l, 22) * g("POLSTAB") + 0 *
-                        g("REGQUALITY") + C(l, 24) * g("RULELAW") + C(l, 25) * g("GOVEFFECT") + 0 * g("VOICE")))));
-                        return res;
-                    },
+                g = _type => gg(_type, _pop, _gov);
+                var l = this.coeffs;
+                var res = 100 / (1 + Math.exp(-(C(l, 1) + 0 * g("CORRUPTION") + C(l, 12) * g("POLSTAB") + 0 *
+                g("REGQUALITY") + 0 * g("RULELAW") + C(l, 15) * g("GOVEFFECT") + C(l, 16) * g("VOICE")) *
+                (_grpc - (C(l, 2) + C(l, 21) * g("CORRUPTION") + C(l, 22) * g("POLSTAB") + 0 *
+                g("REGQUALITY") + C(l, 24) * g("RULELAW") + C(l, 25) * g("GOVEFFECT") + 0 * g("VOICE")))));
+                return res;
+            },
+            inv_fn : function(_target, _pop, _gov){
+                g = _type => gg(_type, _pop, _gov);
+                var l = this.coeffs;
+                var A = -(C(l, 1) + 0 * g("CORRUPTION") + C(l, 12) * g("POLSTAB") + 0 *
+                g("REGQUALITY") + 0 * g("RULELAW") + C(l, 15) * g("GOVEFFECT") + C(l, 16) * g("VOICE"))
+                var B = (C(l, 2) + C(l, 21) * g("CORRUPTION") + C(l, 22) * g("POLSTAB") + 0 *
+                g("REGQUALITY") + C(l, 24) * g("RULELAW") + C(l, 25) * g("GOVEFFECT") + 0 * g("VOICE"))
+                var res = Math.log(100.0 / _target - 1.0) / A + B;
+                return res;
+            },
         }],
         ["U5MSURV",
         {
@@ -210,15 +260,25 @@ var outcomesList = [
                     [26, 389.563410216]
          
                 ]),
-            fn :    function(_grpc, _pop, _gov) {
-                        g = _type => gg(_type, _pop, _gov);
-                        var l = this.coeffs;
-                        var res = 100 / (1 + Math.exp(-(C(l, 1) + 0 * g("CORRUPTION") + C(l, 12) * g("POLSTAB") 
-                        + 0 * g("REGQUALITY") + 0 * g("RULELAW") + C(l, 15) * g("GOVEFFECT") + C(l, 16) * g("VOICE")) 
-                        * (_grpc - (-C(l, 2) + C(l, 21) * g("CORRUPTION") + C(l, 22) * g("POLSTAB") + C(l, 23) 
-                        * g("REGQUALITY") + 0 * g("RULELAW") + C(l, 25) * g("GOVEFFECT") + C(l, 26) * g("VOICE")))));
-                        return res;
-                },
+            fn : function(_grpc, _pop, _gov) {
+                g = _type => gg(_type, _pop, _gov);
+                var l = this.coeffs;
+                var res = 100 / (1 + Math.exp(-(C(l, 1) + 0 * g("CORRUPTION") + C(l, 12) * g("POLSTAB") 
+                + 0 * g("REGQUALITY") + 0 * g("RULELAW") + C(l, 15) * g("GOVEFFECT") + C(l, 16) * g("VOICE")) 
+                * (_grpc - (-C(l, 2) + C(l, 21) * g("CORRUPTION") + C(l, 22) * g("POLSTAB") + C(l, 23) 
+                * g("REGQUALITY") + 0 * g("RULELAW") + C(l, 25) * g("GOVEFFECT") + C(l, 26) * g("VOICE")))));
+                return res;
+            },
+            inv_fn : function(_target, _pop, _gov){
+                g = _type => gg(_type, _pop, _gov);
+                var l = this.coeffs;
+                var A = -(C(l, 1) + 0 * g("CORRUPTION") + C(l, 12) * g("POLSTAB") 
+                + 0 * g("REGQUALITY") + 0 * g("RULELAW") + C(l, 15) * g("GOVEFFECT") + C(l, 16) * g("VOICE"))
+                var B = (-C(l, 2) + C(l, 21) * g("CORRUPTION") + C(l, 22) * g("POLSTAB") + C(l, 23) 
+                * g("REGQUALITY") + 0 * g("RULELAW") + C(l, 25) * g("GOVEFFECT") + C(l, 26) * g("VOICE"))
+                var res = Math.log(100.0 / _target - 1.0) / A + B;
+                return res;
+            },
          }],
         ["MMRSURV",
         {
@@ -245,14 +305,21 @@ var outcomesList = [
                      [26, 451.468766258]
                 ]),
             fn :    function(_grpc, _pop, _gov) { 
-                        g = _type => gg(_type, _pop, _gov);
-                        var l = this.coeffs;
-                        95 + (100 - 95) / (1 + Math.exp(-(C(l, 1) + C(l, 11) * g("CORRUPTION") 
-                        + C(l, 12) * g("POLSTAB") + 0 * g("REGQUALITY") + C(l, 14) * g("RULELAW") + C(l, 15) * g("GOVEFFECT") 
-                        + C(l, 16) * g("VOICE")) * (_grpc - (C(l, 2) + C(l, 21) * g("CORRUPTION") + C(l, 22) * g("POLSTAB") 
-                        + C(l, 23) * g("REGQUALITY") + C(l, 24) * g("RULELAW") + C(l, 25) * g("GOVEFFECT") + C(l, 26) * g("VOICE")))));
-                        return res;
-                },
+                g = _type => gg(_type, _pop, _gov);
+                var l = this.coeffs;
+                var res = 95 + (100 - 95) / (1 + Math.exp(-(C(l, 1) + C(l, 11) * g("CORRUPTION") 
+                + C(l, 12) * g("POLSTAB") + 0 * g("REGQUALITY") + C(l, 14) * g("RULELAW") + C(l, 15) * g("GOVEFFECT") 
+                + C(l, 16) * g("VOICE")) * (_grpc - (C(l, 2) + C(l, 21) * g("CORRUPTION") + C(l, 22) * g("POLSTAB") 
+                + C(l, 23) * g("REGQUALITY") + C(l, 24) * g("RULELAW") + C(l, 25) * g("GOVEFFECT") + C(l, 26) * g("VOICE")))));
+                return res;
+            },
+            inv_fn : function(_target, _pop, _gov){
+                g = _type => gg(_type, _pop, _gov);
+                var l = this.coeffs;
+
+                var res = Math.log(100.0 / _target - 1.0) / A + B;
+                return res;
+            },
          }],
 
 /*
