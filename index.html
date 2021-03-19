@@ -147,25 +147,37 @@
                 </div-->
                 <button class="accordion">Advanced</button>
                 <div class="panel">
-                    <div class="uiouter">
-                        <p>Change in governance quality: <span id="govVal">0</span></p>
-                        <div class="uicontainer">
-                            <input type="range" name="govSlider" id="govSlider" class="slider" min="0" max="200" value="100" />
-                            <img src="img/larrow.png" alt="left-pointing arrow" style="width: 60px; height: auto;" />worsening&nbsp;&nbsp;<span class="ar">improving <img src="img/rarrow.png" alt="right-pointing arrow" style="width: 60px; height : auto" /></span>
+                    <button class="accordion subaccordion">Projection</button>
+                    <div class="panel">
+                        <div class="uiouter">
+                            <p>Change in governance quality: <span id="govVal">0</span></p>
+                            <div class="uicontainer">
+                                <input type="range" name="govSlider" id="govSlider" class="slider" min="0" max="200" value="100" />
+                                <img src="img/larrow.png" alt="left-pointing arrow" style="width: 60px; height: auto;" />worsening&nbsp;&nbsp;<span class="ar">improving <img src="img/rarrow.png" alt="right-pointing arrow" style="width: 60px; height : auto" /></span>
+                            </div>
+                        </div>
+                    
+                        <div class="uiouter">
+                            <p>Multiple-country export</p>
+                            <div class="uicontainer">
+                                <select id="multicountrylist" name="multicountry">
+                                </select>
+                                <div class="filteroptions" id="countryfilter">
+                                </div>
+                                <button id="multibutton" onclick="download_csv_multi()"><i class="fa fa-download"></i>&nbsp;Download projections</button>
+                                <button id="clearmultibutton" onclick="clear_multi()"><i class="fa fa-trash"></i>&nbsp;Clear all</button>
+                                <p id = "multicountryerror">
+                                </p> 
+                            </div>
                         </div>
                     </div>
-                
-                    <div class="uiouter">
-                        <p>Multiple-country export</p>
-                        <div class="uicontainer">
-                            <select id="multicountrylist" name="multicountry">
-                            </select>
-                            <div class="filteroptions" id="countryfilter">
+                    <button class="accordion subaccordion">Target SDG</button>
+                    <div class="panel">
+                        <div class="uiouter">
+                            <p>Target: <span id="targetVal"></span></p>
+                            <div class="uicontainer">
+                                <input type="text" name="targetInput" id="targetInput" class="numeric" value="0" />
                             </div>
-                            <button id="multibutton" onclick="download_csv_multi()"><i class="fa fa-download"></i>&nbsp;Download projections</button>
-                            <button id="clearmultibutton" onclick="clear_multi()"><i class="fa fa-trash"></i>&nbsp;Clear all</button>
-                            <p id = "multicountryerror">
-                            </p> 
                         </div>
                     </div>
                     <h4>Download raw data</h4>
@@ -173,9 +185,9 @@
                         <li><a href="BASE%20data.xlsx">Excel (including notes on data)</a></li>
                         <li><a href="BASE%20data.csv">CSV</a></li>
                     </ul>
-                    
                     <p id="version">v1.4 11/03/2021</p>
                 </div>
+                
             </div>
             <div id="vis">
                 <div id="loading">

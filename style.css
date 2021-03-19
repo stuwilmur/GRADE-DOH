@@ -539,3 +539,9 @@ input#yearrange {
   .active:after {
     content: "\2796"; /* Unicode character for "minus" sign (-) */
   }
+
+  .subaccordion {
+      margin-right : 10%;
+      width: 90%;
+      padding: 10px;
+  }
