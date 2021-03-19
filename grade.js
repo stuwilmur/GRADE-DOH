@@ -253,8 +253,30 @@ function makeText(_iso, _year) {
 }
 
 function makeTextTarget(_year, _iso, _outcome, _target){
-    var result = computeTarget(_iso, _year, _outcome, _target);
-    return result.grpc + "%";
+    if (_iso.slice(0,1) == "$")
+    {
+        return "No country selected";
+    }
+    var revenues = getRevenue(_iso, _year, method);
+    if (revenues === undefined)
+    {
+        return "<strong>" + countrycodes.get(_iso) + "<\/strong>" + ": No GRPC data available";
+    }
+    console.log("revenues", revenues)
+    var grpc_orig = revenues["historical grpc"];
+    var result = computeTarget(_iso, _year, _outcome, _target, grpc_orig);
+    if (result.error)
+    {
+        return "<strong>" + countrycodes.get(_iso) + "<\/strong>" + ": " + result.error.join("<br>");
+    }
+    var grpc_add = result.grpc - grpc_orig;
+    var grpc_inc = (result.grpc / grpc_orig - 1) * 100;
+    var rev_add = revenues["historical total revenue"] * result.grpc / grpc_orig - revenues["historical total revenue"];
+    var str =  
+    "Absolute additional revenue:<span class = 'ar'>$" + d3.format(",")(rev_add.toFixed(0)) + "</span><br/>"
+    + "Additional revenue per cap.:<span class = 'ar'>$" + d3.format(",")(grpc_add.toFixed(2)) + "</span><br/>"
+    + "Increase as % of gov. rev. per cap.:<span class = 'ar'>" + grpc_inc.toFixed(2) + "%</span><br/>"
+    return str;
 }
 
 function getPrefix(p) {

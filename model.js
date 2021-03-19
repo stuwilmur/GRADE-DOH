@@ -397,23 +397,32 @@ function compute_inv(_iso, _year, _outcome, _target, _gov) {
     return outcomesMap.get(_outcome).inv_fn(_target, pop, _gov);
 }
 
-function computeTarget(_iso, _year, _outcome, _target)
+function computeTarget(_iso, _year, _outcome, _target, _grpcOrig)
 {
-    var original = popdata.getvalue(_iso, _year, _outcome);
+    console.log("hello")
+    var fitted = compute(_iso, _year, _outcome, _grpcOrig, 0)
+    var bInterp = _outcome == "SCHOOLPERC" // interpolating for this outcome only //!! do nicer
+    var original = popdata.getvalue(_iso, _year, _outcome, bInterp);
+    var residual = original - fitted;
+    console.log(_grpcOrig, fitted, original, residual)
+
     if (original > _target){
-        return {error : ["Target value " + _target + " is less than original " + original,]};
+        return {error : ["Target value " + _target + " is less than original (" + original.toFixed(2) + "%)",]};
     }
     // treat zero as "no data"
     if (original === 0 || isNaN(original)){
         var outcome_name = (outcomesMap.get(_outcome)).name;
         return {error : [outcome_name + " not available for " + _year]};
     }  
-    var target_grpc = compute_inv(_iso, _year, _outcome, _target, 0);
+
+    // n.b. outcome = f(grpc) + residual => grpc = f^-1(outcome - residual)
+    var target_grpc = compute_inv(_iso, _year, _outcome, _target - residual, 0);
     if (isNaN(target_grpc)){
         var outcome_name = (outcomesMap.get(_outcome)).name;
         var errs = ["Unable to calculate " + outcome_name + ", " + _year];
         return {error : errs};
     }
+    console.log(target_grpc)
     return {
         error : null,
         grpc : target_grpc,
@@ -549,7 +558,8 @@ function getRevenue(_iso, _year, m) {
             "new absolute revenue": newAbsRev,
             "additional revenue per capita": additionalPerCapita,
             "new grpc": grpercap + additionalPerCapita,
-            "historical grpc": grpercap
+            "historical grpc": grpercap,
+            "historical total revenue" : grpercap * total_population
         };
     } else if (m == "pc") {
         var newGRPC = grpercap + pcGovRev;
@@ -560,7 +570,8 @@ function getRevenue(_iso, _year, m) {
             "new absolute revenue": newAbsRev,
             "additional revenue per capita": pcGovRev,
             "new grpc": newGRPC,
-            "historical grpc": grpercap
+            "historical grpc": grpercap,
+            "historical total revenue" : grpercap * total_population
         };
     } else if (m == "newgrpc") {
         var newGRPC = enteredGrpc > grpercap ? enteredGrpc : grpercap;
@@ -571,7 +582,8 @@ function getRevenue(_iso, _year, m) {
             "new absolute revenue": newAbsRev,
             "additional revenue per capita": newGRPC - grpercap,
             "new grpc": newGRPC,
-            "historical grpc": grpercap
+            "historical grpc": grpercap,
+            "historical total revenue" : grpercap * total_population
         };
     } else {
         var newGRPC = grpercap + absGovRev / total_population;
@@ -582,7 +594,8 @@ function getRevenue(_iso, _year, m) {
             "new absolute revenue": absGovRev,
             "additional revenue per capita": additionalPerCapita,
             "new grpc": newGRPC,
-            "historical grpc": grpercap
+            "historical grpc": grpercap,
+            "historical total revenue" : grpercap * total_population
         };
     }
     return ret;
