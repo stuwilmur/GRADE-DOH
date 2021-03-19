@@ -35,6 +35,7 @@ var outcomesList = [
             fixedExtent: [0, 100],
             desc: "The percentage of the population drinking water from an improved source, provided collection time is not more than 30 minutes for a round trip.",
             isStockVar : true,
+            target: 100,
             coeffs : new Map(
                 [
                     [1, 0.002777],
@@ -59,7 +60,6 @@ var outcomesList = [
                 var A = -(C(l, 1) + C(l, 12) * g("POLSTAB") + C(l, 14) * g("RULELAW") +
                 C(l, 15) * g("GOVEFFECT"));
                 var B = (C(l, 2) + C(l, 22) * g("POLSTAB") + C(l, 24) * g("RULELAW"));
-                100 / (1 + Math.exp(A * (_grpc - B)));
                 var res = Math.log(100.0 / _target - 1.0) / A + B;
                 return res; 
             },
@@ -74,6 +74,7 @@ var outcomesList = [
             improved source that is accessible on premises, available when needed 
             and free from faecal and priority chemical contamination.`,
             isStockVar : true,
+            target: 100,
             coeffs : new Map(
                 [
                     [1, 0.002115],
@@ -97,7 +98,7 @@ var outcomesList = [
                 g("REGQUALITY") + 0 * g("RULELAW") + C(l, 25) * g("GOVEFFECT") + C(l, 26) * g("VOICE")))));
                 return res;
             },
-            inv :   function(_target, _pop, _gov) {
+            inv_fn :   function(_target, _pop, _gov) {
                 g = _type => gg(_type, _pop, _gov);
                 var l = this.coeffs;
                 var A = -(C(l, 1) + C(l, 11) * g("CORRUPTION") + 0 * g("POLSTAB") + 0 *
@@ -117,6 +118,7 @@ var outcomesList = [
             desc: `The percentage of the population using at least improved 
             sanitation facilities that are not shared with other households.`,
             isStockVar : true,
+            target: 100,
             coeffs : new Map(
                 [
                     [1, 0.002240],
@@ -165,6 +167,7 @@ var outcomesList = [
             excreta are safely disposed of in situ or transported and treated 
             offsite.`,
             isStockVar : true,
+            target: 100,
             coeffs : new Map(
                 [
                     [1, 7.29E-05],
@@ -206,6 +209,7 @@ var outcomesList = [
             fixedExtent: [0, 100],
             desc: `The number of child school years`,
             isStockVar : false,
+            target : 100,
             coeffs : new Map(
                 [
                     [1, 2.13E-05],
@@ -246,6 +250,7 @@ var outcomesList = [
             fixedExtent: [0, 100],
             desc: "Under-5 survival",
             isStockVar : false,
+            target: 97.5,
             coeffs : new Map(
                 [
                     [1, 0.000487660315618],
@@ -288,6 +293,7 @@ var outcomesList = [
             fixedExtent: [0, 100],
             desc: "Maternal survival",
             isStockVar : false,
+            target: 99.93,
             coeffs : new Map(
                 [
                      [1, 0.00162428846511],
@@ -399,17 +405,15 @@ function compute_inv(_iso, _year, _outcome, _target, _gov) {
 
 function computeTarget(_iso, _year, _outcome, _target, _grpcOrig)
 {
-    console.log("hello")
     var fitted = compute(_iso, _year, _outcome, _grpcOrig, 0)
     var bInterp = _outcome == "SCHOOLPERC" // interpolating for this outcome only //!! do nicer
     var original = popdata.getvalue(_iso, _year, _outcome, bInterp);
     var residual = original - fitted;
-    console.log(_grpcOrig, fitted, original, residual)
 
     if (original > _target){
-        return {error : ["Target value " + _target + " is less than original (" + original.toFixed(2) + "%)",]};
+        return {error : ["Target value (" + _target + "%) is less than original (" + original.toFixed(2) + "%)",]};
     }
-    // treat zero as "no data"
+    // treat zero as "no data"§
     if (original === 0 || isNaN(original)){
         var outcome_name = (outcomesMap.get(_outcome)).name;
         return {error : [outcome_name + " not available for " + _year]};
@@ -419,10 +423,9 @@ function computeTarget(_iso, _year, _outcome, _target, _grpcOrig)
     var target_grpc = compute_inv(_iso, _year, _outcome, _target - residual, 0);
     if (isNaN(target_grpc)){
         var outcome_name = (outcomesMap.get(_outcome)).name;
-        var errs = ["Unable to calculate " + outcome_name + ", " + _year];
+        var errs = ["Unable to calculate " + outcome_name + ": target may be out of achievable range"];
         return {error : errs};
     }
-    console.log(target_grpc)
     return {
         error : null,
         grpc : target_grpc,

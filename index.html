@@ -176,7 +176,7 @@
                         <div class="uiouter">
                             <p>Set target <span id="targetVal"></span></p>
                             <div class="uicontainer">
-                                <input type="text" name="targetInput" id="targetInput" class="numeric" value="0" />
+                                <input type="text" name="targetInput" id="targetInput" class="numeric" value="100" />
                                 <label for="targetInput">%</label>
                                 <div id="targetText"></div>
                             </div>
@@ -268,8 +268,8 @@
             position: 'absolute' // Element positioning
             };
 
-            var target = document.getElementById('vis');
-            var spinner = new Spinner(opts).spin(target);
+            var dest = document.getElementById('vis');
+            var spinner = new Spinner(opts).spin(dest);
 
             const zoom = d3.behavior.zoom()
                 .scaleExtent([1, 8])

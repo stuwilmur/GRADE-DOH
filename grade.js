@@ -18,7 +18,7 @@ var pcGovRev = 0;
 var year = 2002;
 var years_to_project = 10;
 var governance = 0;
-var target = 90;
+var target = 100;
 var country = "$-ALL";
 var method = "absolute";
 var prefix = "M";
@@ -262,7 +262,6 @@ function makeTextTarget(_year, _iso, _outcome, _target){
     {
         return "<strong>" + countrycodes.get(_iso) + "<\/strong>" + ": No GRPC data available";
     }
-    console.log("revenues", revenues)
     var grpc_orig = revenues["historical grpc"];
     var result = computeTarget(_iso, _year, _outcome, _target, grpc_orig);
     if (result.error)
@@ -520,7 +519,7 @@ function setupMenus(countries, outcomes) {
     });
 
     d3.select("#targetInput").on("input", function (d) {
-        target = this.value * 1;
+        target = +this.value;
         mainUpdate();
     });
 
@@ -542,6 +541,7 @@ function setupMenus(countries, outcomes) {
     d3.selectAll("#outcomes").on("change", function (d) {
         outcome = this.options[this.selectedIndex].value
         updateLegend();
+        set_outcome_target();
         mainUpdate();
     });
 
@@ -877,4 +877,13 @@ function updateCountryFilters(){
 function clear_multi(){
     multiplecountries = []
     updateCountryFilters();
+}
+
+function set_outcome_target(){
+    // sets the target to the default for the current outcome, 
+    // e.g. to be called whenever the outcome changes
+
+    var target_value = outcomesMap.get(outcome).target;
+    d3.select("#targetInput").property("value", target_value);
+    target = target_value;
 }
