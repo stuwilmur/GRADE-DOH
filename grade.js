@@ -18,6 +18,7 @@ var pcGovRev = 0;
 var year = 2002;
 var years_to_project = 10;
 var governance = 0;
+var target = 90;
 var country = "$-ALL";
 var method = "absolute";
 var prefix = "M";
@@ -251,6 +252,11 @@ function makeText(_iso, _year) {
     return text;
 }
 
+function makeTextTarget(_year, _iso, _outcome, _target){
+    var result = computeTarget(_iso, _year, _outcome, _target);
+    return result.grpc + "%";
+}
+
 function getPrefix(p) {
     if (p == "U")
         return "";
@@ -478,6 +484,7 @@ function setupMenus(countries, outcomes) {
         d3.select("#perCapitaRevenueVal").text("$" + d3.format(",")(Math.round(pcGovRev)));
         mainUpdate();
     });
+
     d3.select("#grpcSlider").on("input", function (d) {
         enteredGrpc = this.value * 1;
         d3.select("#grpcVal").text("$" + d3.format(",")(enteredGrpc));
@@ -487,6 +494,11 @@ function setupMenus(countries, outcomes) {
     d3.select("#govSlider").on("input", function (d) {
         governance = Math.round((this.value / 200.0 * 2.0 - 1) * 100) / 100;
         d3.select("#govVal").text((governance <= 0 ? "" : "+") + governance);
+        mainUpdate();
+    });
+
+    d3.select("#targetInput").on("input", function (d) {
+        target = this.value * 1;
         mainUpdate();
     });
 
@@ -546,6 +558,7 @@ function updateCountries() {
     }
     colourCountries();
     updateplot();
+    updatetarget();
 }
 
 function updateYears(_firstyear, _lastyear){
@@ -621,6 +634,12 @@ function updateplot() {
 
         Plotly.newPlot('plot', plotdata, plotlayout);
     }
+}
+
+function updatetarget(){
+    var text = makeTextTarget(+year, country, outcome, target);
+    d3.select("#targetText")
+    .html(text);
 }
 
 function download_csv(_year, _years_to_project, _countries, _outcome) {

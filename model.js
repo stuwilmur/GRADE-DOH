@@ -399,7 +399,7 @@ function compute_inv(_iso, _year, _outcome, _target, _gov) {
 
 function computeTarget(_iso, _year, _outcome, _target)
 {
-    var original = popdata.getvalue(_iso, _year, _outcome, bInterp);
+    var original = popdata.getvalue(_iso, _year, _outcome);
     if (original > _target){
         return {error : ["Target value " + _target + " is less than original " + original,]};
     }
