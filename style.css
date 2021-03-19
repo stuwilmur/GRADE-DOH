@@ -407,7 +407,7 @@ h2.tooltip {
     font-weight: bold;
 }
 
-button {
+button, .button {
   font-family: 'Open Sans', Helvetica, sans-serif;
   background-color: #0099FF;
   border: none;
@@ -423,6 +423,10 @@ button {
 
 button:disabled{
     background-color: #d3d3d3;
+}
+
+.button:link {
+    color:rgba(255, 255, 255, 1);
 }
 
 .cumulative {
@@ -542,7 +546,7 @@ input#yearrange {
   }
 
   .subaccordion {
-      margin-right : 10%;
-      width: 90%;
-      padding: 10px;
+      margin-right : 0%;
+      width: 100%;
+      padding: 7px;
   }
