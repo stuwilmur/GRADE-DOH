@@ -550,3 +550,8 @@ input#yearrange {
       width: 100%;
       padding: 7px;
   }
+
+  #targetInput {
+    background-color: #ffdb8d;
+    box-shadow: 0 0 5px #ffdb8d;
+  }

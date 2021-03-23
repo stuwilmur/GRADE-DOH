@@ -2,6 +2,7 @@
 // rounding error for small values
 // ensure initial options consistent (without resorting to on change)
 // sort projection range size
+// legend text wrap
 
 var subheight = 100;
 var legendCells = 10;
@@ -528,6 +529,8 @@ function setupMenus(countries, outcomes) {
 
     d3.select("#targetInput").on("input", function (d) {
         target = +this.value;
+        d3.select(this).style('box-shadow', '0 0 0px #ffffff')
+        d3.select(this).style('background-color', '#ffffff');
         mainUpdate();
     });
 
@@ -898,6 +901,8 @@ function set_outcome_target(){
     if (isNaN(target_value)){
         target_value = outcomesMap.get(outcome).target;
     }
-    d3.select("#targetInput").property("value", target_value);
+    d3.select("#targetInput").property("value", target_value)
+    .style('box-shadow', '0 0 5px #ffdb8d')
+    .style('background-color', '#ffdb8d');
     target = target_value;
 }
