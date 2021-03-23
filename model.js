@@ -29,7 +29,7 @@ var govMeasures = new Map([
 var outcomesList = [
         ["WATERBASIC",
         {
-            name: "Basic water",
+            name: "Basic water (SDG 6)",
             loCol: "#dee5f8",
             hiCol: "#e09900",
             fixedExtent: [0, 100],
@@ -66,7 +66,7 @@ var outcomesList = [
         }],
 		["WATERSAFE",
         {
-            name: "Safe water",
+            name: "Safe water (SDG 6)",
             loCol: "#dee5f8",
             hiCol: "#e09900",
             fixedExtent: [0, 100],
@@ -111,7 +111,7 @@ var outcomesList = [
         }],
         ["SANITBASIC",
         {
-            name: "Basic sanitation",
+            name: "Basic sanitation (SDG 6)",
             loCol: "#dee5f8",
             hiCol: "#e09900",
             fixedExtent: [0, 100],
@@ -158,7 +158,7 @@ var outcomesList = [
         }],
 		["SANITSAFE",
         {
-            name: "Safe sanitation",
+            name: "Safe sanitation (SDG 6)",
             loCol: "#dee5f8",
             hiCol: "#e09900",
             fixedExtent: [0, 100],
@@ -203,7 +203,7 @@ var outcomesList = [
         }],
 		["SCHOOLPERC",
         {
-            name: "Child school years",
+            name: "Child school years (SDG 4)",
             loCol: "#dee5f8",
             hiCol: "#e09900",
             fixedExtent: [0, 100],
@@ -244,7 +244,7 @@ var outcomesList = [
         }],
         ["U5MSURV",
         {
-            name: "Under-5 survival",
+            name: "Under-5 survival (SDG 3)",
             loCol: "#dee5f8",
             hiCol: "#e09900",
             fixedExtent: [0, 100],
@@ -287,7 +287,7 @@ var outcomesList = [
          }],
         ["MMRSURV",
         {
-            name: "Maternal survival",
+            name: "Maternal survival (SDG 3)",
             loCol: "#dee5f8",
             hiCol: "#e09900",
             fixedExtent: [0, 100],
@@ -429,18 +429,43 @@ function computeTarget(_iso, _year, _outcome, _target, _grpcOrig)
     return {
         error : null,
         grpc : target_grpc,
+        additional : computeAdditionalResults(_iso, _year, _outcome, target, original)
     };
 }
 
-function computeResult(_iso, _year, _outcome, _grpc, _grpcOrig, _govImprovement) {
- 
+function computeAdditionalResults(_iso, _year, _outcome, improved, original){
     var popTotal = popdata.getvalue(_iso, _year, "Population, total");
     var popU5 = popdata.getvalue(_iso, _year, "Pop < 5");
     var popFemale15_49 = popdata.getvalue(_iso, _year, "Number of females aged 15-49");
     var popChildrenSurvive1 = popdata.getvalue(_iso, _year, "Children survive to 1 year");
     var popBirths = popdata.getvalue(_iso, _year, "Number of births")
     var popChildrenSurvive5 = popdata.getvalue(_iso, _year, "Number of children surviving to five");
-    
+
+    var additional = [];
+
+    if (_outcome == "SANITBASIC" || _outcome == "SANITSAFE" || _outcome == "WATERBASIC" || _outcome == "WATERSAFE") {
+        additional.push({name : "People with increased access",  value : (improved - original) / 100 * popTotal, keyvariable : true});
+        additional.push({name : "Children < 5 with increased access", value : (improved - original) / 100 * popU5, keyvariable : true});
+        additional.push({name : "Females 15-49 with increased access", value: (improved - original) / 100 * popFemale15_49, keyvariable : true});
+    } else if (_outcome == "IMUNISATION") {
+        additional.push({name : "Number of infants immunised", value : (improved - original) / 100 * popChildrenSurvive1, keyvariable : true})
+    } else if (_outcome == "SCHOOLPERC") {
+        additional.push({name : "Additional child school years", value : 17 * (improved - original) / 100 * popChildrenSurvive5, keyvariable : true})
+    } else if (_outcome == "U5MSURV"){
+        additional.push({name : "Under-5 five deaths averted", value : (improved - original) / 100 * popBirths, keyvariable : true})
+        additional.push({name : "Under-5 deaths", value : (1 - original / 100) * popBirths, keyvariable : false})
+        additional.push({name : "Under-5 deaths with additional revenue", value : (1 - improved / 100) * popBirths, keyvariable : false})
+    } else if (_outcome == "MMRSURV"){
+        additional.push({name : "Maternal deaths averted", value : (improved - original) / 100 * popBirths, keyvariable : true})
+        additional.push({name : "Maternal deaths", value : (1 - original / 100) * popBirths, keyvariable : false})
+        additional.push({name : "Maternal deaths with additional revenue", value : (1 - improved / 100) * popBirths, keyvariable : false})
+    }
+
+    return additional;
+}
+
+function computeResult(_iso, _year, _outcome, _grpc, _grpcOrig, _govImprovement) {
+ 
     var fitted = compute(_iso, _year, _outcome, _grpcOrig, 0)
     var bInterp = _outcome == "SCHOOLPERC" // interpolating for this outcome only //!! do nicer
     var original = popdata.getvalue(_iso, _year, _outcome, bInterp);
@@ -469,32 +494,12 @@ function computeResult(_iso, _year, _outcome, _grpc, _grpcOrig, _govImprovement)
     var residual = original - fitted;
     improved = Math.min(Math.max(improved + residual, 0), 100);
 
-    var additional = [];
-
-    if (_outcome == "SANITBASIC" || _outcome == "SANITSAFE" || _outcome == "WATERBASIC" || _outcome == "WATERSAFE") {
-        additional.push({name : "People with increased access",  value : (improved - original) / 100 * popTotal, keyvariable : true});
-        additional.push({name : "Children < 5 with increased access", value : (improved - original) / 100 * popU5, keyvariable : true});
-        additional.push({name : "Females 15-49 with increased access", value: (improved - original) / 100 * popFemale15_49, keyvariable : true});
-    } else if (_outcome == "IMUNISATION") {
-        additional.push({name : "Number of infants immunised", value : (improved - original) / 100 * popChildrenSurvive1, keyvariable : true})
-    } else if (_outcome == "SCHOOLPERC") {
-        additional.push({name : "Additional child school years", value : 17 * (improved - original) / 100 * popChildrenSurvive5, keyvariable : true})
-    } else if (_outcome == "U5MSURV"){
-        additional.push({name : "Under-5 five deaths averted", value : (improved - original) / 100 * popBirths, keyvariable : true})
-        additional.push({name : "Under-5 deaths", value : (1 - original / 100) * popBirths, keyvariable : false})
-        additional.push({name : "Under-5 deaths with additional revenue", value : (1 - improved / 100) * popBirths, keyvariable : false})
-    } else if (_outcome == "MMRSURV"){
-        additional.push({name : "Maternal deaths averted", value : (improved - original) / 100 * popBirths, keyvariable : true})
-        additional.push({name : "Maternal deaths", value : (1 - original / 100) * popBirths, keyvariable : false})
-        additional.push({name : "Maternal deaths with additional revenue", value : (1 - improved / 100) * popBirths, keyvariable : false})
-    }
-
     var ret = {
         "error" : null,
         "original": original,
         "improved": improved,
         "fitted": fitted,
-        "additional": additional,
+        "additional": computeAdditionalResults(_iso, _year, _outcome, improved, original),
         "gov": govresults
     };
     return ret;

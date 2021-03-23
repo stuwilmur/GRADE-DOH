@@ -159,8 +159,7 @@ function getColor(_cid, _year, _method) {
 function makeText2(_year, _iso, _outcome, _years_to_project)
 {
     // accompanies makeText() (which does the instantaneous calculation)
-    // as version that is specific to the projection. This is useful
-    // in case we need makeText again in the future
+    // as version that is specific to the projection.
     
     var end_year = getProjectionEnd(_year, _years_to_project)
     var projection = calcProjection(_year, _iso, _outcome, _years_to_project)
@@ -272,9 +271,17 @@ function makeTextTarget(_year, _iso, _outcome, _target){
     var grpc_inc = (result.grpc / grpc_orig - 1) * 100;
     var rev_add = revenues["historical total revenue"] * result.grpc / grpc_orig - revenues["historical total revenue"];
     var str =  
-    "Absolute additional revenue:<span class = 'ar'>$" + d3.format(",")(rev_add.toFixed(0)) + "</span><br/>"
+    "<strong>" + countrycodes.get(_iso) + "&nbsp;" + _year + "<\/strong><br/>"
+    + "Absolute additional revenue:<span class = 'ar'>$" + d3.format(",")(rev_add.toFixed(0)) + "</span><br/>"
     + "Additional revenue per cap.:<span class = 'ar'>$" + d3.format(",")(grpc_add.toFixed(2)) + "</span><br/>"
     + "Increase as % of gov. rev. per cap.:<span class = 'ar'>" + grpc_inc.toFixed(2) + "%</span><br/>"
+
+    if (result.hasOwnProperty("additional")) {
+        result.additional.forEach(function(property) {
+            str = str + "<br/>" + property.name + ":&nbsp&nbsp<span class = 'arb'>" + d3.format(",")(property.value.toFixed(0)) + "</span>";
+        })
+    }
+
     return str;
 }
 
@@ -335,6 +342,7 @@ function setupMenus(countries, outcomes) {
         d3.select('#countrylist')
             .on('change', function (d) {
                 country = this.options[this.selectedIndex].value;
+                set_outcome_target();
                 mainUpdate();
                 focusCountry();
             })
@@ -489,7 +497,7 @@ function setupMenus(countries, outcomes) {
 
     d3.select("#revSlider").on("input", function (d) {
         govRevenue = this.value / 100.0;
-        d3.select("#revenueVal").text(Math.round(govRevenue * 100) + " %");
+        d3.select("#revenueVal").text((govRevenue * 100).toFixed(2) + " %");
         mainUpdate();
     });
 
@@ -543,6 +551,7 @@ function setupMenus(countries, outcomes) {
         updateLegend();
         set_outcome_target();
         mainUpdate();
+        set_outcome_target();
     });
 
     /*
@@ -586,6 +595,7 @@ function updateCountries() {
 function updateYears(_firstyear, _lastyear){
     year = _firstyear;
     years_to_project = _lastyear - _firstyear;
+    set_outcome_target();
     mainUpdate();
 }
 
@@ -880,10 +890,14 @@ function clear_multi(){
 }
 
 function set_outcome_target(){
-    // sets the target to the default for the current outcome, 
+    // sets the target to the current value or failing that
+    // default for the current outcome, 
     // e.g. to be called whenever the outcome changes
 
-    var target_value = outcomesMap.get(outcome).target;
+    var target_value = popdata.getvalue(country, +year, outcome);
+    if (isNaN(target_value)){
+        target_value = outcomesMap.get(outcome).target;
+    }
     d3.select("#targetInput").property("value", target_value);
     target = target_value;
 }
