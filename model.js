@@ -426,6 +426,8 @@ function computeTarget(_iso, _year, _outcome, _target, _grpcOrig)
         var errs = ["Unable to calculate " + outcome_name + ": target may be out of achievable range"];
         return {error : errs};
     }
+    // Handle a negative zero grpc 
+    target_grpc = Math.max(target_grpc, 0);
     return {
         error : null,
         grpc : target_grpc,

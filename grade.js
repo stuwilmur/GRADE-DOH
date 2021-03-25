@@ -270,6 +270,8 @@ function makeTextTarget(_year, _iso, _outcome, _target){
     }
     var grpc_add = result.grpc - grpc_orig;
     var grpc_inc = (result.grpc / grpc_orig - 1) * 100;
+    // Handle apperance of negative zero
+    grpc_inc = Math.max(grpc_inc, 0);
     var rev_add = revenues["historical total revenue"] * result.grpc / grpc_orig - revenues["historical total revenue"];
     var str =  
     "<strong>" + countrycodes.get(_iso) + "&nbsp;" + _year + "<\/strong><br/>"
@@ -901,7 +903,7 @@ function set_outcome_target(){
     if (isNaN(target_value)){
         target_value = outcomesMap.get(outcome).target;
     }
-    d3.select("#targetInput").property("value", target_value)
+    d3.select("#targetInput").property("value", target_value.toFixed(2))
     .style('box-shadow', '0 0 5px #ffdb8d')
     .style('background-color', '#ffdb8d');
     target = target_value;
