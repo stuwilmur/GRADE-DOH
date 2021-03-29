@@ -24,7 +24,7 @@ function getProjectionData(_firstyear, _country, _outcome, _years_to_project) {
             ret.years_of_effect += 1;
         }
 
-        var computed = computeResult(_country, y, _outcome, grpc, revenues["historical grpc"], governance);
+        var computed = computeResult(_country, y, _outcome, grpc, revenues["historical grpc"], governance, 1E-6);
         if (computed.error) {
             if (ret.error === null) { ret.error = []; }
             ret.error = ret.error.concat(computed.error);

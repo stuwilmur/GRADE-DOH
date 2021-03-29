@@ -1,8 +1,6 @@
 //!! TODO
-// rounding error for small values
 // ensure initial options consistent (without resorting to on change)
 // sort projection range size
-// legend text wrap
 
 var subheight = 100;
 var legendCells = 10;
@@ -610,6 +608,7 @@ function updateplot() {
         //d3.select("#ploterror").style("display", "none"); //!! remove
     } else {
         var plotdata = getProjectionData(+year, country, outcome, +years_to_project);
+        console.log(plotdata);
         
         if (plotdata.error){
             d3.select("#plotwrapper").style("display", "none");

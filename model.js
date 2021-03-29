@@ -464,7 +464,7 @@ function computeAdditionalResults(_iso, _year, _outcome, improved, original){
     return additional;
 }
 
-function computeResult(_iso, _year, _outcome, _grpc, _grpcOrig, _govImprovement) {
+function computeResult(_iso, _year, _outcome, _grpc, _grpcOrig, _govImprovement, _epsilon = 0) {
  
     var fitted = compute(_iso, _year, _outcome, _grpcOrig, 0)
     var bInterp = _outcome == "SCHOOLPERC" // interpolating for this outcome only //!! do nicer
@@ -493,6 +493,10 @@ function computeResult(_iso, _year, _outcome, _grpc, _grpcOrig, _govImprovement)
     var govresults = computegovernance(_iso, _year, _govImprovement)
     var residual = original - fitted;
     improved = Math.min(Math.max(improved + residual, 0), 100);
+    console.log(improved, original, _epsilon, improved - original)
+    if (Math.abs(improved - original) < _epsilon){
+        improved = original;
+    }
 
     var ret = {
         "error" : null,
