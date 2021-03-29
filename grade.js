@@ -1,10 +1,8 @@
 //!! TODO
-// decouple model from global variables
-// outcomes objects including functions
 // rounding error for small values
-// precision of reporting for integer values
 // ensure initial options consistent (without resorting to on change)
 // sort projection range size
+// legend text wrap
 
 var subheight = 100;
 var legendCells = 10;
@@ -21,6 +19,7 @@ var pcGovRev = 0;
 var year = 2002;
 var years_to_project = 10;
 var governance = 0;
+var target = 100;
 var country = "$-ALL";
 var method = "absolute";
 var prefix = "M";
@@ -28,6 +27,93 @@ var plottype = "population";
 var outcome = "SANITBASIC";
 var govtype = "GOVEFFECT";
 var multiplecountries = [];
+var selections = new Map([
+    [
+        "$-ALL",
+        {
+        desc : "All countries",
+        short_desc : "All",
+        fn : (d) => true,
+        }
+    ],
+    [
+        "$-LIC",
+        {
+        desc : "Low-income countries",
+        short_desc : "LICs",
+        fn : (_cid, _year) => popdata.getstring(_cid, _year, "incomelevel") == "LIC",
+        }],
+    [
+        "$-LMIC",
+        {   
+        desc : "Lower-middle-income countries",
+        short_desc : "LMICs",
+        fn : (_cid, _year) => popdata.getstring(_cid, _year, "incomelevel") == "LMC",
+        }],
+    [
+        "$-UMIC",
+        {   
+        desc : "Upper-middle-income countries",
+        short_desc : "UMICs",
+        fn : (_cid, _year) => popdata.getstring(_cid, _year, "incomelevel") == "UMC",
+        }],
+    [
+        "$-HIC",
+        {
+        desc : "High-income countries",
+        short_desc : "HICs",
+        fn : (_cid, _year) => popdata.getstring(_cid, _year, "incomelevel") == "HIC",
+    }],
+    [
+        "$-REG-LCN",
+        {
+        desc : "Latin America and Caribbean",
+        short_desc : "Latin America & Caribbean",
+        fn : (_cid, _year) => popdata.getstring(_cid, _year, "region") == "LCN",
+    }],
+    [
+        "$-REG-NAC",
+        {
+        desc : "North America",
+        short_desc : "North America",
+        fn : (_cid, _year) => popdata.getstring(_cid, _year, "region") == "NAC",
+    }],
+    [
+        "$-REG-EAS",
+        {
+        desc : "East Asia and Pacific",
+        short_desc : "East Asia and Pacific",
+        fn : (_cid, _year) => popdata.getstring(_cid, _year, "region") == "EAS",
+    }],
+    [
+        "$-REG-ECS",
+        {
+        desc : "Europe and Central Asia",
+        short_desc : "Europe and Central Asia",
+        fn : (_cid, _year) => popdata.getstring(_cid, _year, "region") == "ECS",
+    }],
+    [
+        "$-REG-MEA",
+        {
+        desc : "Middle East and North Africa",
+        short_desc : "Middle East and North Africa",
+        fn : (_cid, _year) => popdata.getstring(_cid, _year, "region") == "MEA",
+    }],
+    [
+        "$-REG-SSF",
+        {
+        desc : "Sub-Saharan Africa",
+        short_desc : "Sub-Saharan Africa",
+        fn : (_cid, _year) => popdata.getstring(_cid, _year, "region") == "SSF",
+    }],
+    [
+        "$-REG-SAS",
+        {
+        desc : "South Asia",
+        short_desc : "South Asia",
+        fn : (_cid, _year) => popdata.getstring(_cid, _year, "region") == "SAS",
+    }],
+]);
 
 var plotlayout = {
     showlegend: true,
@@ -47,17 +133,26 @@ function getColor(_cid, _year, _method) {
     var incomelevel = popdata.getstring(_cid, _year, "incomelevel");
     
     if (!isNaN(value)) {
-        if (country == "$-ALL" //|| country == _cid
-            ||
-            country.slice(0, 1) != "$" ||
-            country == "$-LIC" && incomelevel == "LIC" ||
-            country == "$-LMIC" && incomelevel == "LMC" ||
-            country == "$-UMIC" && incomelevel == "UMC" ||
-            country == "$-HIC" && incomelevel == "HIC") {
+        if (country.slice(0,1) == "$")
+        {
+            // use selector
+            var selection = selections.get(country);
+            if (selection === undefined){
+                return  "rgba(0, 0, 0, 0.3)";
+            }
+            if (selection.fn(_cid, _year)){
+                return colorScale(value);
+            }
+            else
+            {
+                return "rgba(0, 0, 0, 0.3)";
+            }
+        }
+        else{
             return colorScale(value);
-        } else
-            return "rgba(0, 0, 0, 0.3)";
-    } else {
+        }
+    }
+        else {
         return "rgba(0, 0, 0, 0.6)";
     }
 }
@@ -65,8 +160,7 @@ function getColor(_cid, _year, _method) {
 function makeText2(_year, _iso, _outcome, _years_to_project)
 {
     // accompanies makeText() (which does the instantaneous calculation)
-    // as version that is specific to the projection. This is useful
-    // in case we need makeText again in the future
+    // as version that is specific to the projection.
     
     var end_year = getProjectionEnd(_year, _years_to_project)
     var projection = calcProjection(_year, _iso, _outcome, _years_to_project)
@@ -158,6 +252,42 @@ function makeText(_iso, _year) {
     return text;
 }
 
+function makeTextTarget(_year, _iso, _outcome, _target){
+    if (_iso.slice(0,1) == "$")
+    {
+        return "No country selected";
+    }
+    var revenues = getRevenue(_iso, _year, method);
+    if (revenues === undefined)
+    {
+        return "<strong>" + countrycodes.get(_iso) + "<\/strong>" + ": No GRPC data available";
+    }
+    var grpc_orig = revenues["historical grpc"];
+    var result = computeTarget(_iso, _year, _outcome, _target, grpc_orig);
+    if (result.error)
+    {
+        return "<strong>" + countrycodes.get(_iso) + "<\/strong>" + ": " + result.error.join("<br>");
+    }
+    var grpc_add = result.grpc - grpc_orig;
+    var grpc_inc = (result.grpc / grpc_orig - 1) * 100;
+    // Handle apperance of negative zero
+    grpc_inc = Math.max(grpc_inc, 0);
+    var rev_add = revenues["historical total revenue"] * result.grpc / grpc_orig - revenues["historical total revenue"];
+    var str =  
+    "<strong>" + countrycodes.get(_iso) + "&nbsp;" + _year + "<\/strong><br/>"
+    + "Absolute additional revenue:<span class = 'ar'>$" + d3.format(",")(rev_add.toFixed(0)) + "</span><br/>"
+    + "Additional revenue per cap.:<span class = 'ar'>$" + d3.format(",")(grpc_add.toFixed(2)) + "</span><br/>"
+    + "Increase as % of gov. rev. per cap.:<span class = 'ar'>" + grpc_inc.toFixed(2) + "%</span><br/>"
+
+    if (result.hasOwnProperty("additional")) {
+        result.additional.forEach(function(property) {
+            str = str + "<br/>" + property.name + ":&nbsp&nbsp<span class = 'arb'>" + d3.format(",")(property.value.toFixed(0)) + "</span>";
+        })
+    }
+
+    return str;
+}
+
 function getPrefix(p) {
     if (p == "U")
         return "";
@@ -207,9 +337,15 @@ function setupMenus(countries, outcomes) {
             return 0; //default return value (no sorting)
         });
 
+        // add selections to country list (just for the menus)
+        var selection_countries = [];
+        selections.forEach(function(selection, id) {selection_countries.push({id : id, name : selection.desc})});
+        countries = selection_countries.concat(countries);
+
         d3.select('#countrylist')
             .on('change', function (d) {
                 country = this.options[this.selectedIndex].value;
+                set_outcome_target();
                 mainUpdate();
                 focusCountry();
             })
@@ -242,12 +378,20 @@ function setupMenus(countries, outcomes) {
                 return d.name;
             });
 
-        d3.select("#outcomes")
+        var outcomes_options = d3.select("#outcomes")
             .selectAll("option")
-            .remove()
             .data(outcomes)
-            .enter()
+
+            outcomes_options.enter()
             .append("option")
+            .attr('value', function (d) {
+                return d[0];
+            })
+            .text(function (d) {
+                return d[1].name;
+            })
+
+            outcomes_options
             .attr('value', function (d) {
                 return d[0];
             })
@@ -356,7 +500,7 @@ function setupMenus(countries, outcomes) {
 
     d3.select("#revSlider").on("input", function (d) {
         govRevenue = this.value / 100.0;
-        d3.select("#revenueVal").text(Math.round(govRevenue * 100) + " %");
+        d3.select("#revenueVal").text((govRevenue * 100).toFixed(2) + " %");
         mainUpdate();
     });
 
@@ -372,6 +516,7 @@ function setupMenus(countries, outcomes) {
         d3.select("#perCapitaRevenueVal").text("$" + d3.format(",")(Math.round(pcGovRev)));
         mainUpdate();
     });
+
     d3.select("#grpcSlider").on("input", function (d) {
         enteredGrpc = this.value * 1;
         d3.select("#grpcVal").text("$" + d3.format(",")(enteredGrpc));
@@ -381,6 +526,13 @@ function setupMenus(countries, outcomes) {
     d3.select("#govSlider").on("input", function (d) {
         governance = Math.round((this.value / 200.0 * 2.0 - 1) * 100) / 100;
         d3.select("#govVal").text((governance <= 0 ? "" : "+") + governance);
+        mainUpdate();
+    });
+
+    d3.select("#targetInput").on("input", function (d) {
+        target = +this.value;
+        d3.select(this).style('box-shadow', '0 0 0px #ffffff')
+        d3.select(this).style('background-color', '#ffffff');
         mainUpdate();
     });
 
@@ -402,7 +554,9 @@ function setupMenus(countries, outcomes) {
     d3.selectAll("#outcomes").on("change", function (d) {
         outcome = this.options[this.selectedIndex].value
         updateLegend();
+        set_outcome_target();
         mainUpdate();
+        set_outcome_target();
     });
 
     /*
@@ -440,11 +594,13 @@ function updateCountries() {
     }
     colourCountries();
     updateplot();
+    updatetarget();
 }
 
 function updateYears(_firstyear, _lastyear){
     year = _firstyear;
     years_to_project = _lastyear - _firstyear;
+    set_outcome_target();
     mainUpdate();
 }
 
@@ -517,6 +673,12 @@ function updateplot() {
     }
 }
 
+function updatetarget(){
+    var text = makeTextTarget(+year, country, outcome, target);
+    d3.select("#targetText")
+    .html(text);
+}
+
 function download_csv(_year, _years_to_project, _countries, _outcome) {
     if (_countries.length < 1)
     {
@@ -551,7 +713,24 @@ function download_csv_plot(){
 }
 
 function download_csv_multi(){
-    var error = download_csv(+year, +years_to_project, multiplecountries, outcome);
+    // handle special selections
+    var countries_to_export = multiplecountries.filter(d => d.slice(0,1) != "$");
+    var special_selections = multiplecountries.filter(d => d.slice(0,2) == "$-")
+    //console.log(special_selections);
+    special_selections.forEach(function(_selection){
+        var selection = selections.get(_selection);
+        if (selection)
+        {
+            countrycodes.forEach(function(_v, _cid){
+                if ( !(countries_to_export.includes(_cid)) && selection.fn(_cid, +year)){
+                    countries_to_export.push(_cid);
+                }
+            });
+        }
+    });
+
+    //console.log(multiplecountries,"\n",countries_to_export);
+    var error = download_csv(+year, +years_to_project, countries_to_export.sort(), outcome);
     if (error){
         d3.select("#multicountryerror")
         .html(error.join("<br />"));
@@ -675,7 +854,11 @@ function updateCountryFilters(){
     .data(multiplecountries);
 
     function gethtml(d){
-        var s_html = '<i class="fa fa-close"></i> ' + countrycodes.get(d);
+        // bit of a hack to get the selection names - simply add to existing map of ids and names
+        var country_and_selection_codes = new Map(countrycodes);
+        selections.forEach(function(d,k){country_and_selection_codes.set(k, d.short_desc)})
+        var str = country_and_selection_codes.get(d);
+        var s_html = '<i class="fa fa-close"></i> ' + str;
         return s_html;
     }
 
@@ -707,4 +890,19 @@ function updateCountryFilters(){
 function clear_multi(){
     multiplecountries = []
     updateCountryFilters();
+}
+
+function set_outcome_target(){
+    // sets the target to the current value or failing that
+    // default for the current outcome, 
+    // e.g. to be called whenever the outcome changes
+
+    var target_value = popdata.getvalue(country, +year, outcome);
+    if (isNaN(target_value)){
+        target_value = outcomesMap.get(outcome).target;
+    }
+    d3.select("#targetInput").property("value", target_value.toFixed(2))
+    .style('box-shadow', '0 0 5px #ffdb8d')
+    .style('background-color', '#ffdb8d');
+    target = target_value;
 }

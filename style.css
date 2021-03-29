@@ -176,7 +176,7 @@ input[type=text] {
     margin-bottom: 10px;
     padding: 5px 5px 5px 5px;
     font-size: 16px;
-    display: block;
+    display: inline-block;
     padding: 0;
     margin: 0;
     padding-left: 20px;
@@ -342,6 +342,7 @@ a {
     border-color: #e09900;
     border-width: 10px;
     text-decoration: none;
+    display: inline-block;
 }
 
 .label.success {
@@ -406,7 +407,7 @@ h2.tooltip {
     font-weight: bold;
 }
 
-button {
+button, .button {
   font-family: 'Open Sans', Helvetica, sans-serif;
   background-color: #0099FF;
   border: none;
@@ -422,6 +423,10 @@ button {
 
 button:disabled{
     background-color: #d3d3d3;
+}
+
+.button:link {
+    color:rgba(255, 255, 255, 1);
 }
 
 .cumulative {
@@ -538,4 +543,15 @@ input#yearrange {
   
   .active:after {
     content: "\2796"; /* Unicode character for "minus" sign (-) */
+  }
+
+  .subaccordion {
+      margin-right : 0%;
+      width: 100%;
+      padding: 7px;
+  }
+
+  #targetInput {
+    background-color: #ffdb8d;
+    box-shadow: 0 0 5px #ffdb8d;
   }

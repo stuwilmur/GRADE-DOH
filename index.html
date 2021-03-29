@@ -44,21 +44,6 @@
                             (Click oceans to reset the view)
                         </p> 
                         <select id="countrylist" name="country">
-                            <option value="$-ALL">
-                                Show all countries
-                            </option>
-                            <option value="$-LIC">
-                                Low-income countries
-                            </option>
-                            <option value="$-LMIC">
-                                Lower-middle-income countries
-                            </option>
-                            <option value="$-UMIC">
-                                Upper-middle-income countries
-                            </option>
-                            <option value="$-HIC">
-                                High-income countries
-                            </option>
                         </select>
                     </div>
                 </div>
@@ -128,14 +113,6 @@
                     :</p><select id="govList" name="gov">
                 </select>
                 -->
-                <div class="uiouter">
-                    <p>Outcome</p>
-                    <div class="uicontainer">       
-                        <select id="outcomes" name="outcome">
-                        <option value="SANITBASIC">Basic sanitation</option>
-                        </select>
-                    </div>  
-                </div>
 
                 <div class="uiouter">
                     <p>
@@ -145,6 +122,15 @@
                     <div class="uicontainer">
                         <div id="slider-range"></div>
                     </div>
+                </div>
+
+                <div class="uiouter">
+                    <p>Outcome</p>
+                    <div class="uicontainer">       
+                        <select id="outcomes" name="outcome">
+                        <option value="SANITBASIC">Basic sanitation</option>
+                        </select>
+                    </div>  
                 </div>
 
                 <!---div class="uiouter">
@@ -161,35 +147,51 @@
                 </div-->
                 <button class="accordion">Advanced</button>
                 <div class="panel">
-                    <div class="uiouter">
-                        <p>Change in governance quality: <span id="govVal">0</span></p>
-                        <div class="uicontainer">
-                            <input type="range" name="govSlider" id="govSlider" class="slider" min="0" max="200" value="100" />
-                            <img src="img/larrow.png" alt="left-pointing arrow" style="width: 60px; height: auto;" />worsening&nbsp;&nbsp;<span class="ar">improving <img src="img/rarrow.png" alt="right-pointing arrow" style="width: 60px; height : auto" /></span>
-                        </div>
-                    </div>
-                
-                    <div class="uiouter">
-                        <p>Multiple-country export</p>
-                        <div class="uicontainer">
-                            <select id="multicountrylist" name="multicountry">
-                            </select>
-                            <div class="filteroptions" id="countryfilter">
+                    <button class="accordion subaccordion">Governance projection</button>
+                    <div class="panel">
+                        <div class="uiouter">
+                            <p>Change in governance quality: <span id="govVal">0</span></p>
+                            <div class="uicontainer">
+                                <input type="range" name="govSlider" id="govSlider" class="slider" min="0" max="200" value="100" />
+                                <img src="img/larrow.png" alt="left-pointing arrow" style="width: 60px; height: auto;" />worsening&nbsp;&nbsp;<span class="ar">improving <img src="img/rarrow.png" alt="right-pointing arrow" style="width: 60px; height : auto" /></span>
                             </div>
-                            <button id="multibutton" onclick="download_csv_multi()"><i class="fa fa-download"></i>&nbsp;Download projections</button>
-                            <button id="clearmultibutton" onclick="clear_multi()"><i class="fa fa-trash"></i>&nbsp;Clear all</button>
-                            <p id = "multicountryerror">
-                            </p> 
+                        </div>
+                    
+                        <div class="uiouter">
+                            <p>Multiple-country export</p>
+                            <div class="uicontainer">
+                                <select id="multicountrylist" name="multicountry">
+                                </select>
+                                <div class="filteroptions" id="countryfilter">
+                                </div>
+                                <button id="multibutton" onclick="download_csv_multi()"><i class="fa fa-download"></i>&nbsp;Download projections</button>
+                                <button id="clearmultibutton" onclick="clear_multi()"><i class="fa fa-trash"></i>&nbsp;Clear all</button>
+                                <p id = "multicountryerror">
+                                </p> 
+                            </div>
                         </div>
                     </div>
-                    <h4>Download raw data</h4>
-                    <ul>
-                        <li><a href="BASE%20data.xlsx">Excel (including notes on data)</a></li>
-                        <li><a href="BASE%20data.csv">CSV</a></li>
-                    </ul>
-                    
-                    <p id="version">v1.3 05/03/2021</p>
+                    <button class="accordion subaccordion">Target SDG</button>
+                    <div class="panel">
+                        <div class="uiouter">
+                            <p>Set target <span id="targetVal"></span></p>
+                            <div class="uicontainer">
+                                <input type="text" name="targetInput" id="targetInput" class="numeric" value="100" />
+                                <label for="targetInput">%</label>
+                                <div id="targetText">No country selected</div>
+                            </div>
+                        </div>
+                    </div>
+                    <button class="accordion subaccordion">Data sources</button>
+                    <div class="panel">
+                        <ul>
+                            <li><a href="BASE%20data.xlsx" class = "button"><i class="fa fa-download"></i>&nbsp;Excel (including notes on data)</a></li>
+                            <li><a href="BASE%20data.csv" class = "button"><i class="fa fa-download"></i>&nbsp;CSV</a></li>
+                        </ul>
+                        <p id="version">v1.5.1 22/03/2021</p>
+                    </div>
                 </div>
+                
             </div>
             <div id="vis">
                 <div id="loading">
@@ -270,8 +272,8 @@
             position: 'absolute' // Element positioning
             };
 
-            var target = document.getElementById('vis');
-            var spinner = new Spinner(opts).spin(target);
+            var dest = document.getElementById('vis');
+            var spinner = new Spinner(opts).spin(dest);
 
             const zoom = d3.behavior.zoom()
                 .scaleExtent([1, 8])
