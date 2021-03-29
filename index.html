@@ -325,6 +325,7 @@
                     if (dataHasCountry(d.id)){ // allow transition but not selection if country absent from data
                         country = d.id;
                         d3.select('#countrylist').property('value', d.id);
+                        set_outcome_target();
                         mainUpdate();
                     }
                 }
