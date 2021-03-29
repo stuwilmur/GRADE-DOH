@@ -1,133 +1,3 @@
-// **** add or update coefficients here ****
-var coeffs = new Map([
-["SANITBASIC",
-	new Map(
-	[
-		[1, 0.002240],
-		[11, -0.001308],
-		[12, -0.000341],
-		[13, 0.000955],
-		[14, 0.000705],
-		[15, 0.000796],
-		[16, -0.000470],
-		[2, 233.9464],
-		[21, 235.0595],
-		[22, 75.44795],
-		[23, -434.4536],
-		[25, -351.7824],
-		[26, 254.2561]
-	]
-        )
-],
-["SANITSAFE",
-	new Map(
-	[
-		[1, 7.29E-05],
-		[11, -5.98E-05],
-		[13, 0.000101],
-		[16, -1.99E-05],
-		[2, 4264.142],
-		[21, 11489.15],
-		[23, -3922.251],
-		[24, -16243.73],
-		[25, -4314.271],
-		[26, 2870.706]
-	]
-        )
-],
-["SCHOOLPERC",
-	new Map(
-	[
-		[1, 2.13E-05],
-		[12, -2.44E-06],
-		[15, -4.48E-06],
-		[16, 3.87E-06],
-		[2, -28011.95],
-		[21, -5385.622],
-		[22, -5740.458],
-		[24, 8537.920],
-		[25, -17828.86]
-	]
-        )
-],
-["WATERBASIC",
-	new Map(
-	[
-		[1, 0.002777],
-		[12, -8.16E-05],
-		[14, 0.000788],
-		[15, 0.001012],
-		[2, -154.0232],
-		[22, 108.3361],
-		[24, 247.8044]
-	]
-        )
-],
-["WATERSAFE",
-	new Map(
-	[
-		[1, 0.002115],
-		[11, 0.001616],
-		[14, 0.001642],
-		[15, -0.001307],
-		[16, -0.000999],
-		[2, 593.1014],
-		[21, -228.0095],
-		[22, 57.83624],
-		[23, -270.4070],
-		[25, 143.7995],
-		[26, 168.7410]
-	]
-        )
-],
-["IMUNISATION",
-	new Map(
-	[
-		[1, 8.14E-05],
-		[11, -1.51E-05],
-		[2, -25232.71],
-		[21, -8328.613]
-	]
-        )
-],
-["U5MSURV",
-       new Map(
-       [
-           [1, 0.000487660315618],
-           [12, -0.0000292129327268],
-           [15, -0.0000889823437485],
-           [16, 0.0000441671186032],
-           [2, 5986.3033303],
-           [21, 295.792385161],
-           [22, -218.908408761],
-           [23, -307.070582687],
-           [25, -1800.65834264],
-           [26, 389.563410216]
-
-       ]
-        )
-],
-["MMRSURV",
-       new Map(
-       [
-            [1, 0.00162428846511],
-            [11, 0.000480954347841],
-            [12, -0.000245303543036],
-            [14, -0.000993435385523],
-            [15, 0.000635303615423],
-            [16, 0.000368281180655],
-            [2, -1708.97971425],
-            [21, 854.424918802],
-            [22, -328.239576261],
-            [23, -193.518329888],
-            [24, -1354.51903559],
-            [25, 488.294796998],
-            [26, 451.468766258]
-       ]
-        )
-],
-]);
-
 var govMeasures = new Map([
     ["CORRUPTION", {
         desc: "Corruption",
@@ -159,84 +29,345 @@ var govMeasures = new Map([
 var outcomesList = [
         ["WATERBASIC",
         {
-            name: "Basic drinking water services",
+            name: "Basic water (SDG 6)",
             loCol: "#dee5f8",
             hiCol: "#e09900",
             fixedExtent: [0, 100],
             desc: "The percentage of the population drinking water from an improved source, provided collection time is not more than 30 minutes for a round trip.",
             isStockVar : true,
+            target: 100,
+            coeffs : new Map(
+                [
+                    [1, 0.002777],
+                    [12, -8.16E-05],
+                    [14, 0.000788],
+                    [15, 0.001012],
+                    [2, -154.0232],
+                    [22, 108.3361],
+                    [24, 247.8044]
+                ]),
+            fn :    function(_grpc, _pop, _gov) {
+                g = _type => gg(_type, _pop, _gov);
+                var l = this.coeffs;
+                var res = 100 / (1 + Math.exp(-(C(l, 1) + C(l, 12) * g("POLSTAB") + C(l, 14) * g("RULELAW") +
+                C(l, 15) * g("GOVEFFECT")) * (_grpc - (C(l, 2) + C(l, 22) * g("POLSTAB") + C(l, 24) *
+                g("RULELAW")))));
+                return res;
+                },
+            inv_fn : function(_target, _pop, _gov) {
+                g = _type => gg(_type, _pop, _gov);
+                var l = this.coeffs;
+                var A = -(C(l, 1) + C(l, 12) * g("POLSTAB") + C(l, 14) * g("RULELAW") +
+                C(l, 15) * g("GOVEFFECT"));
+                var B = (C(l, 2) + C(l, 22) * g("POLSTAB") + C(l, 24) * g("RULELAW"));
+                var res = Math.log(100.0 / _target - 1.0) / A + B;
+                return res; 
+            },
         }],
 		["WATERSAFE",
         {
-            name: "Safely-managed drinking water services",
+            name: "Safe water (SDG 6)",
             loCol: "#dee5f8",
             hiCol: "#e09900",
             fixedExtent: [0, 100],
-            desc: "The percentage of the population using drinking water from an improved source that is accessible on premises, available when needed and free from faecal and priority chemical contamination.",
+            desc: `The percentage of the population using drinking water from an 
+            improved source that is accessible on premises, available when needed 
+            and free from faecal and priority chemical contamination.`,
             isStockVar : true,
+            target: 100,
+            coeffs : new Map(
+                [
+                    [1, 0.002115],
+                    [11, 0.001616],
+                    [14, 0.001642],
+                    [15, -0.001307],
+                    [16, -0.000999],
+                    [2, 593.1014],
+                    [21, -228.0095],
+                    [22, 57.83624],
+                    [23, -270.4070],
+                    [25, 143.7995],
+                    [26, 168.7410]
+                ]),
+            fn :    function(_grpc, _pop, _gov) {
+                g = _type => gg(_type, _pop, _gov);
+                var l = this.coeffs;
+                var res = 100 / (1 + Math.exp(-(C(l, 1) + C(l, 11) * g("CORRUPTION") + 0 * g("POLSTAB") + 0 *
+                g("REGQUALITY") + C(l, 14) * g("RULELAW") + C(l, 15) * g("GOVEFFECT") + C(l, 16) * g("VOICE")) *
+                (_grpc - (C(l, 2) + C(l, 21) * g("CORRUPTION") + C(l, 22) * g("POLSTAB") + C(l, 23) *
+                g("REGQUALITY") + 0 * g("RULELAW") + C(l, 25) * g("GOVEFFECT") + C(l, 26) * g("VOICE")))));
+                return res;
+            },
+            inv_fn :   function(_target, _pop, _gov) {
+                g = _type => gg(_type, _pop, _gov);
+                var l = this.coeffs;
+                var A = -(C(l, 1) + C(l, 11) * g("CORRUPTION") + 0 * g("POLSTAB") + 0 *
+                g("REGQUALITY") + C(l, 14) * g("RULELAW") + C(l, 15) * g("GOVEFFECT") + C(l, 16) * g("VOICE"))
+                var B = (C(l, 2) + C(l, 21) * g("CORRUPTION") + C(l, 22) * g("POLSTAB") + C(l, 23) *
+                g("REGQUALITY") + 0 * g("RULELAW") + C(l, 25) * g("GOVEFFECT") + C(l, 26) * g("VOICE"))
+                var res = Math.log(100.0 / _target - 1.0) / A + B;
+                return res; 
+            },
         }],
         ["SANITBASIC",
         {
-            name: "Basic sanitation",
+            name: "Basic sanitation (SDG 6)",
             loCol: "#dee5f8",
             hiCol: "#e09900",
             fixedExtent: [0, 100],
-            desc: "The percentage of the population using at least, that is, improved sanitation facilities that are not shared with other households.",
+            desc: `The percentage of the population using at least improved 
+            sanitation facilities that are not shared with other households.`,
             isStockVar : true,
+            target: 100,
+            coeffs : new Map(
+                [
+                    [1, 0.002240],
+                    [11, -0.001308],
+                    [12, -0.000341],
+                    [13, 0.000955],
+                    [14, 0.000705],
+                    [15, 0.000796],
+                    [16, -0.000470],
+                    [2, 233.9464],
+                    [21, 235.0595],
+                    [22, 75.44795],
+                    [23, -434.4536],
+                    [25, -351.7824],
+                    [26, 254.2561]
+                ]),
+            fn :    function(_grpc, _pop, _gov) { 
+                g = _type => gg(_type, _pop, _gov);
+                var l = this.coeffs;
+                res = 100 / (1 + Math.exp(-(C(l, 1) + C(l, 11) * g("CORRUPTION") + C(l, 12) * g("POLSTAB") +
+                C(l, 13) * g("REGQUALITY") + C(l, 14) * g("RULELAW") + C(l, 15) * g("GOVEFFECT") + C(l, 16) *
+                g("VOICE")) * (_grpc - (C(l, 2) + C(l, 21) * g("CORRUPTION") + C(l, 22) * g("POLSTAB") +
+                C(l, 23) * g("REGQUALITY") + 0 * g("RULELAW") + C(l, 25) * g("GOVEFFECT") + C(l, 26) * g("VOICE")))));
+                return res;
+            },
+            inv_fn : function(_target, _pop, _gov) {
+                g = _type => gg(_type, _pop, _gov);
+                var l = this.coeffs;
+                var A = -(C(l, 1) + C(l, 11) * g("CORRUPTION") + C(l, 12) * g("POLSTAB") +
+                C(l, 13) * g("REGQUALITY") + C(l, 14) * g("RULELAW") + C(l, 15) * g("GOVEFFECT") + C(l, 16) *
+                g("VOICE"))
+                var B = (C(l, 2) + C(l, 21) * g("CORRUPTION") + C(l, 22) * g("POLSTAB") +
+                C(l, 23) * g("REGQUALITY") + 0 * g("RULELAW") + C(l, 25) * g("GOVEFFECT") + C(l, 26) * g("VOICE"))
+                var res = Math.log(100.0 / _target - 1.0) / A + B;
+                return res;
+            }
         }],
 		["SANITSAFE",
         {
-            name: "Safe sanitation",
+            name: "Safe sanitation (SDG 6)",
             loCol: "#dee5f8",
             hiCol: "#e09900",
             fixedExtent: [0, 100],
-            desc: "The percentage of the population using improved sanitation facilities that are not shared with other households and where excreta are safely disposed of in situ or transported and treated offsite.",
+            desc: `The percentage of the population using improved sanitation 
+            facilities that are not shared with other households and where 
+            excreta are safely disposed of in situ or transported and treated 
+            offsite.`,
             isStockVar : true,
+            target: 100,
+            coeffs : new Map(
+                [
+                    [1, 7.29E-05],
+                    [11, -5.98E-05],
+                    [13, 0.000101],
+                    [16, -1.99E-05],
+                    [2, 4264.142],
+                    [21, 11489.15],
+                    [23, -3922.251],
+                    [24, -16243.73],
+                    [25, -4314.271],
+                    [26, 2870.706]
+                ]),
+            fn :    function(_grpc, _pop, _gov) {
+                g = _type => gg(_type, _pop, _gov);
+                var l = this.coeffs;
+                var res = 100 / (1 + Math.exp(-(C(l, 1) + C(l, 11) * g("CORRUPTION") + 0 * g("POLSTAB") + C(l, 13) *
+                g("REGQUALITY") + 0 * g("RULELAW") + 0 * g("GOVEFFECT") + C(l, 16) * g("VOICE")) *
+                (_grpc - (C(l, 2) + C(l, 21) * g("CORRUPTION") + 0 * g("POLSTAB") + C(l, 23) *
+                g("REGQUALITY") + C(l, 24) * g("RULELAW") + C(l, 25) * g("GOVEFFECT") + C(l, 26) * g("VOICE")))));
+                return res;
+            },
+            inv_fn : function(_target, _pop, _gov){
+                g = _type => gg(_type, _pop, _gov);
+                var l = this.coeffs;
+                var A = -(C(l, 1) + C(l, 11) * g("CORRUPTION") + 0 * g("POLSTAB") + C(l, 13) *
+                g("REGQUALITY") + 0 * g("RULELAW") + 0 * g("GOVEFFECT") + C(l, 16) * g("VOICE"))
+                var B = (C(l, 2) + C(l, 21) * g("CORRUPTION") + 0 * g("POLSTAB") + C(l, 23) *
+                g("REGQUALITY") + C(l, 24) * g("RULELAW") + C(l, 25) * g("GOVEFFECT") + C(l, 26) * g("VOICE"))
+                var res = Math.log(100.0 / _target - 1.0) / A + B;
+                return res;
+            },
         }],
 		["SCHOOLPERC",
         {
-            name: "School life expectancy",
+            name: "Child school years (SDG 4)",
             loCol: "#dee5f8",
             hiCol: "#e09900",
             fixedExtent: [0, 100],
-            desc: "The number of years a person of school entrance age can expect to spend within the specified level of education",
+            desc: `The percentage of child school life expectancy, where 100% represents 17 years of schooling.`,
             isStockVar : false,
+            target : 100,
+            coeffs : new Map(
+                [
+                    [1, 2.13E-05],
+                    [12, -2.44E-06],
+                    [15, -4.48E-06],
+                    [16, 3.87E-06],
+                    [2, -28011.95],
+                    [21, -5385.622],
+                    [22, -5740.458],
+                    [24, 8537.920],
+                    [25, -17828.86]
+                ]),
+            fn :    function(_grpc, _pop, _gov) { 
+                g = _type => gg(_type, _pop, _gov);
+                var l = this.coeffs;
+                var res = 100 / (1 + Math.exp(-(C(l, 1) + 0 * g("CORRUPTION") + C(l, 12) * g("POLSTAB") + 0 *
+                g("REGQUALITY") + 0 * g("RULELAW") + C(l, 15) * g("GOVEFFECT") + C(l, 16) * g("VOICE")) *
+                (_grpc - (C(l, 2) + C(l, 21) * g("CORRUPTION") + C(l, 22) * g("POLSTAB") + 0 *
+                g("REGQUALITY") + C(l, 24) * g("RULELAW") + C(l, 25) * g("GOVEFFECT") + 0 * g("VOICE")))));
+                return res;
+            },
+            inv_fn : function(_target, _pop, _gov){
+                g = _type => gg(_type, _pop, _gov);
+                var l = this.coeffs;
+                var A = -(C(l, 1) + 0 * g("CORRUPTION") + C(l, 12) * g("POLSTAB") + 0 *
+                g("REGQUALITY") + 0 * g("RULELAW") + C(l, 15) * g("GOVEFFECT") + C(l, 16) * g("VOICE"))
+                var B = (C(l, 2) + C(l, 21) * g("CORRUPTION") + C(l, 22) * g("POLSTAB") + 0 *
+                g("REGQUALITY") + C(l, 24) * g("RULELAW") + C(l, 25) * g("GOVEFFECT") + 0 * g("VOICE"))
+                var res = Math.log(100.0 / _target - 1.0) / A + B;
+                return res;
+            },
         }],
         ["U5MSURV",
         {
-            name: "Under-5 survival",
+            name: "Under-5 survival (SDG 3)",
             loCol: "#dee5f8",
             hiCol: "#e09900",
             fixedExtent: [0, 100],
             desc: "Under-5 survival",
             isStockVar : false,
+            target: 97.5,
+            coeffs : new Map(
+                [
+                    [1, 0.000487660315618],
+                    [12, -0.0000292129327268],
+                    [15, -0.0000889823437485],
+                    [16, 0.0000441671186032],
+                    [2, 5986.3033303],
+                    [21, 295.792385161],
+                    [22, -218.908408761],
+                    [23, -307.070582687],
+                    [25, -1800.65834264],
+                    [26, 389.563410216]
+         
+                ]),
+            fn : function(_grpc, _pop, _gov) {
+                g = _type => gg(_type, _pop, _gov);
+                var l = this.coeffs;
+                var res = 100 / (1 + Math.exp(-(C(l, 1) + 0 * g("CORRUPTION") + C(l, 12) * g("POLSTAB") 
+                + 0 * g("REGQUALITY") + 0 * g("RULELAW") + C(l, 15) * g("GOVEFFECT") + C(l, 16) * g("VOICE")) 
+                * (_grpc - (-C(l, 2) + C(l, 21) * g("CORRUPTION") + C(l, 22) * g("POLSTAB") + C(l, 23) 
+                * g("REGQUALITY") + 0 * g("RULELAW") + C(l, 25) * g("GOVEFFECT") + C(l, 26) * g("VOICE")))));
+                return res;
+            },
+            inv_fn : function(_target, _pop, _gov){
+                g = _type => gg(_type, _pop, _gov);
+                var l = this.coeffs;
+                var A = -(C(l, 1) + 0 * g("CORRUPTION") + C(l, 12) * g("POLSTAB") 
+                + 0 * g("REGQUALITY") + 0 * g("RULELAW") + C(l, 15) * g("GOVEFFECT") + C(l, 16) * g("VOICE"))
+                var B = (-C(l, 2) + C(l, 21) * g("CORRUPTION") + C(l, 22) * g("POLSTAB") + C(l, 23) 
+                * g("REGQUALITY") + 0 * g("RULELAW") + C(l, 25) * g("GOVEFFECT") + C(l, 26) * g("VOICE"))
+                var res = Math.log(100.0 / _target - 1.0) / A + B;
+                return res;
+            },
          }],
         ["MMRSURV",
         {
-            name: "Maternal survival",
+            name: "Maternal survival (SDG 3)",
             loCol: "#dee5f8",
             hiCol: "#e09900",
             fixedExtent: [0, 100],
             desc: "Maternal survival",
             isStockVar : false,
+            target: 99.93,
+            coeffs : new Map(
+                [
+                     [1, 0.00162428846511],
+                     [11, 0.000480954347841],
+                     [12, -0.000245303543036],
+                     [14, -0.000993435385523],
+                     [15, 0.000635303615423],
+                     [16, 0.000368281180655],
+                     [2, -1708.97971425],
+                     [21, 854.424918802],
+                     [22, -328.239576261],
+                     [23, -193.518329888],
+                     [24, -1354.51903559],
+                     [25, 488.294796998],
+                     [26, 451.468766258]
+                ]),
+            fn :    function(_grpc, _pop, _gov) { 
+                g = _type => gg(_type, _pop, _gov);
+                var l = this.coeffs;
+                var res = 95 + (100 - 95) / (1 + Math.exp(-(C(l, 1) + C(l, 11) * g("CORRUPTION") 
+                + C(l, 12) * g("POLSTAB") + 0 * g("REGQUALITY") + C(l, 14) * g("RULELAW") + C(l, 15) * g("GOVEFFECT") 
+                + C(l, 16) * g("VOICE")) * (_grpc - (C(l, 2) + C(l, 21) * g("CORRUPTION") + C(l, 22) * g("POLSTAB") 
+                + C(l, 23) * g("REGQUALITY") + C(l, 24) * g("RULELAW") + C(l, 25) * g("GOVEFFECT") + C(l, 26) * g("VOICE")))));
+                return res;
+            },
+            inv_fn : function(_target, _pop, _gov){
+                g = _type => gg(_type, _pop, _gov);
+                var l = this.coeffs;
+                var A = -(C(l, 1) + C(l, 11) * g("CORRUPTION") 
+                + C(l, 12) * g("POLSTAB") + 0 * g("REGQUALITY") + C(l, 14) * g("RULELAW") + C(l, 15) * g("GOVEFFECT") 
+                + C(l, 16) * g("VOICE"))
+                var B = (C(l, 2) + C(l, 21) * g("CORRUPTION") + C(l, 22) * g("POLSTAB") 
+                + C(l, 23) * g("REGQUALITY") + C(l, 24) * g("RULELAW") + C(l, 25) * g("GOVEFFECT") + C(l, 26) * g("VOICE"))
+                var res = Math.log((100.0 - 95.0) / (_target - 95) - 1) / A + B;
+                return res;
+            },
          }],
 
-/*
-		["IMUNISATION",
+		/*["IMUNISATION",
         {
             name: "Child immunisation",
             loCol: "#dee5f8",
             hiCol: "#e09900",
             fixedExtent: [0, 100],
-            desc: "The percentage of children ages 12-23 months who received DPT vaccinations before 12 months or at any time before the survey."
-        }],
-        */
+            desc: "The percentage of children ages 12-23 months who received DPT vaccinations before 12 months or at any time before the survey.",
+            coeffs : new Map(
+                [
+                    [1, 8.14E-05],
+                    [11, -1.51E-05],
+                    [2, -25232.71],
+                    [21, -8328.613]
+                ]),
+            fn : function(_grpc, _pop, _gov){
+                g = _type => gg(_type, _pop, _gov);
+                var l = this.coeffs;
+                var res = 100 / (1 + Math.exp(-(C(l, 1) + C(l, 11) * g("POLSTAB")) * (_grpc - (C(l, 2) + C(l, 21) * g("POLSTAB")))));
+                return res;
+            },
+            inv_fn : function(_target, _pop, _gov){
+                g = _type => gg(_type, _pop, _gov);
+                var l = this.coeffs;
+                var A = -(C(l, 1) + C(l, 11) * g("POLSTAB"))
+                var B = (C(l, 2) + C(l, 21) * g("POLSTAB"))
+                var res = Math.log(100.0 / _target - 1.0) / A + B;
+                return res;
+            },
+        }],*/
+            
 ];
 
 var outcomesMap = new Map(outcomesList);
 
-function C(_outcome, index) {
-    return coeffs.get(_outcome).get(index);
+function C(_coeffs, index) {
+    return _coeffs.get(index);
 }
 
 function gg(_type, _d, _gov) {
@@ -261,63 +392,80 @@ function computegovernance(_iso, _year, _gov) {
 function compute(_iso, _year, _outcome, _grpc, _gov) {
     var pop = popdata.getrow(_iso, _year);
     if (!pop) return NaN;
-    var l = _outcome;
-    var improved;
 
-    function g(_type) {
-        return gg(_type, pop, _gov)
-    }
-
-    if (_outcome == "SANITBASIC") {
-        improved = 100 / (1 + Math.exp(-(C(l, 1) + C(l, 11) * g("CORRUPTION") + C(l, 12) * g("POLSTAB") +
-            C(l, 13) * g("REGQUALITY") + C(l, 14) * g("RULELAW") + C(l, 15) * g("GOVEFFECT") + C(l, 16) *
-            g("VOICE")) * (_grpc - (C(l, 2) + C(l, 21) * g("CORRUPTION") + C(l, 22) * g("POLSTAB") +
-            C(l, 23) * g("REGQUALITY") + 0 * g("RULELAW") + C(l, 25) * g("GOVEFFECT") + C(l, 26) * g("VOICE")
-        ))))
-    } else if (_outcome == "SANITSAFE") {
-        improved = 100 / (1 + Math.exp(-(C(l, 1) + C(l, 11) * g("CORRUPTION") + 0 * g("POLSTAB") + C(l, 13) *
-                g("REGQUALITY") + 0 * g("RULELAW") + 0 * g("GOVEFFECT") + C(l, 16) * g("VOICE")) *
-            (_grpc - (C(l, 2) + C(l, 21) * g("CORRUPTION") + 0 * g("POLSTAB") + C(l, 23) *
-                g("REGQUALITY") + C(l, 24) * g("RULELAW") + C(l, 25) * g("GOVEFFECT") + C(l, 26) * g("VOICE")
-            ))));
-    } else if (_outcome == "SCHOOLPERC") {
-        improved = 100 / (1 + Math.exp(-(C(l, 1) + 0 * g("CORRUPTION") + C(l, 12) * g("POLSTAB") + 0 *
-                g("REGQUALITY") + 0 * g("RULELAW") + C(l, 15) * g("GOVEFFECT") + C(l, 16) * g("VOICE")) *
-            (_grpc - (C(l, 2) + C(l, 21) * g("CORRUPTION") + C(l, 22) * g("POLSTAB") + 0 *
-                g("REGQUALITY") + C(l, 24) * g("RULELAW") + C(l, 25) * g("GOVEFFECT") + 0 * g("VOICE")))))
-    } else if (_outcome == "WATERBASIC") {
-        improved = 100 / (1 + Math.exp(-(C(l, 1) + C(l, 12) * g("POLSTAB") + C(l, 14) * g("RULELAW") +
-            C(l, 15) * g("GOVEFFECT")) * (_grpc - (C(l, 2) + C(l, 22) * g("POLSTAB") + C(l, 24) *
-            g("RULELAW")))))
-    } else if (_outcome == "WATERSAFE") {
-        improved = 100 / (1 + Math.exp(-(C(l, 1) + C(l, 11) * g("CORRUPTION") + 0 * g("POLSTAB") + 0 *
-                g("REGQUALITY") + C(l, 14) * g("RULELAW") + C(l, 15) * g("GOVEFFECT") + C(l, 16) * g("VOICE")) *
-            (_grpc - (C(l, 2) + C(l, 21) * g("CORRUPTION") + C(l, 22) * g("POLSTAB") + C(l, 23) *
-                g("REGQUALITY") + 0 * g("RULELAW") + C(l, 25) * g("GOVEFFECT") + C(l, 26) * g("VOICE")))))
-    } else if (_outcome == "IMUNISATION") {
-        improved = 100 / (1 + Math.exp(-(C(l, 1) + C(l, 11) * g("POLSTAB")) * (_grpc - (C(l, 2) +
-            C(l, 21) * g("POLSTAB")))))
-    } else if (_outcome == "U5MSURV") {
-        improved = 100 / (1 + Math.exp(-(C(l, 1) + 0 * g("CORRUPTION") + C(l, 12) * g("POLSTAB") + 0 * g("REGQUALITY") + 0 * g("RULELAW") + C(l, 15) * g("GOVEFFECT") + C(l, 16) * g("VOICE")) * (_grpc - (-C(l, 2) + C(l, 21) * g("CORRUPTION") + C(l, 22) * g("POLSTAB") + C(l, 23) * g("REGQUALITY") + 0 * g("RULELAW") + C(l, 25) * g("GOVEFFECT") + C(l, 26) * g("VOICE")))));
-
-    } else if (_outcome == "MMRSURV") {
-        improved = 95 + (100 - 95) / (1 + Math.exp(-(C(l, 1) + C(l, 11) * g("CORRUPTION") + C(l, 12) * g("POLSTAB") + 0 * g("REGQUALITY") + C(l, 14) * g("RULELAW") + C(l, 15) * g("GOVEFFECT") + C(l, 16) * g("VOICE")) * (_grpc - (C(l, 2) + C(l, 21) * g("CORRUPTION") + C(l, 22) * g("POLSTAB") + C(l, 23) * g("REGQUALITY") + C(l, 24) * g("RULELAW") + C(l, 25) * g("GOVEFFECT") + C(l, 26) * g("VOICE")))));
-    } else {
-        improved = NaN;
-    }
-
-    return improved;
+    return outcomesMap.get(_outcome).fn(_grpc, pop, _gov);
 }
 
-function computeResult(_iso, _year, _outcome, _grpc, _grpcOrig, _govImprovement) {
- 
+function compute_inv(_iso, _year, _outcome, _target, _gov) {
+    var pop = popdata.getrow(_iso, _year);
+    if (!pop) return NaN;
+
+    return outcomesMap.get(_outcome).inv_fn(_target, pop, _gov);
+}
+
+function computeTarget(_iso, _year, _outcome, _target, _grpcOrig)
+{
+    var fitted = compute(_iso, _year, _outcome, _grpcOrig, 0)
+    var bInterp = _outcome == "SCHOOLPERC" // interpolating for this outcome only //!! do nicer
+    var original = popdata.getvalue(_iso, _year, _outcome, bInterp);
+    var residual = original - fitted;
+
+    if (original > _target){
+        return {error : ["Target value (" + _target + "%) is less than original (" + original.toFixed(2) + "%)",]};
+    }
+    // treat zero as "no data"§
+    if (original === 0 || isNaN(original)){
+        var outcome_name = (outcomesMap.get(_outcome)).name;
+        return {error : [outcome_name + " not available for " + _year]};
+    }  
+
+    // n.b. outcome = f(grpc) + residual => grpc = f^-1(outcome - residual)
+    var target_grpc = compute_inv(_iso, _year, _outcome, _target - residual, 0);
+    if (isNaN(target_grpc)){
+        var outcome_name = (outcomesMap.get(_outcome)).name;
+        var errs = ["Unable to calculate " + outcome_name + ": target may be out of achievable range"];
+        return {error : errs};
+    }
+    return {
+        error : null,
+        grpc : target_grpc,
+        additional : computeAdditionalResults(_iso, _year, _outcome, target, original)
+    };
+}
+
+function computeAdditionalResults(_iso, _year, _outcome, improved, original){
     var popTotal = popdata.getvalue(_iso, _year, "Population, total");
     var popU5 = popdata.getvalue(_iso, _year, "Pop < 5");
     var popFemale15_49 = popdata.getvalue(_iso, _year, "Number of females aged 15-49");
     var popChildrenSurvive1 = popdata.getvalue(_iso, _year, "Children survive to 1 year");
     var popBirths = popdata.getvalue(_iso, _year, "Number of births")
     var popChildrenSurvive5 = popdata.getvalue(_iso, _year, "Number of children surviving to five");
-    
+
+    var additional = [];
+
+    if (_outcome == "SANITBASIC" || _outcome == "SANITSAFE" || _outcome == "WATERBASIC" || _outcome == "WATERSAFE") {
+        additional.push({name : "People with increased access",  value : (improved - original) / 100 * popTotal, keyvariable : true});
+        additional.push({name : "Children < 5 with increased access", value : (improved - original) / 100 * popU5, keyvariable : true});
+        additional.push({name : "Females 15-49 with increased access", value: (improved - original) / 100 * popFemale15_49, keyvariable : true});
+    } else if (_outcome == "IMUNISATION") {
+        additional.push({name : "Number of infants immunised", value : (improved - original) / 100 * popChildrenSurvive1, keyvariable : true})
+    } else if (_outcome == "SCHOOLPERC") {
+        additional.push({name : "Additional child school years", value : 17 * (improved - original) / 100 * popChildrenSurvive5, keyvariable : true})
+    } else if (_outcome == "U5MSURV"){
+        additional.push({name : "Under-5 five deaths averted", value : (improved - original) / 100 * popBirths, keyvariable : true})
+        additional.push({name : "Under-5 deaths", value : (1 - original / 100) * popBirths, keyvariable : false})
+        additional.push({name : "Under-5 deaths with additional revenue", value : (1 - improved / 100) * popBirths, keyvariable : false})
+    } else if (_outcome == "MMRSURV"){
+        additional.push({name : "Maternal deaths averted", value : (improved - original) / 100 * popBirths, keyvariable : true})
+        additional.push({name : "Maternal deaths", value : (1 - original / 100) * popBirths, keyvariable : false})
+        additional.push({name : "Maternal deaths with additional revenue", value : (1 - improved / 100) * popBirths, keyvariable : false})
+    }
+
+    return additional;
+}
+
+function computeResult(_iso, _year, _outcome, _grpc, _grpcOrig, _govImprovement) {
+ 
     var fitted = compute(_iso, _year, _outcome, _grpcOrig, 0)
     var bInterp = _outcome == "SCHOOLPERC" // interpolating for this outcome only //!! do nicer
     var original = popdata.getvalue(_iso, _year, _outcome, bInterp);
@@ -346,34 +494,12 @@ function computeResult(_iso, _year, _outcome, _grpc, _grpcOrig, _govImprovement)
     var residual = original - fitted;
     improved = Math.min(Math.max(improved + residual, 0), 100);
 
-    var additional = [];
-    
-    //!! consider rounding numbers of people here to integers
-
-    if (_outcome == "SANITBASIC" || _outcome == "SANITSAFE" || _outcome == "WATERBASIC" || _outcome == "WATERSAFE") {
-        additional.push({name : "People with increased access",  value : (improved - original) / 100 * popTotal, keyvariable : true});
-        additional.push({name : "Children < 5 with increased access", value : (improved - original) / 100 * popU5, keyvariable : true});
-        additional.push({name : "Females 15-49 with increased access", value: (improved - original) / 100 * popFemale15_49, keyvariable : true});
-    } else if (_outcome == "IMUNISATION") {
-        additional.push({name : "Number of infants immunised", value : (improved - original) / 100 * popChildrenSurvive1, keyvariable : true})
-    } else if (_outcome == "SCHOOLPERC") {
-        additional.push({name : "Additional years of school life expectancy", value : 17 * (improved - original) / 100 * popChildrenSurvive5, keyvariable : true})
-    } else if (_outcome == "U5MSURV"){
-        additional.push({name : "Under-5 five deaths averted", value : (improved - original) / 100 * popBirths, keyvariable : true})
-        additional.push({name : "Under-5 deaths", value : (1 - original / 100) * popBirths, keyvariable : false})
-        additional.push({name : "Under-5 deaths with additional revenue", value : (1 - improved / 100) * popBirths, keyvariable : false})
-    } else if (_outcome == "MMRSURV"){
-        additional.push({name : "Maternal deaths averted", value : (improved - original) / 100 * popBirths, keyvariable : true})
-        additional.push({name : "Maternal deaths", value : (1 - original / 100) * popBirths, keyvariable : false})
-        additional.push({name : "Maternal deaths with additional revenue", value : (1 - improved / 100) * popBirths, keyvariable : false})
-    }
-
     var ret = {
         "error" : null,
         "original": original,
         "improved": improved,
         "fitted": fitted,
-        "additional": additional,
+        "additional": computeAdditionalResults(_iso, _year, _outcome, improved, original),
         "gov": govresults
     };
     return ret;
@@ -420,6 +546,7 @@ function typeAndSetPopulation(d) {
     e["year"]                                   =convertNumber(d["year"])
     e["incomelevel"]                            = d["incomelevel"]
     e["Number of children surviving to five"]   =convertNumber(d["Number of children surviving to five "])
+    e["region"]                                 =d["region"]
 
     return e;
 }
@@ -439,7 +566,8 @@ function getRevenue(_iso, _year, m) {
             "new absolute revenue": newAbsRev,
             "additional revenue per capita": additionalPerCapita,
             "new grpc": grpercap + additionalPerCapita,
-            "historical grpc": grpercap
+            "historical grpc": grpercap,
+            "historical total revenue" : grpercap * total_population
         };
     } else if (m == "pc") {
         var newGRPC = grpercap + pcGovRev;
@@ -450,7 +578,8 @@ function getRevenue(_iso, _year, m) {
             "new absolute revenue": newAbsRev,
             "additional revenue per capita": pcGovRev,
             "new grpc": newGRPC,
-            "historical grpc": grpercap
+            "historical grpc": grpercap,
+            "historical total revenue" : grpercap * total_population
         };
     } else if (m == "newgrpc") {
         var newGRPC = enteredGrpc > grpercap ? enteredGrpc : grpercap;
@@ -461,7 +590,8 @@ function getRevenue(_iso, _year, m) {
             "new absolute revenue": newAbsRev,
             "additional revenue per capita": newGRPC - grpercap,
             "new grpc": newGRPC,
-            "historical grpc": grpercap
+            "historical grpc": grpercap,
+            "historical total revenue" : grpercap * total_population
         };
     } else {
         var newGRPC = grpercap + absGovRev / total_population;
@@ -472,7 +602,8 @@ function getRevenue(_iso, _year, m) {
             "new absolute revenue": absGovRev,
             "additional revenue per capita": additionalPerCapita,
             "new grpc": newGRPC,
-            "historical grpc": grpercap
+            "historical grpc": grpercap,
+            "historical total revenue" : grpercap * total_population
         };
     }
     return ret;

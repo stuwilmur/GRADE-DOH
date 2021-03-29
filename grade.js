@@ -523,7 +523,6 @@ function download_csv(_year, _years_to_project, _countries, _outcome) {
         return ["No countries selected",];
     }
     var final_year = getProjectionEnd(_year, _years_to_project);
-    console.log(_countries); 
     var csvdata = getProjectionCSVData(_year, _countries, _outcome, _years_to_project);
     var button_title =  year + "-" + final_year + ".csv";
     if (_countries.length == 1)
@@ -575,8 +574,8 @@ function updateLegend() {
     svg2.select(".legendLinear")
         .call(legendLinear);
 
-    svg2.select("text")
-        .text(theOutcome.desc);
+    d3.select("#legend-label")
+        .html(theOutcome.desc);
 }
 
 function loaded(error, countries, _popdata) {
@@ -640,10 +639,8 @@ function loaded(error, countries, _popdata) {
     svg2.select(".legendLinear")
         .call(legendLinear);
 
-    svg2.append("text")
-        .attr("x", 0)
-        .attr("y", 15)
-        .text(outcomesMap.get(outcome).desc);
+    d3.select("#legend-label")
+    .html(outcomesMap.get(outcome).desc);
 
     d3.select("#revSlider").on("change", function (d) {
         govRevenue = this.value / 100.0;

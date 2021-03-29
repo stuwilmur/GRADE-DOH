@@ -49,56 +49,54 @@ function getProjectionData(_firstyear, _country, _outcome, _years_to_project) {
 function getProjectionCSVData(_year, _countries, _outcome, _years_to_project)
 {
     var header = "country,iso,year";
-    var body = "";
     var ret = {str : null, errors : null};
     var headerDone = false;
     for (i = 0; i < _countries.length; i++) 
     {
-            var _country = _countries[i];
+        var body = "";
+        var _country = _countries[i];
+        var plotdata = getProjectionData(_year, _country, _outcome, _years_to_project);
 
-            console.log(_country, i)
-            var plotdata = getProjectionData(_year, _country, _outcome, _years_to_project);
+        if (plotdata.error) {
+            if (ret.errors === null){
+                ret.errors = []
+            }
+            ret.errors.push(countrycodes.get(_country) + ": " + plotdata.error);
+            continue;
+        }
 
-            if (plotdata.error) {
-                if (ret.errors === null){
-                    ret.errors = []
-                }
-                ret.errors.push(countrycodes.get(_country) + ": " + plotdata.error);
-                continue;
+        var data = plotdata.data;
+        
+        if(!headerDone){
+            headerDone = true;
+            for (const property in data[0].grpc) {
+                header += "," + property;
             }
 
-            var data = plotdata.data;
-            
-            if(!headerDone){
-                headerDone = true;
-                for (const property in data[0].grpc) {
-                    header += "," + property;
-                }
-
-                data[0].additional.forEach(function (property) {
-                    header += "," + property.name;
-                });
-
-                header += "\n";
-                ret.str = header;
-            }
-
-            data.forEach(function (datarow) {
-                var row = "";
-                body += countrycodes.get(_country) + "," + _country + "," + datarow.year + ",";
-
-                for (const property in datarow.grpc) {
-                    body += datarow.grpc[property] + ",";
-                }
-
-                datarow.additional.forEach(function (property) {
-                    body += property.value + ",";
-                });
-                body += row + "\n";
+            data[0].additional.forEach(function (property) {
+                header += "," + property.name;
             });
-            ret.str += body;
-        };
-        return ret;
+
+            header += "\n";
+            ret.str = header;
+        }
+
+        data.forEach(function (datarow) {
+            var row = "";
+            body += countrycodes.get(_country) + "," + _country + "," + datarow.year + ",";
+
+            for (const property in datarow.grpc) {
+                body += datarow.grpc[property] + ",";
+            }
+
+            datarow.additional.forEach(function (property) {
+                body += property.value + ",";
+            });
+            body += row + "\n";
+        });
+        ret.str += body;
+    };
+    return ret;
 }
 
 function calcProjection(_year, _country, _outcome, _years_to_project)
