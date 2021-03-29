@@ -421,7 +421,7 @@ function computeTarget(_iso, _year, _outcome, _target, _grpcOrig)
 
     // n.b. outcome = f(grpc) + residual => grpc = f^-1(outcome - residual)
     var target_grpc = compute_inv(_iso, _year, _outcome, _target - residual, 0);
-    if (isNaN(target_grpc)){
+    if (isNaN(target_grpc) || !isFinite(target_grpc)){
         var outcome_name = (outcomesMap.get(_outcome)).name;
         var errs = ["Unable to calculate " + outcome_name + ": target may be out of achievable range"];
         return {error : errs};
