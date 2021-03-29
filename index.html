@@ -24,6 +24,8 @@
         <script src="model.js" ></script>
         <script src="linterp.js" ></script>
         <script src="projection.js"></script>
+        <script src="deflator.js"></script>
+        <script src="modal.js"></script>
         <script src="https://code.jquery.com/jquery-1.12.4.js" ></script>
         <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js" ></script>
         <div class="all">
@@ -50,6 +52,8 @@
                 <div class="uiouter">
                     <p>Revenue</p>
                     <div class="uicontainer">
+                        <!-- Trigger/Open The Modal -->
+                        <button id="myBtn">Deflator tool</button>
                         <select id="methodlist" name="method">
                             <option value="absolute">
                                 Absolute additional revenue
@@ -231,6 +235,27 @@
                     </div>
                 </div>
         </div>
+        </div>
+
+        <!-- the modal deflator calculator -->
+        <div id="myModal" class="modal">
+            <!-- Modal content -->
+            <div class="modal-content">
+                <span class="close">&times;</span>
+                <div class="uiouter">
+                    Deflator tool
+                    <div class="uicontainer">
+                        <label for="deflatorAmount">Enter amount in USD:</label>
+                        <input type="text" name="deflatorAmount" id="deflatorAmount" class="numeric" value="" />
+                        <label for ="deflatorYear">in</label>
+                        <select id="deflatorYear" name="deflatorYear">
+                        </select>
+                        =
+                        <input type="text" id="deflatorResult" name="deflatorResult" readonly="readonly" />
+                        <label for="deflatorResult">in 2010 USD</label>
+                    </div>
+                </div>
+            </div>
         </div>
 
         <script >
@@ -435,6 +460,7 @@
             queue()
                 .defer(d3.json, "countries.json")
                 .defer(d3.csv, "BASE data.csv", typeAndSetPopulation)
+                .defer(d3.csv, "GDPDEF.csv", typeAndSetDeflator)
                 .await(loaded);
 
         </script>

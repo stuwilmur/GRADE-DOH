@@ -608,7 +608,6 @@ function updateplot() {
         //d3.select("#ploterror").style("display", "none"); //!! remove
     } else {
         var plotdata = getProjectionData(+year, country, outcome, +years_to_project);
-        console.log(plotdata);
         
         if (plotdata.error){
             d3.select("#plotwrapper").style("display", "none");
@@ -756,7 +755,7 @@ function updateLegend() {
         .html(theOutcome.desc);
 }
 
-function loaded(error, countries, _popdata) {
+function loaded(error, countries, _popdata, _gdpdef) {
     /*
     // used to handle non-fixed variable extents - to be updated if required
     outcomesMap.forEach(function (v, k) {
@@ -769,6 +768,8 @@ function loaded(error, countries, _popdata) {
         return parseFloat(d[outcome]);
     }));
     */
+    initDeflator(_gdpdef);
+    initModal();
     
     popdata.nestdata(_popdata); // create the popdata object
     

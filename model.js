@@ -493,7 +493,6 @@ function computeResult(_iso, _year, _outcome, _grpc, _grpcOrig, _govImprovement,
     var govresults = computegovernance(_iso, _year, _govImprovement)
     var residual = original - fitted;
     improved = Math.min(Math.max(improved + residual, 0), 100);
-    console.log(improved, original, _epsilon, improved - original)
     if (Math.abs(improved - original) < _epsilon){
         improved = original;
     }
