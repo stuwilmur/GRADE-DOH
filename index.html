@@ -53,7 +53,7 @@
                     <p>Revenue</p>
                     <div class="uicontainer">
                         <!-- Trigger/Open The Modal -->
-                        <button id="myBtn">Deflator tool</button>
+                        <button id="myBtn">Deflator tool&nbsp;<i class="fa fa-calculator"></i></button>
                         <select id="methodlist" name="method">
                             <option value="absolute">
                                 Absolute additional revenue
@@ -191,9 +191,10 @@
                         <ul>
                             <li><a href="BASE%20data.xlsx" class = "button"><i class="fa fa-download"></i>&nbsp;Excel (including notes on data)</a></li>
                             <li><a href="BASE%20data.csv" class = "button"><i class="fa fa-download"></i>&nbsp;CSV</a></li>
-                            <li>Map data from <a href = "https://www.naturalearthdata.com/">Natural Earth</a></li>
+                            <li>Map data from <a href = "https://www.naturalearthdata.com/">Natural Earth</a>&nbsp<i class="fa fa-external-link"></i>&nbsp</li>
+                            <li>Inflation data from <a href = "https://fred.stlouisfed.org/graph/?g=Crzt">FRED</a>&nbsp;<i class="fa fa-external-link"></i>&nbsp</li>
                         </ul>
-                        <p id="version">v1.5.1 22/03/2021</p>
+                        <p id="version">v1.6 29/03/2021</p>
                     </div>
                 </div>
                 
@@ -245,11 +246,11 @@
                 <div class="uiouter">
                     Deflator tool
                     <div class="uicontainer">
-                        <label for="deflatorAmount">Enter amount in USD:</label>
+                        <label for="deflatorAmount">Enter amount:</label>
                         <input type="text" name="deflatorAmount" id="deflatorAmount" class="numeric" value="" />
                         <label for ="deflatorYear">in</label>
                         <select id="deflatorYear" name="deflatorYear">
-                        </select>
+                        </select> USD
                         =
                         <input type="text" id="deflatorResult" name="deflatorResult" readonly="readonly" />
                         <label for="deflatorResult">in 2010 USD</label>
