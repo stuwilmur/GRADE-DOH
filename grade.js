@@ -906,3 +906,8 @@ function set_outcome_target(){
     .style('background-color', '#ffdb8d');
     target = target_value;
 }
+
+function str2Num(str){
+    str = str.replace(/[^\d\.\-]/g, ""); // You might also include + if you want them to be able to type it
+    return parseFloat(str);
+}
