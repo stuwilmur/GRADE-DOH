@@ -503,14 +503,14 @@ function setupMenus(countries, outcomes) {
     });
 
     d3.select("#absRevSlider").on("input", function (d) {
-        absGovRevSlider = this.value;
+        absGovRevSlider = str2Num(this.value);
         absGovRev = absGovRevSlider * getPrefixValue(prefix);
         d3.select("#absRevenueVal").text("$" + d3.format(",")(Math.round(absGovRev / getPrefixValue(prefix))) + getPrefix(prefix));
         mainUpdate();
     });
 
     d3.select("#pcRevSlider").on("input", function (d) {
-        pcGovRev = this.value * 1;
+        pcGovRev = str2Num(this.value);
         d3.select("#perCapitaRevenueVal").text("$" + d3.format(",")(Math.round(pcGovRev)));
         mainUpdate();
     });
