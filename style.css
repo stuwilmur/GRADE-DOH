@@ -594,3 +594,7 @@ input#yearrange {
     text-decoration: none;
     cursor: pointer;
   }
+
+  #myBtn{
+      margin-top: 10px;
+  }
