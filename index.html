@@ -317,8 +317,9 @@
                     panel.style.maxHeight = null;
                     panel.style.overflow = "hidden";
                     } else {
-                    panel.style.maxHeight = panel.scrollHeight + "px";
-                    panel.style.overflow = "visible";
+                        // set huge max height to allow for verbose error message in country download
+                        panel.style.maxHeight = 2500 + "px";
+                        panel.style.overflow = "visible";
                     } 
                 });
                 }
