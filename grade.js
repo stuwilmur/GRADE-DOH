@@ -117,8 +117,18 @@ var plotlayout = {
     showlegend: true,
 	legend: {"orientation": "h"},
     yaxis: {hoverformat: ',f0', tickformat : ',f0'},
-    xaxis: {tickformat: 'd'}
+    xaxis: {tickformat: 'd'},
 };
+
+var config = {
+    toImageButtonOptions: {
+      format: 'png', // one of png, svg, jpeg, webp
+      //filename: 'custom_image',
+      height: null,
+      width: null,
+      scale: 1 // Multiply title/legend/axis/canvas sizes by this factor
+    }
+  };
 
 var popdata = new PopData();
 
@@ -667,7 +677,7 @@ function updateplot() {
             plotlayout.yaxis.range = [-1,1];
         }
 
-        Plotly.newPlot('plot', plotdata, plotlayout);
+        Plotly.newPlot('plot', plotdata, plotlayout, config);
     }
 }
 
