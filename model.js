@@ -35,6 +35,7 @@ var outcomesList = [
             fixedExtent: [0, 100],
             desc: "The percentage of the population drinking water from an improved source, provided collection time is not more than 30 minutes for a round trip.",
             isStockVar : true,
+            isInterpolated : false,
             target: 100,
             coeffs : new Map(
                 [
@@ -74,6 +75,7 @@ var outcomesList = [
             improved source that is accessible on premises, available when needed 
             and free from faecal and priority chemical contamination.`,
             isStockVar : true,
+            isInterpolated : false,
             target: 100,
             coeffs : new Map(
                 [
@@ -118,6 +120,7 @@ var outcomesList = [
             desc: `The percentage of the population using at least improved 
             sanitation facilities that are not shared with other households.`,
             isStockVar : true,
+            isInterpolated : false,
             target: 100,
             coeffs : new Map(
                 [
@@ -167,6 +170,7 @@ var outcomesList = [
             excreta are safely disposed of in situ or transported and treated 
             offsite.`,
             isStockVar : true,
+            isInterpolated : false,
             target: 100,
             coeffs : new Map(
                 [
@@ -209,6 +213,7 @@ var outcomesList = [
             fixedExtent: [0, 100],
             desc: `The percentage of child school life expectancy, where 100% represents 17 years of schooling.`,
             isStockVar : false,
+            isInterpolated : true,
             target : 100,
             coeffs : new Map(
                 [
@@ -247,10 +252,11 @@ var outcomesList = [
             name: "Under-5 survival (SDG 3)",
             loCol: "#dee5f8",
             hiCol: "#e09900",
-            fixedExtent: [0, 100],
+            fixedExtent: [0, 100], 
             desc: "Under-5 survival",
             isStockVar : false,
-            target: 97.5,
+            isInterpolated : false,
+            target: 99.7, // upper limit of mortality of 3 in 1000
             coeffs : new Map(
                 [
                     [1, 0.000487660315618],
@@ -293,6 +299,7 @@ var outcomesList = [
             fixedExtent: [0, 100],
             desc: "Maternal survival",
             isStockVar : false,
+            isInterpolated : false,
             target: 99.93,
             coeffs : new Map(
                 [
@@ -406,14 +413,18 @@ function compute_inv(_iso, _year, _outcome, _target, _gov) {
 function computeTarget(_iso, _year, _outcome, _target, _grpcOrig)
 {
     var fitted = compute(_iso, _year, _outcome, _grpcOrig, 0)
-    var bInterp = _outcome == "SCHOOLPERC" // interpolating for this outcome only //!! do nicer
+    var bInterp = (outcomesMap.get(_outcome)).isInterpolated;
     var original = popdata.getvalue(_iso, _year, _outcome, bInterp);
     var residual = original - fitted;
+    var limit = (outcomesMap.get(_outcome)).target
 
     if (original > _target){
         return {error : ["Target value (" + _target + "%) is less than original (" + original.toFixed(2) + "%)",]};
     }
-    // treat zero as "no data"§
+    if (_target < 0 || _target > limit){
+        return {error : ["Target value (" + _target + "%) is outside limits",]};
+    }
+    // treat zero as "no data"
     if (original === 0 || isNaN(original)){
         var outcome_name = (outcomesMap.get(_outcome)).name;
         return {error : [outcome_name + " not available for " + _year]};
@@ -467,7 +478,7 @@ function computeAdditionalResults(_iso, _year, _outcome, improved, original){
 function computeResult(_iso, _year, _outcome, _grpc, _grpcOrig, _govImprovement, _epsilon = 0) {
  
     var fitted = compute(_iso, _year, _outcome, _grpcOrig, 0)
-    var bInterp = _outcome == "SCHOOLPERC" // interpolating for this outcome only //!! do nicer
+    var bInterp = (outcomesMap.get(_outcome)).isInterpolated;
     var original = popdata.getvalue(_iso, _year, _outcome, bInterp);
     
     // treat zero as "no data"
@@ -492,7 +503,8 @@ function computeResult(_iso, _year, _outcome, _grpc, _grpcOrig, _govImprovement,
     }
     var govresults = computegovernance(_iso, _year, _govImprovement)
     var residual = original - fitted;
-    improved = Math.min(Math.max(improved + residual, 0), 100);
+    var limit = (outcomesMap.get(_outcome)).target
+    improved = Math.min(Math.max(improved + residual, 0), limit);
     if (Math.abs(improved - original) < _epsilon){
         improved = original;
     }
