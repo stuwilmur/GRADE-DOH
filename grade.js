@@ -202,10 +202,11 @@ function makeText2(_year, _iso, _outcome, _years_to_project)
             + "<br/>Increase in Gov. rev. per capita: <span class = 'ar'>" + (revenues["percentage increase"] * 100).toFixed(2) + "%</span>"
             + "<br><br>"
             + "<div class = 'cumulative'>"
-            + "<strong>" + varText + " effect over the projected period:</strong>"
+            + "<strong>" + varText + " effect, after start of effect in " + projection.start_of_effect + ":</strong>"
             
             projection.data.forEach(function(value, result){
-              text += "<br/>" + result + ":<br/> <span class = 'ar'>" + d3.format(",")(value.toFixed(0)) + "</span>"; 
+              //text += "<br/>" + result + ":<br/> <span class = 'ar'>" + d3.format(",")(value.projection.toFixed(0)) + "</span>"; 
+              text += "<br/>" + result + ":<br/> <span class = 'ar'>" + d3.format(",")(value.effect.toFixed(0)) + "</span>";
             })
             text += "</div>"
         }

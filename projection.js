@@ -117,10 +117,18 @@ function calcProjection(_year, _country, _outcome, _years_to_project)
      plotdata.data.forEach(function(d){
          d.additional.forEach(function(result){
              if (totals.has(result.name)){
-                 totals.set(result.name, totals.get(result.name) + result.value )
+                 totProjectionPeriod = totals.get(result.name).projection + result.value
+                 if (d.year >= plotdata.start_of_effect) {
+                     totEffectPeriod = totals.get(result.name).effect + result.value
+                 } 
+                 else {
+                     totEffectPeriod = 0
+                 }
+                 totals.set(result.name, {"projection" : totals.get(result.name).projection + result.value, "effect" : totEffectPeriod} )
              }
              else{
-                 totals.set(result.name, result.value);
+                totEffectPeriod = d.year >= plotdata.start_of_effect ? result.value : 0
+                 totals.set(result.name, {"projection" : result.value, "effect" : totEffectPeriod});
              }
          })
      })
@@ -128,14 +136,17 @@ function calcProjection(_year, _country, _outcome, _years_to_project)
     if (theOutcome.isStockVar){
         var averages = new Map();
         totals.forEach( function(value, result){
-            var result_avg = plotdata.years_of_effect > 0 ? value / plotdata.years_of_effect : 0;
-            averages.set(result, result_avg);            
+            var result_avg_effect = plotdata.years_of_effect > 0 ? value.effect / plotdata.years_of_effect : 0;
+            var result_avg_projection = value.projection / plotdata.data.length;
+            averages.set(result, {"projection" : result_avg_projection, "effect" : result_avg_effect});            
         })
         ret.data = averages;
     }
     else{
         ret.data = totals;   
     }
+
+    ret.start_of_effect = plotdata.start_of_effect;
     
     return ret;
 }
