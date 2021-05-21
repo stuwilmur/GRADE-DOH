@@ -487,7 +487,7 @@ function setupMenus(countries, outcomes) {
                 prefix = this.options[this.selectedIndex].value;
                 var sliderVar = document.getElementById('#absRevSlider');
                 var prefixValue = getPrefixValue(prefix);
-                absGovRev = absGovRevSlider * prefixValue;
+                absGovRev = str2Num(sliderVar) * prefixValue;
                 d3.select("#absRevenueVal").text("$" + Math.round(absGovRev / prefixValue) + getPrefix(prefix));
                 mainUpdate();
             })
@@ -832,6 +832,7 @@ function loaded(error, countries, _popdata, _gdpdef) {
     d3.select("#legend-label")
     .html(outcomesMap.get(outcome).desc);
 
+    /*
     d3.select("#revSlider").on("change", function (d) {
         govRevenue = this.value / 100.0;
     });
@@ -845,6 +846,7 @@ function loaded(error, countries, _popdata, _gdpdef) {
     d3.select("#grpcSlider").on("change", function () {
         enteredGrpc = this.value * 1;
     });
+    */
     d3.select("#yearSlider")
         //.attr("min", popdata.firstyear) // min set manually to 1980
         .attr("max", popdata.lastyear)
