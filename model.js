@@ -412,6 +412,9 @@ function compute_inv(_iso, _year, _outcome, _target, _gov) {
 
 function computeTarget(_iso, _year, _outcome, _target, _grpcOrig)
 {
+
+    // Note: this calculation ignores changes in governance
+
     var fitted = compute(_iso, _year, _outcome, _grpcOrig, 0)
     var bInterp = (outcomesMap.get(_outcome)).isInterpolated;
     var original = popdata.getvalue(_iso, _year, _outcome, bInterp);
