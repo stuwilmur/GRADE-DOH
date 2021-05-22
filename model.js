@@ -300,7 +300,7 @@ var outcomesList = [
             desc: "Maternal survival",
             isStockVar : false,
             isInterpolated : false,
-            target: 99.93,
+            target: 99.7,
             coeffs : new Map(
                 [
                      [1, 0.00162428846511],
@@ -420,6 +420,9 @@ function computeTarget(_iso, _year, _outcome, _target, _grpcOrig)
     var original = popdata.getvalue(_iso, _year, _outcome, bInterp);
     var residual = original - fitted;
     var limit = (outcomesMap.get(_outcome)).target
+    if (original > limit){
+        limit = 100;
+    }
 
     if (original > _target){
         return {error : ["Target value (" + _target + "%) is less than original (" + original.toFixed(2) + "%)",]};
@@ -507,6 +510,9 @@ function computeResult(_iso, _year, _outcome, _grpc, _grpcOrig, _govImprovement,
     var govresults = computegovernance(_iso, _year, _govImprovement)
     var residual = original - fitted;
     var limit = (outcomesMap.get(_outcome)).target
+    if (original > limit ){
+        limit = 100;
+    }
     improved = Math.min(Math.max(improved + residual, 0), limit);
     if (Math.abs(improved - original) < _epsilon){
         improved = original;
