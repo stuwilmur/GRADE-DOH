@@ -256,7 +256,7 @@ var outcomesList = [
             desc: "Under-5 survival",
             isStockVar : false,
             isInterpolated : false,
-            target: 99.7, // upper limit of mortality of 3 in 1000
+            target: 99.9, // upper limit of mortality of 1 in 1000
             coeffs : new Map(
                 [
                     [1, 0.000487660315618],
@@ -300,7 +300,7 @@ var outcomesList = [
             desc: "Maternal survival",
             isStockVar : false,
             isInterpolated : false,
-            target: 99.7,
+            target: 100,
             coeffs : new Map(
                 [
                      [1, 0.00162428846511],
