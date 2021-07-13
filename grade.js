@@ -7,6 +7,8 @@ var legendCells = 10;
 var transitionTime = 500;
 var legendLinear;
 var countrycodes = new Map();
+var numGovernanceSteps = 200;
+var maxGovernance = 2;
 
 // inputs / initial values
 var govRevenue = 0;
@@ -533,10 +535,15 @@ function setupMenus(countries, outcomes) {
     });
 
     d3.select("#govSlider").on("input", function (d) {
-        governance = Math.round((this.value / 200.0 * 2.0 - 1) * 100) / 100;
+        governance = Math.round((this.value / numGovernanceSteps * maxGovernance - maxGovernance) * 100) / 100;
         d3.select("#govVal").text((governance <= 0 ? "" : "+") + governance);
         mainUpdate();
     });
+
+    d3.select("#govSlider")
+    .attr("max",numGovernanceSteps * maxGovernance)
+    .attr("min",0)
+    .attr("value", numGovernanceSteps * maxGovernance / 2)
 
     d3.select("#targetInput").on("input", function (d) {
         target = +this.value;
