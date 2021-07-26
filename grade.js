@@ -133,6 +133,7 @@ var config = {
   };
 
 var popdata = new PopData();
+var revdata = new PopData();
 
 function dataHasCountry(_cid){
     return (popdata.getrow(_cid, -1) !== undefined);
@@ -481,6 +482,18 @@ function setupMenus(countries, outcomes) {
                     d3.select("#grpcdiv")
                         .style("display", "none")
                 }
+                if (method == "file"){
+                    d3.select("#revenueFileInput")
+                        .style("display", "block")
+                    d3.select("#revenueStandardInput")
+                        .style("display", "none")
+                }
+                else{
+                    d3.select("#revenueFileInput")
+                        .style("display", "none")
+                    d3.select("#revenueStandardInput")
+                        .style("display", "block")
+                }
                 mainUpdate();
             })
 
@@ -587,6 +600,42 @@ function setupMenus(countries, outcomes) {
         //updateLegend();
         mainUpdate();
     });
+
+    const fileSelect = document.getElementById("fileSelect"),
+    fileElem = document.getElementById("fileElem");
+
+    fileSelect.addEventListener("click", function (e) {
+        if (fileElem) {
+            fileElem.click();
+        }
+    }, false);
+
+    fileElem.addEventListener("change", handleRevenueCsv, false);
+    
+    function handleRevenueCsv() {
+        
+        const fileList = this.files;
+        var fr = new FileReader();
+
+        function typeAndSetRevenue(d) {
+    
+            var e = {}
+            
+            e.year   = +d.YEAR;
+            e.REVENUE = +d.REVENUE;
+            e.ISO = d.ISO;
+            
+            return e;
+        }
+
+        fr.onload = function(e) {
+            var data = d3.csv.parse(e.target.result, typeAndSetRevenue);
+            revdata.nestdata(data);
+        };
+
+        fr.readAsText(fileList[0]);
+    }
+    
 }
 
 function colourCountries() {
@@ -732,7 +781,7 @@ function download_csv_multi(){
     // handle special selections
     var countries_to_export = multiplecountries.filter(d => d.slice(0,1) != "$");
     var special_selections = multiplecountries.filter(d => d.slice(0,2) == "$-")
-    //console.log(special_selections);
+
     special_selections.forEach(function(_selection){
         var selection = selections.get(_selection);
         if (selection)
@@ -745,7 +794,6 @@ function download_csv_multi(){
         }
     });
 
-    //console.log(multiplecountries,"\n",countries_to_export);
     var error = download_csv(+year, +years_to_project, countries_to_export.sort(), outcome);
     if (error){
         d3.select("#multicountryerror")
