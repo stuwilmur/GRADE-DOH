@@ -75,11 +75,14 @@
                             </option>
                             -->
                         </select>
-                        <div id="revenueFileInput">
-                            <input type="file" id="fileElem" accept=".csv" style="display:none">
-                            <button id="fileSelect">Select some files</button>
+                        <div id="revenueFileInput" style="display:none">
+                            <label class="custom-file-upload">
+                                <input type="file" id="fileElem" accept=".csv">
+                                Upload revenue CSV&nbsp;<i class="fa fa-upload"></i>
+                            </label>
+                            <span id="fileName"></span>
                         </div>
-                        <div id="revenueStandardInput">
+                        <div id="revenueStandardInput" style="display:block">
                             <select id="prefix" name="prefix">
                                 <option value="U">
                                     USD

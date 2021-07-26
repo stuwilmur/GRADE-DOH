@@ -134,6 +134,7 @@ var config = {
 
 var popdata = new PopData();
 var revdata = new PopData();
+revdata.nestdata("");
 
 function dataHasCountry(_cid){
     return (popdata.getrow(_cid, -1) !== undefined);
@@ -601,14 +602,7 @@ function setupMenus(countries, outcomes) {
         mainUpdate();
     });
 
-    const fileSelect = document.getElementById("fileSelect"),
     fileElem = document.getElementById("fileElem");
-
-    fileSelect.addEventListener("click", function (e) {
-        if (fileElem) {
-            fileElem.click();
-        }
-    }, false);
 
     fileElem.addEventListener("change", handleRevenueCsv, false);
     
@@ -631,11 +625,13 @@ function setupMenus(countries, outcomes) {
         fr.onload = function(e) {
             var data = d3.csv.parse(e.target.result, typeAndSetRevenue);
             revdata.nestdata(data);
+            updateCountries();
         };
 
         fr.readAsText(fileList[0]);
+
+        document.getElementById("fileName").textContent = fileList[0].name;
     }
-    
 }
 
 function colourCountries() {

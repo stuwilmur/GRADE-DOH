@@ -407,7 +407,7 @@ h2.tooltip {
     font-weight: bold;
 }
 
-button, .button {
+button, .button, .custom-file-upload {
   font-family: 'Open Sans', Helvetica, sans-serif;
   background-color: #0099FF;
   border: none;
@@ -598,3 +598,7 @@ input#yearrange {
   #myBtn{
       margin-top: 10px;
   }
+
+  input[type="file"] {
+    display: none;
+}

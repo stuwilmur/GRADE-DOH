@@ -575,14 +575,14 @@ function typeAndSetPopulation(d) {
     return e;
 }
 
-function getRevenue(_iso, _year, m) {
+function getRevenue(_iso, _year, _method) {
     var ret;    
     var grpercap = popdata.getvalue(_iso, _year, "GRPERCAP", true);
     var total_population = popdata.getvalue(_iso, _year, "Population, total");
     
     if (isNaN(grpercap) || grpercap == 0) {return undefined;}
     
-    if (m == "percentage") {
+    if (_method == "percentage") {
         var newAbsRev = (grpercap * (govRevenue)) * total_population;
         var additionalPerCapita = grpercap * govRevenue;
         ret = {
@@ -593,7 +593,7 @@ function getRevenue(_iso, _year, m) {
             "historical grpc": grpercap,
             "historical total revenue" : grpercap * total_population
         };
-    } else if (m == "pc") {
+    } else if (_method == "pc") {
         var newGRPC = grpercap + pcGovRev;
         var newGovRev = newGRPC / grpercap - 1;
         var newAbsRev = (grpercap * (newGovRev)) * total_population;
@@ -605,7 +605,7 @@ function getRevenue(_iso, _year, m) {
             "historical grpc": grpercap,
             "historical total revenue" : grpercap * total_population
         };
-    } else if (m == "newgrpc") {
+    } else if (_method == "newgrpc") {
         var newGRPC = enteredGrpc > grpercap ? enteredGrpc : grpercap;
         var newGovRev = newGRPC / grpercap - 1;
         var newAbsRev = (grpercap * (newGovRev)) * total_population;
@@ -618,12 +618,26 @@ function getRevenue(_iso, _year, m) {
             "historical total revenue" : grpercap * total_population
         };
     } else {
-        var newGRPC = grpercap + absGovRev / total_population;
+        var absoluteGovRev;
+
+        if (_method == "file")
+        {
+            absoluteGovRev = revdata.getvalue(_iso, _year, "REVENUE", true);
+
+            // default behaviour is for only countries included in revenue CSV to be coloured
+            if (isNaN(absoluteGovRev)) {return undefined; }
+        }
+        else
+        {
+            absoluteGovRev = absGovRev;
+        }
+
+        var newGRPC = grpercap + absoluteGovRev / total_population;
         var newGovRev = newGRPC / grpercap - 1;
-        var additionalPerCapita = absGovRev / total_population;
+        var additionalPerCapita = absoluteGovRev / total_population;
         ret = {
             "percentage increase": newGovRev,
-            "new absolute revenue": absGovRev,
+            "new absolute revenue": absoluteGovRev,
             "additional revenue per capita": additionalPerCapita,
             "new grpc": newGRPC,
             "historical grpc": grpercap,
