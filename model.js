@@ -622,7 +622,7 @@ function getRevenue(_iso, _year, _method) {
 
         if (_method == "file")
         {
-            absoluteGovRev = revdata.getvalue(_iso, _year, "REVENUE", true);
+            absoluteGovRev = revdata.getvalue(_iso, _year, "REVENUE");
 
             // default behaviour is for only countries included in revenue CSV to be coloured
             if (isNaN(absoluteGovRev)) {return undefined; }
