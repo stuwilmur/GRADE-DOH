@@ -735,7 +735,7 @@ function updateplot() {
 }
 
 function updatetarget(){
-    var text = makeTextTarget(+year, country, outcome, target);
+    var text = makeTextTarget(+year, country, outcome, target, method);
     d3.select("#targetText")
     .html(text);
 }
@@ -790,7 +790,7 @@ function download_csv_multi(){
         }
     });
 
-    var error = download_csv(+year, +years_to_project, countries_to_export.sort(), outcome);
+    var error = download_csv(+year, +years_to_project, countries_to_export.sort(), outcome, method);
     if (error){
         d3.select("#multicountryerror")
         .html(error.join("<br />"));
