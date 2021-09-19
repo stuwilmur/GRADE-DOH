@@ -169,13 +169,13 @@ function getColor(_cid, _year, _method) {
     }
 }
 
-function makeText2(_year, _iso, _outcome, _years_to_project)
+function makeText2(_year, _iso, _outcome, _years_to_project, _method)
 {
     // accompanies makeText() (which does the instantaneous calculation)
     // as version that is specific to the projection.
     
     var end_year = getProjectionEnd(_year, _years_to_project)
-    var projection = calcProjection(_year, _iso, _outcome, _years_to_project)
+    var projection = calcProjection(_year, _iso, _outcome, _years_to_project, _method)
     var text = "";
     text = text 
         + "<h1 class='tooltip'> " +  countrycodes.get(_iso) + "</h1>"
@@ -188,7 +188,7 @@ function makeText2(_year, _iso, _outcome, _years_to_project)
         + projection.error.join("<br>"); 
     }
     else{
-        var revenues = getRevenue(_iso, _year, method);
+        var revenues = getRevenue(_iso, _year, _method);
         if (revenues === undefined)
         {
             // shouldn't happen as plotdata would give error
@@ -218,8 +218,8 @@ function makeText2(_year, _iso, _outcome, _years_to_project)
     return text;
 }
 
-function makeText(_iso, _year) {
-    var revenues = getRevenue(_iso, _year, method);
+function makeText(_iso, _year, _method) {
+    var revenues = getRevenue(_iso, _year, _method);
     if (revenues === undefined)
     {
         return "<strong>" + countrycodes.get(_iso) + "<\/strong>" + ": No GRPC data available";
@@ -265,12 +265,12 @@ function makeText(_iso, _year) {
     return text;
 }
 
-function makeTextTarget(_year, _iso, _outcome, _target){
+function makeTextTarget(_year, _iso, _outcome, _target, _method){
     if (_iso.slice(0,1) == "$")
     {
         return "No country selected";
     }
-    var revenues = getRevenue(_iso, _year, method);
+    var revenues = getRevenue(_iso, _year, _method);
     if (revenues === undefined)
     {
         return "<strong>" + countrycodes.get(_iso) + "<\/strong>" + ": No GRPC data available";
@@ -323,9 +323,9 @@ function getText(d, _bProjection = false) {
     }
 
     if (_bProjection) {
-        return makeText2(+year, d.id, outcome, +years_to_project);
+        return makeText2(+year, d.id, outcome, +years_to_project, method);
     } else {
-        return makeText(d.id, year)
+        return makeText(d.id, year, method)
     }
 }
 
@@ -670,7 +670,7 @@ function updateplot() {
         d3.select("#plotwrapper").style("display", "none");
         //d3.select("#ploterror").style("display", "none"); //!! remove
     } else {
-        var plotdata = getProjectionData(+year, country, outcome, +years_to_project);
+        var plotdata = getProjectionData(+year, country, outcome, +years_to_project, method);
         
         if (plotdata.error){
             d3.select("#plotwrapper").style("display", "none");
@@ -740,13 +740,13 @@ function updatetarget(){
     .html(text);
 }
 
-function download_csv(_year, _years_to_project, _countries, _outcome) {
+function download_csv(_year, _years_to_project, _countries, _outcome, _method) {
     if (_countries.length < 1)
     {
         return ["No countries selected",];
     }
     var final_year = getProjectionEnd(_year, _years_to_project);
-    var csvdata = getProjectionCSVData(_year, _countries, _outcome, _years_to_project);
+    var csvdata = getProjectionCSVData(_year, _countries, _outcome, _years_to_project, _method);
     var button_title =  year + "-" + final_year + ".csv";
     if (_countries.length == 1)
     {
@@ -770,7 +770,7 @@ function download_csv(_year, _years_to_project, _countries, _outcome) {
 }
 
 function download_csv_plot(){
-    download_csv(+year, +years_to_project, [country,], outcome);
+    download_csv(+year, +years_to_project, [country,], outcome, method);
 }
 
 function download_csv_multi(){
