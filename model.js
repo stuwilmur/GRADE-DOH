@@ -580,69 +580,77 @@ function getRevenue(_iso, _year, _method) {
     var grpercap = popdata.getvalue(_iso, _year, "GRPERCAP", true);
     var total_population = popdata.getvalue(_iso, _year, "Population, total");
     
-    if (isNaN(grpercap) || grpercap == 0) {return undefined;}
+    // For the time being, show countries with no csv entry as grey
+    if (isNaN(grpercap) || grpercap == 0 || (_method == "file" && isNaN(revdata.getvalue(_iso, _year, "REVENUE")))) {
+        return undefined;
+    }
+
+    var method_to_use = _method;
+    if (_method == "file")
+    {
+        method_to_use = file_method; //!! pass as arg in future
+    }
     
-    if (_method == "percentage") {
-        var newAbsRev = (grpercap * (govRevenue)) * total_population;
-        var additionalPerCapita = grpercap * govRevenue;
+    if (method_to_use == "percentage") {
+        var proportion_increase_grpc
+        if (_method == "file"){
+            proportion_increase_grpc = revdata.getvalue(_iso, _year, "REVENUE") / 100.0;
+        }
+        else{
+            proportion_increase_grpc = govRevenue;
+        }
+        var newAbsRev = (grpercap * (proportion_increase_grpc)) * total_population;
+        var additionalPerCapita = grpercap * proportion_increase_grpc;
         ret = {
-            "percentage increase": govRevenue,
+            "percentage increase": proportion_increase_grpc,
             "new absolute revenue": newAbsRev,
             "additional revenue per capita": additionalPerCapita,
             "new grpc": grpercap + additionalPerCapita,
             "historical grpc": grpercap,
             "historical total revenue" : grpercap * total_population
         };
-    } else if (_method == "pc") {
-        var newGRPC = grpercap + pcGovRev;
+    } else if (method_to_use == "pc") {
+        var additional_revenue_per_capita_dollars;
+        if (_method == "file"){
+            additional_revenue_per_capita_dollars =  revdata.getvalue(_iso, _year, "REVENUE"); 
+        }
+        else{
+            additional_revenue_per_capita_dollars = pcGovRev;
+        }
+        var newGRPC = grpercap + additional_revenue_per_capita_dollars;
         var newGovRev = newGRPC / grpercap - 1;
         var newAbsRev = (grpercap * (newGovRev)) * total_population;
         ret = {
             "percentage increase": newGovRev,
             "new absolute revenue": newAbsRev,
-            "additional revenue per capita": pcGovRev,
+            "additional revenue per capita": additional_revenue_per_capita_dollars,
             "new grpc": newGRPC,
             "historical grpc": grpercap,
             "historical total revenue" : grpercap * total_population
         };
-    } else if (_method == "newgrpc") {
-        var newGRPC = enteredGrpc > grpercap ? enteredGrpc : grpercap;
+    }
+    else { // method "absolute"
+
+        var additional_revenue_dollars
+        if (_method == "file"){
+            additional_revenue_dollars =  revdata.getvalue(_iso, _year, "REVENUE")  
+        }
+        else{
+            additional_revenue_dollars = absGovRev;
+        }
+        absGovRev;
+        var newGRPC = grpercap + additional_revenue_dollars / total_population;
         var newGovRev = newGRPC / grpercap - 1;
-        var newAbsRev = (grpercap * (newGovRev)) * total_population;
+        var additionalPerCapita = additional_revenue_dollars / total_population;
         ret = {
             "percentage increase": newGovRev,
-            "new absolute revenue": newAbsRev,
-            "additional revenue per capita": newGRPC - grpercap,
-            "new grpc": newGRPC,
-            "historical grpc": grpercap,
-            "historical total revenue" : grpercap * total_population
-        };
-    } else {
-        var absoluteGovRev;
-
-        if (_method == "file")
-        {
-            absoluteGovRev = revdata.getvalue(_iso, _year, "REVENUE");
-
-            // default behaviour is for only countries included in revenue CSV to be coloured
-            if (isNaN(absoluteGovRev)) {return undefined; }
-        }
-        else
-        {
-            absoluteGovRev = absGovRev;
-        }
-
-        var newGRPC = grpercap + absoluteGovRev / total_population;
-        var newGovRev = newGRPC / grpercap - 1;
-        var additionalPerCapita = absoluteGovRev / total_population;
-        ret = {
-            "percentage increase": newGovRev,
-            "new absolute revenue": absoluteGovRev,
+            "new absolute revenue": additional_revenue_dollars,
             "additional revenue per capita": additionalPerCapita,
             "new grpc": newGRPC,
             "historical grpc": grpercap,
             "historical total revenue" : grpercap * total_population
         };
     }
+
     return ret;
 }

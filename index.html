@@ -68,12 +68,6 @@
                             <option value="file">
                                 Use CSV file
                             </option>
-
-                            <!--- removed 02/0
-                            <option value="newgrpc">
-                                New government revenue per capita
-                            </option>
-                            -->
                         </select>
                         <div id="revenueFileInput" style="display:none">
                             <label class="custom-file-upload">
@@ -83,6 +77,24 @@
                             <p>
                                 <span id="fileName"></span>
                             </p>
+                            My revenue data is specified as:
+                            <select id="filemethod" name="filemethod">
+                                <option value="absolute">
+                                    Absolute additional revenue
+                                </option>
+    
+                                <option value="pc">
+                                    Additional revenue per capita
+                                </option>
+    
+                                <option value="percentage">
+                                    Increase as percentage of gov. rev. per capita
+                                </option>
+    
+                                <option value="file">
+                                    Use CSV file
+                                </option>
+                            </select>
                         </div>
                         <div id="revenueStandardInput" style="display:block">
                             <select id="prefix" name="prefix">

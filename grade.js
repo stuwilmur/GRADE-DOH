@@ -22,6 +22,7 @@ var governance = 0;
 var target = 100;
 var country = "$-ALL";
 var method = "absolute";
+var file_method = "absolute";
 var prefix = "M";
 var plottype = "population";
 var outcome = "SANITBASIC";
@@ -417,6 +418,7 @@ function setupMenus(countries, outcomes) {
         d3.select('#countrylist').property('value', country);
         d3.select('#outcomes').property('value', outcome);
         d3.select('#methodlist').property('value', method);
+        d3.select('#filemethod').property('value', file_method);
         d3.select('#prefix').property('value', prefix);
         d3.select('#yearslider').property('value', year);
         d3.select('#yearsProjectVal').property('value', years_to_project);
@@ -507,6 +509,11 @@ function setupMenus(countries, outcomes) {
                 d3.select("#absRevenueVal").text("$" + Math.round(absGovRev / prefixValue) + getPrefix(prefix));
                 mainUpdate();
             })
+
+        d3.select("#filemethod")
+        .on("change", function (d) {
+            file_method = this.options[this.selectedIndex].value;
+        })
         
         /*
         //!! remove
