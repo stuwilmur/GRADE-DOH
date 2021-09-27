@@ -254,6 +254,12 @@ function makeText(_iso, _year) {
         })
     }
 
+    if (result.hasOwnProperty("special")) {
+        result.special.forEach(function(property) {
+            text = text + "<br/>" + property.name + ":&nbsp&nbsp<span class = 'arb'>" + d3.format(",")(property.value.toFixed(0)) + "</span>";
+        })
+    }
+
     /*
     var govtext = "";
     result.gov.forEach(function (result, govmeasure) {
@@ -295,6 +301,12 @@ function makeTextTarget(_year, _iso, _outcome, _target){
 
     if (result.hasOwnProperty("additional")) {
         result.additional.forEach(function(property) {
+            str = str + "<br/>" + property.name + ":&nbsp&nbsp<span class = 'arb'>" + d3.format(",")(property.value.toFixed(0)) + "</span>";
+        })
+    }
+
+    if (result.hasOwnProperty("special")) {
+        result.special.forEach(function(property) {
             str = str + "<br/>" + property.name + ":&nbsp&nbsp<span class = 'arb'>" + d3.format(",")(property.value.toFixed(0)) + "</span>";
         })
     }

@@ -446,7 +446,8 @@ function computeTarget(_iso, _year, _outcome, _target, _grpcOrig)
     return {
         error : null,
         grpc : target_grpc,
-        additional : computeAdditionalResults(_iso, _year, _outcome, target, original)
+        additional : computeAdditionalResults(_iso, _year, _outcome, target, original),
+        special : computeSpecialResults(_iso, _year, _outcome, target, original, (target_grpc - _grpcOrig))
     };
 }
 
@@ -479,6 +480,29 @@ function computeAdditionalResults(_iso, _year, _outcome, improved, original){
     }
 
     return additional;
+}
+
+function computeSpecialResults(_iso, _year, _outcome, _improved, _original, _additionalGrpc)
+{
+    var special_results = [];
+
+    var popBirths = popdata.getvalue(_iso, _year, "Number of births")
+    var popTotal = popdata.getvalue(_iso, _year, "Population, total");
+
+    if (_outcome == "U5MSURV")
+    {
+        var livesSaved = Math.round((_improved - _original) / 100 * popBirths)
+        var costPerLife = livesSaved > 0 ? popTotal * _additionalGrpc / livesSaved : NaN 
+        special_results.push({name : "Cost per under-5 life saved", value : costPerLife})
+    }
+    else if (_outcome == "MMRSURV")
+    {
+        var livesSaved = Math.round((_improved - _original) / 100 * popBirths)
+        var costPerLife = livesSaved > 0 ? popTotal * _additionalGrpc / livesSaved : NaN 
+        special_results.push({name : "Cost per maternal life saved", value : costPerLife})
+    }
+
+    return special_results;
 }
 
 function computeResult(_iso, _year, _outcome, _grpc, _grpcOrig, _govImprovement, _epsilon = 0) {
@@ -524,6 +548,7 @@ function computeResult(_iso, _year, _outcome, _grpc, _grpcOrig, _govImprovement,
         "improved": improved,
         "fitted": fitted,
         "additional": computeAdditionalResults(_iso, _year, _outcome, improved, original),
+        "special": computeSpecialResults(_iso, _year, _outcome, improved, original, (_grpc - _grpcOrig)),
         "gov": govresults
     };
     return ret;
