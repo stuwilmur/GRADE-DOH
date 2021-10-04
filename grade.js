@@ -705,6 +705,7 @@ function updateplot() {
         //d3.select("#ploterror").style("display", "none"); //!! remove
        
         var plotdata = [];
+        var spaces = "          ";
         
         (data[0]).additional.forEach(function(property,i){
             var outcomedata = {
@@ -719,7 +720,7 @@ function updateplot() {
                                 return s;
                                }),
                 type: "scatter",
-                name: property.name,
+                name: property.name + spaces, // hack to fix cutoff legend text in Plotly
                 meta: property.name, // make visible to hovertemplate
                 visible : property.keyvariable ? true : "legendonly",
                 hovertemplate : "%{meta}<br>%{x}:<b> %{y}</b><br>%{text}<extra></extra>",
