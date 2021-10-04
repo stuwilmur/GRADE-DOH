@@ -602,3 +602,7 @@ input#yearrange {
   input[type="file"] {
     display: none;
 }
+
+.arrow {
+    color: #444;
+  }
