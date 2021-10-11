@@ -635,7 +635,7 @@ function setupMenus(countries, outcomes) {
             var e = {}
             
             e.year   = +d.YEAR;
-            e.REVENUE = +d.REVENUE;
+            e.REVENUE = str2Num(d.REVENUE);
             e.ISO = d.ISO;
             
             return e;
