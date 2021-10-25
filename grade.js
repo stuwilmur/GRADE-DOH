@@ -525,6 +525,7 @@ function setupMenus(countries, outcomes) {
         d3.select("#filemethod")
         .on("change", function (d) {
             file_method = this.options[this.selectedIndex].value;
+            mainUpdate();
         })
         
         /*

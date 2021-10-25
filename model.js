@@ -605,8 +605,7 @@ function getRevenue(_iso, _year, _method) {
     var grpercap = popdata.getvalue(_iso, _year, "GRPERCAP", true);
     var total_population = popdata.getvalue(_iso, _year, "Population, total");
     
-    // For the time being, show countries with no csv entry as grey
-    if (isNaN(grpercap) || grpercap == 0 || (_method == "file" && isNaN(revdata.getvalue(_iso, _year, "REVENUE")))) {
+    if (isNaN(grpercap) || grpercap == 0) {
         return undefined;
     }
 
@@ -620,6 +619,10 @@ function getRevenue(_iso, _year, _method) {
         var proportion_increase_grpc
         if (_method == "file"){
             proportion_increase_grpc = revdata.getvalue(_iso, _year, "REVENUE") / 100.0;
+            if (isNaN(proportion_increase_grpc))
+            {
+                proportion_increase_grpc = 0
+            }
         }
         else{
             proportion_increase_grpc = govRevenue;
@@ -638,6 +641,10 @@ function getRevenue(_iso, _year, _method) {
         var additional_revenue_per_capita_dollars;
         if (_method == "file"){
             additional_revenue_per_capita_dollars =  revdata.getvalue(_iso, _year, "REVENUE"); 
+            if (isNaN(additional_revenue_per_capita_dollars))
+            {
+                additional_revenue_per_capita_dollars = 0
+            }
         }
         else{
             additional_revenue_per_capita_dollars = pcGovRev;
@@ -658,7 +665,11 @@ function getRevenue(_iso, _year, _method) {
 
         var additional_revenue_dollars
         if (_method == "file"){
-            additional_revenue_dollars =  revdata.getvalue(_iso, _year, "REVENUE")  
+            additional_revenue_dollars = revdata.getvalue(_iso, _year, "REVENUE")  
+            if (isNaN(additional_revenue_dollars))
+            {
+                additional_revenue_dollars = 0
+            }
         }
         else{
             additional_revenue_dollars = absGovRev;
