@@ -176,18 +176,10 @@
                 </div-->
                 <button class="accordion">Advanced</button>
                 <div class="panel">
-                    <button class="accordion subaccordion">Governance projection</button>
+                    <button class="accordion subaccordion">Multiple-country projection</button>
                     <div class="panel">
                         <div class="uiouter">
-                            <p>Change in governance quality: <span id="govVal">0</span></p>
-                            <div class="uicontainer">
-                                <input type="range" name="govSlider" id="govSlider" class="slider" min="0" max="100" value="50" />
-                                <i class="fa fa-arrow-left fa-lg arrow"></i>&nbsp;worsening&nbsp;&nbsp;<span class="ar">improving&nbsp;<i class="fa fa-arrow-right fa-lg arrow"></i>
-                            </div>
-                        </div>
-                    
-                        <div class="uiouter">
-                            <p>Multiple-country export</p>
+                            <p>Countries to project and export</p>
                             <div class="uicontainer">
                                 <select id="multicountrylist" name="multicountry">
                                 </select>
@@ -197,6 +189,16 @@
                                 <button id="clearmultibutton" onclick="clear_multi()"><i class="fa fa-trash"></i>&nbsp;Clear all</button>
                                 <p id = "multicountryerror">
                                 </p> 
+                            </div>
+                        </div>
+                    </div>
+                    <button class="accordion subaccordion">Governance quality</button>
+                    <div class="panel">
+                        <div class="uiouter">
+                            <p>Change in governance quality: <span id="govVal">0</span></p>
+                            <div class="uicontainer">
+                                <input type="range" name="govSlider" id="govSlider" class="slider" min="0" max="100" value="50" />
+                                <i class="fa fa-arrow-left fa-lg arrow"></i>&nbsp;worsening&nbsp;&nbsp;<span class="ar">improving&nbsp;<i class="fa fa-arrow-right fa-lg arrow"></i>
                             </div>
                         </div>
                     </div>
@@ -223,7 +225,7 @@
                             <li>Inflation data from <a href = "https://fred.stlouisfed.org/graph/?g=Crzt">FRED</a>&nbsp;<i class="fa fa-external-link"></i>&nbsp</li>
                         </ul>
                         <!--version-->
-                        <p id="version">v1.11.4 9/11/2021</p>
+                        <p id="version">v1.12 22/11/2021</p>
                     </div>
                 </div>
                 
