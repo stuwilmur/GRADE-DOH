@@ -625,6 +625,20 @@ function setupMenus(countries, outcomes) {
     fileElem = document.getElementById("fileElem");
 
     fileElem.addEventListener("change", handleRevenueCsv, false);
+
+    function convertPropsToUpperCase(d) {
+        Object.keys(d).forEach(function(origProp) {
+          var upperCaseProp = origProp.toLocaleUpperCase();
+          // if the uppercase and the original property name differ
+          // save the value associated with the original prop
+          // into the uppercase prop and delete the original one
+          if (upperCaseProp !== origProp) {
+            d[upperCaseProp] = d[origProp];
+            delete d[origProp];
+          }
+        });
+        return d;
+      }
     
     function handleRevenueCsv() {
         
@@ -634,6 +648,8 @@ function setupMenus(countries, outcomes) {
         function typeAndSetRevenue(d) {
     
             var e = {}
+
+            d = convertPropsToUpperCase(d)
             
             e.year   = +d.YEAR;
             e.REVENUE = str2Num(d.REVENUE);
