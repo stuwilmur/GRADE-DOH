@@ -19,6 +19,7 @@ var pcGovRev = 0;
 var year = 2002;
 var years_to_project = 10;
 var governance = 0;
+var governanceModel = "EXOGENOUS"
 var target = 100;
 var country = "$-ALL";
 var method = "absolute";
@@ -135,6 +136,7 @@ var config = {
 
 var popdata = new PopData();
 var revdata = new PopData();
+var fixdata = new PopData();
 revdata.nestdata("");
 
 function dataHasCountry(_cid){
@@ -854,7 +856,7 @@ function updateLegend() {
         .html(theOutcome.desc);
 }
 
-function loaded(error, countries, _popdata, _gdpdef) {
+function loaded(error, countries, _popdata, _gdpdef, _fixedeffects) {
     /*
     // used to handle non-fixed variable extents - to be updated if required
     outcomesMap.forEach(function (v, k) {
@@ -871,6 +873,7 @@ function loaded(error, countries, _popdata, _gdpdef) {
     initModal();
     
     popdata.nestdata(_popdata); // create the popdata object
+    fixdata.nestdata(_fixedeffects); // create the fixdata object
     
     var theOutcome = outcomesMap.get(outcome)
     colorScale.domain(theOutcome.hasOwnProperty("fixedExtent") ? theOutcome.fixedExtent : theOutcome.extent);

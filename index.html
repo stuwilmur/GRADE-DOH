@@ -221,11 +221,12 @@
                         <ul>
                             <li><a href="BASE%20data.xlsx" class = "button"><i class="fa fa-download"></i>&nbsp;Excel (including notes on data)</a></li>
                             <li><a href="BASE%20data.csv" class = "button"><i class="fa fa-download"></i>&nbsp;CSV</a></li>
+                            <li><a href="fixed%20effects%20formatted.csv" class = "button"><i class="fa fa-download"></i>&nbsp;Fixed effects for GRD model</a></li>
                             <li>Map data from <a href = "https://www.naturalearthdata.com/">Natural Earth</a>&nbsp<i class="fa fa-external-link"></i>&nbsp</li>
                             <li>Inflation data from <a href = "https://fred.stlouisfed.org/graph/?g=Crzt">FRED</a>&nbsp;<i class="fa fa-external-link"></i>&nbsp</li>
                         </ul>
                         <!--version-->
-                        <p id="version">v1.12.1 2021/11/08</p>
+                        <p id="version">v2.1.1 2022/01/29</p>
                     </div>
                 </div>
                 
@@ -494,6 +495,7 @@
                 .defer(d3.json, "countries.json")
                 .defer(d3.csv, "BASE data.csv", typeAndSetPopulation)
                 .defer(d3.csv, "GDPDEF.csv", typeAndSetDeflator)
+                .defer(d3.csv, "fixed effects formatted.csv", typeAndSetFixedEffects)
                 .await(loaded);
 
         </script>

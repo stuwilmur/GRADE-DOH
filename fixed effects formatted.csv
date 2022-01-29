@@ -1,4 +1,4 @@
-country,year,countrycode,eqgmmcoruption_efct,eqgmmgoveff_efct,eqgmmpolstab_efct,eqgmmregqual_efct,eqgmmrulelaw_efct
+countryname,year,countrycode,eqgmmcoruption_efct,eqgmmgoveff_efct,eqgmmpolstab_efct,eqgmmregqual_efct,eqgmmrulelaw_efct
 Aruba,1980,ABW,0.2691088743,0.2635238163,0.273059549,0.06190288926,0.1561443902
 Aruba,1981,ABW,0.2691088743,0.2635238163,0.273059549,0.06190288926,0.1561443902
 Aruba,1982,ABW,0.2691088743,0.2635238163,0.273059549,0.06190288926,0.1561443902
