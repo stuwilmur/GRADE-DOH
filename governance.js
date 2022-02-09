@@ -75,12 +75,14 @@ var govMeasures = new Map([
 ]);
 
 //!! TODO: don't pass in _d, compute from popdata.
-function getGov(_type, _d, _gov) {
+function getGov(_type, _iso, _year, _gov) {
     var x = NaN
     if (_gov > -100) // Governance of -100 is a flag to use the endogenous model
     {
+        var pop = popdata.getrow(_iso, _year);
+        if (!pop) return NaN;
         // Exogenous governance model
-        x = _d[_type] + (govMeasures.get(_type).positive == true ? _gov : -_gov);
+        x = pop[_type] + (govMeasures.get(_type).positive == true ? _gov : -_gov);
     }
     else
     {

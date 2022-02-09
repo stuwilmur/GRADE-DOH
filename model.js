@@ -20,16 +20,16 @@ var outcomesList = [
                     [22, 108.3361],
                     [24, 247.8044]
                 ]),
-            fn :    function(_grpc, _pop, _gov) {
-                g = _type => getGov(_type, _pop, _gov);
+            fn : function(_grpc, _iso, _year, _gov) {
+                g = _type => getGov(_type, _iso, _year, _gov);
                 var l = this.coeffs;
                 var res = 100 / (1 + Math.exp(-(C(l, 1) + C(l, 12) * g("POLSTAB") + C(l, 14) * g("RULELAW") +
                 C(l, 15) * g("GOVEFFECT")) * (_grpc - (C(l, 2) + C(l, 22) * g("POLSTAB") + C(l, 24) *
                 g("RULELAW")))));
                 return res;
                 },
-            inv_fn : function(_target, _pop, _gov) {
-                g = _type => getGov(_type, _pop, _gov);
+            inv_fn : function(_target, _iso, _year, _gov) {
+                g = _type => getGov(_type, _iso, _year, _gov);
                 var l = this.coeffs;
                 var A = -(C(l, 1) + C(l, 12) * g("POLSTAB") + C(l, 14) * g("RULELAW") +
                 C(l, 15) * g("GOVEFFECT"));
@@ -64,8 +64,8 @@ var outcomesList = [
                     [25, 143.7995],
                     [26, 168.7410]
                 ]),
-            fn :    function(_grpc, _pop, _gov) {
-                g = _type => getGov(_type, _pop, _gov);
+            fn :    function(_grpc, _iso, _year, _gov) {
+                g = _type => getGov(_type, _iso, _year, _gov);
                 var l = this.coeffs;
                 var res = 100 / (1 + Math.exp(-(C(l, 1) + C(l, 11) * g("CORRUPTION") + 0 * g("POLSTAB") + 0 *
                 g("REGQUALITY") + C(l, 14) * g("RULELAW") + C(l, 15) * g("GOVEFFECT") + C(l, 16) * g("VOICE")) *
@@ -73,8 +73,8 @@ var outcomesList = [
                 g("REGQUALITY") + 0 * g("RULELAW") + C(l, 25) * g("GOVEFFECT") + C(l, 26) * g("VOICE")))));
                 return res;
             },
-            inv_fn :   function(_target, _pop, _gov) {
-                g = _type => getGov(_type, _pop, _gov);
+            inv_fn :   function(_target, _iso, _year, _gov) {
+                g = _type => getGov(_type, _iso, _year, _gov);
                 var l = this.coeffs;
                 var A = -(C(l, 1) + C(l, 11) * g("CORRUPTION") + 0 * g("POLSTAB") + 0 *
                 g("REGQUALITY") + C(l, 14) * g("RULELAW") + C(l, 15) * g("GOVEFFECT") + C(l, 16) * g("VOICE"))
@@ -111,8 +111,8 @@ var outcomesList = [
                     [25, -351.7824],
                     [26, 254.2561]
                 ]),
-            fn :    function(_grpc, _pop, _gov) { 
-                g = _type => getGov(_type, _pop, _gov);
+            fn :    function(_grpc, _iso, _year, _gov) { 
+                g = _type => getGov(_type, _iso, _year, _gov);
                 var l = this.coeffs;
                 res = 100 / (1 + Math.exp(-(C(l, 1) + C(l, 11) * g("CORRUPTION") + C(l, 12) * g("POLSTAB") +
                 C(l, 13) * g("REGQUALITY") + C(l, 14) * g("RULELAW") + C(l, 15) * g("GOVEFFECT") + C(l, 16) *
@@ -120,8 +120,8 @@ var outcomesList = [
                 C(l, 23) * g("REGQUALITY") + 0 * g("RULELAW") + C(l, 25) * g("GOVEFFECT") + C(l, 26) * g("VOICE")))));
                 return res;
             },
-            inv_fn : function(_target, _pop, _gov) {
-                g = _type => getGov(_type, _pop, _gov);
+            inv_fn : function(_target, _iso, _year, _gov) {
+                g = _type => getGov(_type, _iso, _year, _gov);
                 var l = this.coeffs;
                 var A = -(C(l, 1) + C(l, 11) * g("CORRUPTION") + C(l, 12) * g("POLSTAB") +
                 C(l, 13) * g("REGQUALITY") + C(l, 14) * g("RULELAW") + C(l, 15) * g("GOVEFFECT") + C(l, 16) *
@@ -158,8 +158,8 @@ var outcomesList = [
                     [25, -4314.271],
                     [26, 2870.706]
                 ]),
-            fn :    function(_grpc, _pop, _gov) {
-                g = _type => getGov(_type, _pop, _gov);
+            fn :    function(_grpc, _iso, _year, _gov) {
+                g = _type => getGov(_type, _iso, _year, _gov);
                 var l = this.coeffs;
                 var res = 100 / (1 + Math.exp(-(C(l, 1) + C(l, 11) * g("CORRUPTION") + 0 * g("POLSTAB") + C(l, 13) *
                 g("REGQUALITY") + 0 * g("RULELAW") + 0 * g("GOVEFFECT") + C(l, 16) * g("VOICE")) *
@@ -167,8 +167,8 @@ var outcomesList = [
                 g("REGQUALITY") + C(l, 24) * g("RULELAW") + C(l, 25) * g("GOVEFFECT") + C(l, 26) * g("VOICE")))));
                 return res;
             },
-            inv_fn : function(_target, _pop, _gov){
-                g = _type => getGov(_type, _pop, _gov);
+            inv_fn : function(_target, _iso, _year, _gov){
+                g = _type => getGov(_type, _iso, _year, _gov);
                 var l = this.coeffs;
                 var A = -(C(l, 1) + C(l, 11) * g("CORRUPTION") + 0 * g("POLSTAB") + C(l, 13) *
                 g("REGQUALITY") + 0 * g("RULELAW") + 0 * g("GOVEFFECT") + C(l, 16) * g("VOICE"))
@@ -200,8 +200,8 @@ var outcomesList = [
                     [24, 8537.920],
                     [25, -17828.86]
                 ]),
-            fn :    function(_grpc, _pop, _gov) { 
-                g = _type => getGov(_type, _pop, _gov);
+            fn :    function(_grpc, _iso, _year, _gov) { 
+                g = _type => getGov(_type, _iso, _year, _gov);
                 var l = this.coeffs;
                 var res = 100 / (1 + Math.exp(-(C(l, 1) + 0 * g("CORRUPTION") + C(l, 12) * g("POLSTAB") + 0 *
                 g("REGQUALITY") + 0 * g("RULELAW") + C(l, 15) * g("GOVEFFECT") + C(l, 16) * g("VOICE")) *
@@ -209,8 +209,8 @@ var outcomesList = [
                 g("REGQUALITY") + C(l, 24) * g("RULELAW") + C(l, 25) * g("GOVEFFECT") + 0 * g("VOICE")))));
                 return res;
             },
-            inv_fn : function(_target, _pop, _gov){
-                g = _type => getGov(_type, _pop, _gov);
+            inv_fn : function(_target, _iso, _year, _gov){
+                g = _type => getGov(_type, _iso, _year, _gov);
                 var l = this.coeffs;
                 var A = -(C(l, 1) + 0 * g("CORRUPTION") + C(l, 12) * g("POLSTAB") + 0 *
                 g("REGQUALITY") + 0 * g("RULELAW") + C(l, 15) * g("GOVEFFECT") + C(l, 16) * g("VOICE"))
@@ -244,8 +244,8 @@ var outcomesList = [
                     [26, 389.563410216]
          
                 ]),
-            fn : function(_grpc, _pop, _gov) {
-                g = _type => getGov(_type, _pop, _gov);
+            fn : function(_grpc, _iso, _year, _gov) {
+                g = _type => getGov(_type, _iso, _year, _gov);
                 var l = this.coeffs;
                 var res = 100 / (1 + Math.exp(-(C(l, 1) + 0 * g("CORRUPTION") + C(l, 12) * g("POLSTAB") 
                 + 0 * g("REGQUALITY") + 0 * g("RULELAW") + C(l, 15) * g("GOVEFFECT") + C(l, 16) * g("VOICE")) 
@@ -253,8 +253,8 @@ var outcomesList = [
                 * g("REGQUALITY") + 0 * g("RULELAW") + C(l, 25) * g("GOVEFFECT") + C(l, 26) * g("VOICE")))));
                 return res;
             },
-            inv_fn : function(_target, _pop, _gov){
-                g = _type => getGov(_type, _pop, _gov);
+            inv_fn : function(_target, _iso, _year, _gov){
+                g = _type => getGov(_type, _iso, _year, _gov);
                 var l = this.coeffs;
                 var A = -(C(l, 1) + 0 * g("CORRUPTION") + C(l, 12) * g("POLSTAB") 
                 + 0 * g("REGQUALITY") + 0 * g("RULELAW") + C(l, 15) * g("GOVEFFECT") + C(l, 16) * g("VOICE"))
@@ -290,8 +290,8 @@ var outcomesList = [
                      [25, 488.294796998],
                      [26, 451.468766258]
                 ]),
-            fn :    function(_grpc, _pop, _gov) { 
-                g = _type => getGov(_type, _pop, _gov);
+            fn :    function(_grpc, _iso, _year, _gov) { 
+                g = _type => getGov(_type, _iso, _year, _gov);
                 var l = this.coeffs;
                 var res = 95 + (100 - 95) / (1 + Math.exp(-(C(l, 1) + C(l, 11) * g("CORRUPTION") 
                 + C(l, 12) * g("POLSTAB") + 0 * g("REGQUALITY") + C(l, 14) * g("RULELAW") + C(l, 15) * g("GOVEFFECT") 
@@ -299,8 +299,8 @@ var outcomesList = [
                 + C(l, 23) * g("REGQUALITY") + C(l, 24) * g("RULELAW") + C(l, 25) * g("GOVEFFECT") + C(l, 26) * g("VOICE")))));
                 return res;
             },
-            inv_fn : function(_target, _pop, _gov){
-                g = _type => getGov(_type, _pop, _gov);
+            inv_fn : function(_target, _iso, _year, _gov){
+                g = _type => getGov(_type, _iso, _year, _gov);
                 var l = this.coeffs;
                 var A = -(C(l, 1) + C(l, 11) * g("CORRUPTION") 
                 + C(l, 12) * g("POLSTAB") + 0 * g("REGQUALITY") + C(l, 14) * g("RULELAW") + C(l, 15) * g("GOVEFFECT") 
@@ -326,14 +326,14 @@ var outcomesList = [
                     [2, -25232.71],
                     [21, -8328.613]
                 ]),
-            fn : function(_grpc, _pop, _gov){
-                g = _type => getGov(_type, _pop, _gov);
+            fn : function(_grpc, _iso, _year, _gov){
+                g = _type => getGov(_type, _iso, _year, _gov);
                 var l = this.coeffs;
                 var res = 100 / (1 + Math.exp(-(C(l, 1) + C(l, 11) * g("POLSTAB")) * (_grpc - (C(l, 2) + C(l, 21) * g("POLSTAB")))));
                 return res;
             },
-            inv_fn : function(_target, _pop, _gov){
-                g = _type => getGov(_type, _pop, _gov);
+            inv_fn : function(_target, _iso, _year, _gov){
+                g = _type => getGov(_type, _iso, _year, _gov);
                 var l = this.coeffs;
                 var A = -(C(l, 1) + C(l, 11) * g("POLSTAB"))
                 var B = (C(l, 2) + C(l, 21) * g("POLSTAB"))
@@ -351,30 +351,28 @@ function C(_coeffs, index) {
 }
 
 function computegovernance(_iso, _year, _gov) {
-    var pop = popdata.getrow(_iso, _year);
-    if (!pop) return NaN;
     var ret = new Map();
     govMeasures.forEach(function (measure, govtype) {
         ret.set(govtype, {
             desc: measure.desc,
-            value: getGov(govtype, pop, _gov)
+            value: getGov(govtype, _iso, _year, _gov)
         });
     })
     return ret;
 }
 
 function compute(_iso, _year, _outcome, _grpc, _gov) {
-    var pop = popdata.getrow(_iso, _year);
-    if (!pop) return NaN;
+    //var pop = popdata.getrow(_iso, _year);
+    //if (!pop) return NaN;
 
-    return outcomesMap.get(_outcome).fn(_grpc, pop, _gov);
+    return outcomesMap.get(_outcome).fn(_grpc, _iso, _year, _gov);
 }
 
 function compute_inv(_iso, _year, _outcome, _target, _gov) {
     var pop = popdata.getrow(_iso, _year);
     if (!pop) return NaN;
 
-    return outcomesMap.get(_outcome).inv_fn(_target, pop, _gov);
+    return outcomesMap.get(_outcome).inv_fn(_target, _iso, _year, _gov);
 }
 
 function computeTarget(_iso, _year, _outcome, _target, _grpcOrig)
