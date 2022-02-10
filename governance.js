@@ -74,7 +74,6 @@ var govMeasures = new Map([
     }],
 ]);
 
-//!! TODO: don't pass in _d, compute from popdata.
 function getGov(_type, _iso, _year, _gov) {
     var x = NaN
     if (_gov > -100) // Governance of -100 is a flag to use the endogenous model
@@ -86,7 +85,10 @@ function getGov(_type, _iso, _year, _gov) {
     }
     else
     {
-        x = 0; //!! TODO
+        pop_this = popdata.getrow(_iso, _year)
+        pop_prev = popdata.getrow(_iso, _year - 1)
+        if (!pop_this || !pop_prev) return NaN;
+        x = pop_this[_type] + govMeasures.get(_type).fn(pop_this, pop_prev)
     }
     var limited = Math.min(Math.max(-2.5, x), 2.5)
     return limited;

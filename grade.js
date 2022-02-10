@@ -437,6 +437,7 @@ function setupMenus(countries, outcomes) {
         d3.select('#yearslider').property('value', year);
         d3.select('#yearsProjectVal').property('value', years_to_project);
         d3.select('#govVal').property('value', governance);
+        //!! RADIO
         
         
         // individual governance sliders
@@ -621,6 +622,11 @@ function setupMenus(countries, outcomes) {
     d3.selectAll(".colourscheme").on("input", function (d) {
         ccolor = this.value;
         //updateLegend();
+        mainUpdate();
+    });
+
+    d3.selectAll("input[name='governance model']").on("change", function(){
+        governanceModel = this.value;
         mainUpdate();
     });
 
