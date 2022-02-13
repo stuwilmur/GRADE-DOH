@@ -195,7 +195,7 @@ function makeText2(_year, _iso, _outcome, _years_to_project, _revenue)
     var text = "";
     text = text 
         + "<h1 class='tooltip'> " +  countrycodes.get(_iso) + "</h1>"
-        + "<br/><strong>Projection for " + year + " - " + end_year + "</strong>"
+        + "<br/><strong>Projection for " + _year + " - " + end_year + "</strong>"
     
     
     if (projection.error){
@@ -247,7 +247,7 @@ function makeText(_iso, _year, _revenue) {
     }
     var text = "";
     text = text + "<h1 class='tooltip'> " +  countrycodes.get(_iso) + "</h1>" +
-    "<br/><strong>" + year + "</strong>" +
+    "<br/><strong>" + _year + "</strong>" +
     "<br/>Current Gov. rev. per capita: <span class = 'ar'>$" + d3.format(",")(revenues["historical grpc"].toFixed(2)) + "</span>" +
     "<br/>New Gov. rev. per capita: <span class = 'ar'>$" + d3.format(",")(revenues["new grpc"].toFixed(2)) + "</span>" +
     "<br/>Increase in Gov. rev. per capita: <span class = 'ar'>" + (revenues["percentage increase"] * 100).toFixed(2) + "%</span>" 
@@ -805,7 +805,7 @@ function download_csv(_year, _years_to_project, _countries, _outcome, _revenue) 
     }
     var final_year = getProjectionEnd(_year, _years_to_project);
     var csvdata = getProjectionCSVData(_year, _countries, _outcome, _years_to_project, _revenue);
-    var button_title =  year + "-" + final_year + ".csv";
+    var button_title =  _year + "-" + final_year + ".csv";
     if (_countries.length == 1)
     {
         button_title = _countries[0] + "_" + button_title;
