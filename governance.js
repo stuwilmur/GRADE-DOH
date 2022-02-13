@@ -75,14 +75,20 @@ var govMeasures = new Map([
 
 function getGov(_type, _iso, _year, _gov) {
     var x = NaN
-    if (_gov > -100) //!! Governance of -100 is a flag to use the endogenous model
+    if (_gov.model == "EXOGENOUS")
     {
         var pop = popdata.getrow(_iso, _year);
         if (!pop) return NaN;
         // Exogenous governance model
-        x = pop[_type] + (govMeasures.get(_type).positive == true ? _gov : -_gov);
+        x = pop[_type] + (govMeasures.get(_type).positive == true ? _gov.value : -_gov.value);
     }
-    else
+    else if (_gov.model == null)
+    {
+        var pop = popdata.getrow(_iso, _year);
+        if (!pop) return NaN;
+        x = pop[_type]
+    }
+    else // ENDOGENOUS
     {
         current_gov_measure = popdata.getvalue(_iso, _year, _type, true);
         previous_gov_measure = popdata.getvalue(_iso, _year - 1, _type, true);

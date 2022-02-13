@@ -379,7 +379,7 @@ function computeTarget(_iso, _year, _outcome, _target, _grpcOrig)
 {
     // n.b. this calculation ignores changes in governance
 
-    var fitted = compute(_iso, _year, _outcome, _grpcOrig, 0)
+    var fitted = compute(_iso, _year, _outcome, _grpcOrig, {model: null})
     var bInterp = (outcomesMap.get(_outcome)).isInterpolated;
     var original = popdata.getvalue(_iso, _year, _outcome, bInterp);
     var residual = original - fitted;
@@ -401,7 +401,7 @@ function computeTarget(_iso, _year, _outcome, _target, _grpcOrig)
     }  
 
     // n.b. outcome = f(grpc) + residual => grpc = f^-1(outcome - residual)
-    var target_grpc = compute_inv(_iso, _year, _outcome, _target - residual, 0);
+    var target_grpc = compute_inv(_iso, _year, _outcome, _target - residual, {model: null});
     if (isNaN(target_grpc) || !isFinite(target_grpc)){
         var outcome_name = (outcomesMap.get(_outcome)).name;
         var errs = ["Unable to calculate " + outcome_name + ": target may be out of achievable range"];
@@ -471,7 +471,7 @@ function computeSpecialResults(_iso, _year, _outcome, _improved, _original, _add
 
 function computeResult(_iso, _year, _outcome, _grpc, _grpcOrig, _govImprovement, _epsilon = 0) {
  
-    var fitted = compute(_iso, _year, _outcome, _grpcOrig, 0)
+    var fitted = compute(_iso, _year, _outcome, _grpcOrig, {model : null})
     var bInterp = (outcomesMap.get(_outcome)).isInterpolated;
     var original = popdata.getvalue(_iso, _year, _outcome, bInterp);
     

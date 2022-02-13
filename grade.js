@@ -158,8 +158,19 @@ function getRevenueInputs(){
     return e;
 }
 
-function getColor(_cid, _year, _revenue) {
-    var value = getResult(_cid, _year, _revenue);
+function getGovernanceInputs(){
+    // utility function to bundle the various governance model variables into an object
+    e =
+    {
+        value : governance,
+        model : governanceModel
+    }
+
+    return e;
+}
+
+function getColor(_cid, _year, _revenue, _governance) {
+    var value = getResult(_cid, _year, _revenue, _governance);
     var incomelevel = popdata.getstring(_cid, _year, "incomelevel");
     
     if (!isNaN(value)) {
@@ -187,13 +198,13 @@ function getColor(_cid, _year, _revenue) {
     }
 }
 
-function makeText2(_year, _iso, _outcome, _years_to_project, _revenue)
+function makeText2(_year, _iso, _outcome, _years_to_project, _revenue, _governance)
 {
     // accompanies makeText() (which does the instantaneous calculation)
     // as version that is specific to the projection.
     
     var end_year = getProjectionEnd(_year, _years_to_project)
-    var projection = calcProjection(_year, _iso, _outcome, _years_to_project, _revenue)
+    var projection = calcProjection(_year, _iso, _outcome, _years_to_project, _revenue, _governance)
     var text = "";
     text = text 
         + "<h1 class='tooltip'> " +  countrycodes.get(_iso) + "</h1>"
@@ -236,13 +247,13 @@ function makeText2(_year, _iso, _outcome, _years_to_project, _revenue)
     return text;
 }
 
-function makeText(_iso, _year, _revenue) {
+function makeText(_iso, _year, _revenue, _governance) {
     var revenues = getRevenue(_iso, _year, _revenue);
     if (revenues === undefined)
     {
         return "<strong>" + countrycodes.get(_iso) + "<\/strong>" + ": No GRPC data available";
     }
-    var result = computeResult(_iso, _year, outcome, revenues["new grpc"], revenues["historical grpc"], governance);
+    var result = computeResult(_iso, _year, outcome, revenues["new grpc"], revenues["historical grpc"], _governance);
     if (result.error)
     {
         return "<strong>" + countrycodes.get(_iso) + "<\/strong>" + ": " + result.error.join("<br>");
@@ -347,24 +358,24 @@ function getPrefixValue(p) {
         return 1;
 }
 
-function getText(_d, _bProjection, _revenue) {
+function getText(_d, _bProjection, _revenue, _year, _governance) {
     if (_d.id.slice(0, 2) == "$-") {
         return "";
     }
 
     if (_bProjection) {
-        return makeText2(+year, _d.id, outcome, +years_to_project, _revenue);
+        return makeText2(_year, _d.id, outcome, +years_to_project, _revenue, _governance);
     } else {
-        return makeText(_d.id, year, _revenue)
+        return makeText(_d.id, _year, _revenue, _governance)
     }
 }
 
-function getResult(_cid, _year, _revenue) {
+function getResult(_cid, _year, _revenue, _governance) {
         var revenues = getRevenue(_cid, _year, _revenue);
         if (revenues === undefined)
             {return NaN;}
         var result = computeResult(_cid, _year, outcome,
-            revenues["new grpc"], revenues["historical grpc"], governance);
+            revenues["new grpc"], revenues["historical grpc"], _governance);
         if (result.error)
             {return NaN;}
         return result.improved;
@@ -697,7 +708,7 @@ function colourCountries() {
     svg.selectAll('path.countries').transition()
         .duration(transitionTime)
         .attr('fill', function (d) {
-            return getColor(d.id, year, getRevenueInputs());
+            return getColor(d.id, +year, getRevenueInputs(), getGovernanceInputs());
         })
 }
 
@@ -706,7 +717,7 @@ function updateCountries() {
         "id": country
     };
     if (true){ // set true to show instantaneous box
-        var text = getText(d, true, getRevenueInputs());
+        var text = getText(d, true, getRevenueInputs(), +year, getGovernanceInputs());
         d3.select("#countrytext").
         html(text);
         d3.select("#countrydata")
@@ -729,7 +740,7 @@ function updateplot() {
         d3.select("#plotwrapper").style("display", "none");
         //d3.select("#ploterror").style("display", "none"); //!! remove
     } else {
-        var plotdata = getProjectionData(+year, country, outcome, +years_to_project, getRevenueInputs());
+        var plotdata = getProjectionData(+year, country, outcome, +years_to_project, getRevenueInputs(), getGovernanceInputs());
         
         if (plotdata.error){
             d3.select("#plotwrapper").style("display", "none");
@@ -800,13 +811,13 @@ function updatetarget(){
     .html(text);
 }
 
-function download_csv(_year, _years_to_project, _countries, _outcome, _revenue) {
+function download_csv(_year, _years_to_project, _countries, _outcome, _revenue, _governance) {
     if (_countries.length < 1)
     {
         return ["No countries selected",];
     }
     var final_year = getProjectionEnd(_year, _years_to_project);
-    var csvdata = getProjectionCSVData(_year, _countries, _outcome, _years_to_project, _revenue);
+    var csvdata = getProjectionCSVData(_year, _countries, _outcome, _years_to_project, _revenue, _governance);
     var button_title =  _year + "-" + final_year + ".csv";
     if (_countries.length == 1)
     {
@@ -830,7 +841,7 @@ function download_csv(_year, _years_to_project, _countries, _outcome, _revenue) 
 }
 
 function download_csv_plot(){
-    download_csv(+year, +years_to_project, [country,], outcome, getRevenueInputs());
+    download_csv(+year, +years_to_project, [country,], outcome, getRevenueInputs(), getGovernanceInputs());
 }
 
 function download_csv_multi(){
@@ -850,7 +861,7 @@ function download_csv_multi(){
         }
     });
 
-    var error = download_csv(+year, +years_to_project, countries_to_export.sort(), outcome, getRevenueInputs());
+    var error = download_csv(+year, +years_to_project, countries_to_export.sort(), outcome, getRevenueInputs(), getGovernanceInputs());
     if (error){
         d3.select("#multicountryerror")
         .html(error.join("<br />"));
@@ -921,11 +932,11 @@ function loaded(error, _countries, _popdata, _gdpdef, _fixedeffects) {
         .attr('d', path)
         .on("click", clicked)
         .attr('fill', function (d, i) {
-            return getColor(d.id, year, getRevenueInputs());
+            return getColor(d.id, year, getRevenueInputs(), getGovernanceInputs());
         })
         .call(d3.helper.tooltip(
             function (d, i) {
-                return getText(d, false, getRevenueInputs());
+                return getText(d, false, getRevenueInputs(), +year, getGovernanceInputs());
             })); // tooltip based on an example from Roger Veciana: http://bl.ocks.org/rveciana/5181105    
 
     svg2.append("g")
