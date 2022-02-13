@@ -1,6 +1,6 @@
 const years_to_wait = 5;
 
-function getProjectionData(_firstyear, _country, _outcome, _years_to_project) {
+function getProjectionData(_firstyear, _country, _outcome, _years_to_project, _revenue) {
     // Takes a baseline year an increase in revenue, and calculates the corresponding % increase in grpc:
     // projects this by: allowing five years for increased revenue to act, where there is no effect;
     // applying the percentage increase for all remaining years (up to a total of years_to_project years). 
@@ -8,7 +8,7 @@ function getProjectionData(_firstyear, _country, _outcome, _years_to_project) {
     var ret = { data: [], error: null, years_of_effect: 0 };
     var grpcPcIncrease = 0;
     for (y = _firstyear; y < popdata.lastyear && ((y - _firstyear) <= _years_to_project); y++) {
-        var revenues = getRevenue(_country, y, method);
+        var revenues = getRevenue(_country, y, method, _revenue);
         if (revenues === undefined) {
             if (ret.error === null) { ret.error = []; }
             ret.error.push("GRPC not available for " + y);
@@ -46,7 +46,7 @@ function getProjectionData(_firstyear, _country, _outcome, _years_to_project) {
     return (ret);
 }
 
-function getProjectionCSVData(_year, _countries, _outcome, _years_to_project)
+function getProjectionCSVData(_year, _countries, _outcome, _years_to_project, _revenue)
 {
     var header = "country,iso,year";
     var ret = {str : null, errors : null};
@@ -55,7 +55,7 @@ function getProjectionCSVData(_year, _countries, _outcome, _years_to_project)
     {
         var body = "";
         var _country = _countries[i];
-        var plotdata = getProjectionData(_year, _country, _outcome, _years_to_project);
+        var plotdata = getProjectionData(_year, _country, _outcome, _years_to_project, _revenue);
 
         if (plotdata.error) {
             if (ret.errors === null){
@@ -99,12 +99,12 @@ function getProjectionCSVData(_year, _countries, _outcome, _years_to_project)
     return ret;
 }
 
-function calcProjection(_year, _country, _outcome, _years_to_project)
+function calcProjection(_year, _country, _outcome, _years_to_project, _revenue)
 {
     // calculate the totals of projected effects for flow variables, and the
     // averages for stock variables.
     var ret = {data : null, error : null};
-    var plotdata = getProjectionData(_year, _country, _outcome, _years_to_project);
+    var plotdata = getProjectionData(_year, _country, _outcome, _years_to_project, _revenue);
     
     if (plotdata.error){
         ret.error = plotdata.error;

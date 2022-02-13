@@ -144,8 +144,20 @@ function dataHasCountry(_cid){
     return (popdata.getrow(_cid, -1) !== undefined);
 }
 
-function getColor(_cid, _year, _method) {
-    var value = getResult(_cid, _year, _method);
+function getRevenueInputs(){
+    // utility function to bundle the various revenue variables into an object
+    e = 
+    {
+        govRevenue : govRevenue,
+        absGovRev : absGovRev,
+        pcGovRev : pcGovRev,
+    }
+
+    return e;
+}
+
+function getColor(_cid, _year, _method, _revenue) {
+    var value = getResult(_cid, _year, _method, _revenue);
     var incomelevel = popdata.getstring(_cid, _year, "incomelevel");
     
     if (!isNaN(value)) {
@@ -173,13 +185,13 @@ function getColor(_cid, _year, _method) {
     }
 }
 
-function makeText2(_year, _iso, _outcome, _years_to_project)
+function makeText2(_year, _iso, _outcome, _years_to_project, _revenue)
 {
     // accompanies makeText() (which does the instantaneous calculation)
     // as version that is specific to the projection.
     
     var end_year = getProjectionEnd(_year, _years_to_project)
-    var projection = calcProjection(_year, _iso, _outcome, _years_to_project)
+    var projection = calcProjection(_year, _iso, _outcome, _years_to_project, _revenue)
     var text = "";
     text = text 
         + "<h1 class='tooltip'> " +  countrycodes.get(_iso) + "</h1>"
@@ -192,7 +204,7 @@ function makeText2(_year, _iso, _outcome, _years_to_project)
         + projection.error.join("<br>"); 
     }
     else{
-        var revenues = getRevenue(_iso, _year, method);
+        var revenues = getRevenue(_iso, _year, method, _revenue);
         if (revenues === undefined)
         {
             // shouldn't happen as plotdata would give error
@@ -222,8 +234,8 @@ function makeText2(_year, _iso, _outcome, _years_to_project)
     return text;
 }
 
-function makeText(_iso, _year) {
-    var revenues = getRevenue(_iso, _year, method);
+function makeText(_iso, _year, _revenue) {
+    var revenues = getRevenue(_iso, _year, method, _revenue);
     if (revenues === undefined)
     {
         return "<strong>" + countrycodes.get(_iso) + "<\/strong>" + ": No GRPC data available";
@@ -275,12 +287,12 @@ function makeText(_iso, _year) {
     return text;
 }
 
-function makeTextTarget(_year, _iso, _outcome, _target){
+function makeTextTarget(_year, _iso, _outcome, _target, _revenue){
     if (_iso.slice(0,1) == "$")
     {
         return "No country selected";
     }
-    var revenues = getRevenue(_iso, _year, method);
+    var revenues = getRevenue(_iso, _year, method, _revenue);
     if (revenues === undefined)
     {
         return "<strong>" + countrycodes.get(_iso) + "<\/strong>" + ": No GRPC data available";
@@ -333,20 +345,20 @@ function getPrefixValue(p) {
         return 1;
 }
 
-function getText(d, _bProjection = false) {
-    if (d.id.slice(0, 2) == "$-") {
+function getText(_d, _bProjection, _revenue) {
+    if (_d.id.slice(0, 2) == "$-") {
         return "";
     }
 
     if (_bProjection) {
-        return makeText2(+year, d.id, outcome, +years_to_project);
+        return makeText2(+year, _d.id, outcome, +years_to_project, _revenue);
     } else {
-        return makeText(d.id, year)
+        return makeText(_d.id, year, _revenue)
     }
 }
 
-function getResult(_cid, _year, _method) {
-        var revenues = getRevenue(_cid, _year, _method);
+function getResult(_cid, _year, _method, _revenue) {
+        var revenues = getRevenue(_cid, _year, _method, _revenue);
         if (revenues === undefined)
             {return NaN;}
         var result = computeResult(_cid, _year, outcome,
@@ -356,7 +368,7 @@ function getResult(_cid, _year, _method) {
         return result.improved;
 }
 
-function setupMenus(countries, outcomes) {
+function setupMenus(_countries, _outcomes) {
     function initMenus(countries, outcomes) {
         countries.sort(function (a, b) {
             if (a.name < b.name) //sort string ascending
@@ -542,7 +554,7 @@ function setupMenus(countries, outcomes) {
         */
     }
 
-    initMenus(countries, outcomes);
+    initMenus(_countries, _outcomes);
     d3.select("#revenueVal").text(govRevenue);
     d3.select("#yearVal").text(year);
 
@@ -683,7 +695,7 @@ function colourCountries() {
     svg.selectAll('path.countries').transition()
         .duration(transitionTime)
         .attr('fill', function (d) {
-            return getColor(d.id, year, method);
+            return getColor(d.id, year, method, getRevenueInputs());
         })
 }
 
@@ -692,7 +704,7 @@ function updateCountries() {
         "id": country
     };
     if (true){ // set true to show instantaneous box
-        var text = getText(d, true);
+        var text = getText(d, true, getRevenueInputs());
         d3.select("#countrytext").
         html(text);
         d3.select("#countrydata")
@@ -715,7 +727,7 @@ function updateplot() {
         d3.select("#plotwrapper").style("display", "none");
         //d3.select("#ploterror").style("display", "none"); //!! remove
     } else {
-        var plotdata = getProjectionData(+year, country, outcome, +years_to_project);
+        var plotdata = getProjectionData(+year, country, outcome, +years_to_project, getRevenueInputs());
         
         if (plotdata.error){
             d3.select("#plotwrapper").style("display", "none");
@@ -781,18 +793,18 @@ function updateplot() {
 }
 
 function updatetarget(){
-    var text = makeTextTarget(+year, country, outcome, target, method);
+    var text = makeTextTarget(+year, country, outcome, target, method, getRevenueInputs());
     d3.select("#targetText")
     .html(text);
 }
 
-function download_csv(_year, _years_to_project, _countries, _outcome) {
+function download_csv(_year, _years_to_project, _countries, _outcome, _revenue) {
     if (_countries.length < 1)
     {
         return ["No countries selected",];
     }
     var final_year = getProjectionEnd(_year, _years_to_project);
-    var csvdata = getProjectionCSVData(_year, _countries, _outcome, _years_to_project);
+    var csvdata = getProjectionCSVData(_year, _countries, _outcome, _years_to_project, _revenue);
     var button_title =  year + "-" + final_year + ".csv";
     if (_countries.length == 1)
     {
@@ -816,7 +828,7 @@ function download_csv(_year, _years_to_project, _countries, _outcome) {
 }
 
 function download_csv_plot(){
-    download_csv(+year, +years_to_project, [country,], outcome);
+    download_csv(+year, +years_to_project, [country,], outcome, getRevenueInputs());
 }
 
 function download_csv_multi(){
@@ -836,7 +848,7 @@ function download_csv_multi(){
         }
     });
 
-    var error = download_csv(+year, +years_to_project, countries_to_export.sort(), outcome, method);
+    var error = download_csv(+year, +years_to_project, countries_to_export.sort(), outcome, method, getRevenueInputs());
     if (error){
         d3.select("#multicountryerror")
         .html(error.join("<br />"));
@@ -863,7 +875,7 @@ function updateLegend() {
         .html(theOutcome.desc);
 }
 
-function loaded(error, countries, _popdata, _gdpdef, _fixedeffects) {
+function loaded(error, _countries, _popdata, _gdpdef, _fixedeffects) {
     /*
     // used to handle non-fixed variable extents - to be updated if required
     outcomesMap.forEach(function (v, k) {
@@ -885,13 +897,13 @@ function loaded(error, countries, _popdata, _gdpdef, _fixedeffects) {
     var theOutcome = outcomesMap.get(outcome)
     colorScale.domain(theOutcome.hasOwnProperty("fixedExtent") ? theOutcome.fixedExtent : theOutcome.extent);
 
-    var countries = topojson.feature(countries, countries.objects.units).features;
-    countries.forEach(function(d) {countrycodes.set(d.id, d.properties.name)});
+    var _countries = topojson.feature(_countries, _countries.objects.units).features;
+    _countries.forEach(function(d) {countrycodes.set(d.id, d.properties.name)});
     
     var popcountries = popdata.nesteddata.map(function(d) { return {id : d.key, name : d.values[0].values[0].countryname}});
     popcountries.forEach(function(d) {countrycodes.set(d.id, d.name)});
     
-    c2 = new Set(countries.map( d => d.id));
+    c2 = new Set(_countries.map( d => d.id));
     c1 = new Set(popdata.nesteddata.map(d=> d.key));
     
     /*
@@ -900,18 +912,18 @@ function loaded(error, countries, _popdata, _gdpdef, _fixedeffects) {
     */
 
     svg.selectAll('path.countries')
-        .data(countries)
+        .data(_countries)
         .enter()
         .append('path')
         .attr('class', 'countries')
         .attr('d', path)
         .on("click", clicked)
         .attr('fill', function (d, i) {
-            return getColor(d.id, year, method);
+            return getColor(d.id, year, method, getRevenueInputs());
         })
         .call(d3.helper.tooltip(
             function (d, i) {
-                return getText(d);
+                return getText(d, false, getRevenueInputs());
             })); // tooltip based on an example from Roger Veciana: http://bl.ocks.org/rveciana/5181105    
 
     svg2.append("g")

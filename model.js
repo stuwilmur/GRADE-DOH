@@ -580,7 +580,7 @@ function typeAndSetFixedEffects(d){
     return e;
 }
 
-function getRevenue(_iso, _year, _method) {
+function getRevenue(_iso, _year, _method, _revenue) {
     var ret;    
     var grpercap = popdata.getvalue(_iso, _year, "GRPERCAP", true);
     var total_population = popdata.getvalue(_iso, _year, "Population, total");
@@ -605,7 +605,7 @@ function getRevenue(_iso, _year, _method) {
             }
         }
         else{
-            proportion_increase_grpc = govRevenue;
+            proportion_increase_grpc = _revenue.govRevenue;
         }
         var newAbsRev = (grpercap * (proportion_increase_grpc)) * total_population;
         var additionalPerCapita = grpercap * proportion_increase_grpc;
@@ -627,7 +627,7 @@ function getRevenue(_iso, _year, _method) {
             }
         }
         else{
-            additional_revenue_per_capita_dollars = pcGovRev;
+            additional_revenue_per_capita_dollars = _revenue.pcGovRev;
         }
         var newGRPC = grpercap + additional_revenue_per_capita_dollars;
         var newGovRev = newGRPC / grpercap - 1;
@@ -652,9 +652,8 @@ function getRevenue(_iso, _year, _method) {
             }
         }
         else{
-            additional_revenue_dollars = absGovRev;
+            additional_revenue_dollars = _revenue.absGovRev;
         }
-        absGovRev;
         var newGRPC = grpercap + additional_revenue_dollars / total_population;
         var newGovRev = newGRPC / grpercap - 1;
         var additionalPerCapita = additional_revenue_dollars / total_population;
