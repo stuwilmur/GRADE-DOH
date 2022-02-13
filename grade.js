@@ -151,13 +151,15 @@ function getRevenueInputs(){
         govRevenue : govRevenue,
         absGovRev : absGovRev,
         pcGovRev : pcGovRev,
+        method : method,
+        file_method : file_method
     }
 
     return e;
 }
 
-function getColor(_cid, _year, _method, _revenue) {
-    var value = getResult(_cid, _year, _method, _revenue);
+function getColor(_cid, _year, _revenue) {
+    var value = getResult(_cid, _year, _revenue);
     var incomelevel = popdata.getstring(_cid, _year, "incomelevel");
     
     if (!isNaN(value)) {
@@ -204,7 +206,7 @@ function makeText2(_year, _iso, _outcome, _years_to_project, _revenue)
         + projection.error.join("<br>"); 
     }
     else{
-        var revenues = getRevenue(_iso, _year, method, _revenue);
+        var revenues = getRevenue(_iso, _year, _revenue);
         if (revenues === undefined)
         {
             // shouldn't happen as plotdata would give error
@@ -235,7 +237,7 @@ function makeText2(_year, _iso, _outcome, _years_to_project, _revenue)
 }
 
 function makeText(_iso, _year, _revenue) {
-    var revenues = getRevenue(_iso, _year, method, _revenue);
+    var revenues = getRevenue(_iso, _year, _revenue);
     if (revenues === undefined)
     {
         return "<strong>" + countrycodes.get(_iso) + "<\/strong>" + ": No GRPC data available";
@@ -292,7 +294,7 @@ function makeTextTarget(_year, _iso, _outcome, _target, _revenue){
     {
         return "No country selected";
     }
-    var revenues = getRevenue(_iso, _year, method, _revenue);
+    var revenues = getRevenue(_iso, _year, _revenue);
     if (revenues === undefined)
     {
         return "<strong>" + countrycodes.get(_iso) + "<\/strong>" + ": No GRPC data available";
@@ -357,8 +359,8 @@ function getText(_d, _bProjection, _revenue) {
     }
 }
 
-function getResult(_cid, _year, _method, _revenue) {
-        var revenues = getRevenue(_cid, _year, _method, _revenue);
+function getResult(_cid, _year, _revenue) {
+        var revenues = getRevenue(_cid, _year, _revenue);
         if (revenues === undefined)
             {return NaN;}
         var result = computeResult(_cid, _year, outcome,
@@ -695,7 +697,7 @@ function colourCountries() {
     svg.selectAll('path.countries').transition()
         .duration(transitionTime)
         .attr('fill', function (d) {
-            return getColor(d.id, year, method, getRevenueInputs());
+            return getColor(d.id, year, getRevenueInputs());
         })
 }
 
@@ -793,7 +795,7 @@ function updateplot() {
 }
 
 function updatetarget(){
-    var text = makeTextTarget(+year, country, outcome, target, method, getRevenueInputs());
+    var text = makeTextTarget(+year, country, outcome, target, getRevenueInputs());
     d3.select("#targetText")
     .html(text);
 }
@@ -848,7 +850,7 @@ function download_csv_multi(){
         }
     });
 
-    var error = download_csv(+year, +years_to_project, countries_to_export.sort(), outcome, method, getRevenueInputs());
+    var error = download_csv(+year, +years_to_project, countries_to_export.sort(), outcome, getRevenueInputs());
     if (error){
         d3.select("#multicountryerror")
         .html(error.join("<br />"));
@@ -919,7 +921,7 @@ function loaded(error, _countries, _popdata, _gdpdef, _fixedeffects) {
         .attr('d', path)
         .on("click", clicked)
         .attr('fill', function (d, i) {
-            return getColor(d.id, year, method, getRevenueInputs());
+            return getColor(d.id, year, getRevenueInputs());
         })
         .call(d3.helper.tooltip(
             function (d, i) {

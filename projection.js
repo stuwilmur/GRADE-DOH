@@ -8,7 +8,7 @@ function getProjectionData(_firstyear, _country, _outcome, _years_to_project, _r
     var ret = { data: [], error: null, years_of_effect: 0 };
     var grpcPcIncrease = 0;
     for (y = _firstyear; y < popdata.lastyear && ((y - _firstyear) <= _years_to_project); y++) {
-        var revenues = getRevenue(_country, y, method, _revenue);
+        var revenues = getRevenue(_country, y, _revenue);
         if (revenues === undefined) {
             if (ret.error === null) { ret.error = []; }
             ret.error.push("GRPC not available for " + y);

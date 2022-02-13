@@ -580,7 +580,7 @@ function typeAndSetFixedEffects(d){
     return e;
 }
 
-function getRevenue(_iso, _year, _method, _revenue) {
+function getRevenue(_iso, _year, _revenue) {
     var ret;    
     var grpercap = popdata.getvalue(_iso, _year, "GRPERCAP", true);
     var total_population = popdata.getvalue(_iso, _year, "Population, total");
@@ -589,15 +589,15 @@ function getRevenue(_iso, _year, _method, _revenue) {
         return undefined;
     }
 
-    var method_to_use = _method;
-    if (_method == "file")
+    var method_to_use = _revenue.method;
+    if (_revenue.method == "file")
     {
-        method_to_use = file_method; //!! pass as arg in future
+        method_to_use = _revenue.file_method;
     }
     
     if (method_to_use == "percentage") {
         var proportion_increase_grpc
-        if (_method == "file"){
+        if (_revenue.method == "file"){
             proportion_increase_grpc = revdata.getvalue(_iso, _year, "REVENUE") / 100.0;
             if (isNaN(proportion_increase_grpc))
             {
@@ -619,7 +619,7 @@ function getRevenue(_iso, _year, _method, _revenue) {
         };
     } else if (method_to_use == "pc") {
         var additional_revenue_per_capita_dollars;
-        if (_method == "file"){
+        if (_revenue.method == "file"){
             additional_revenue_per_capita_dollars =  revdata.getvalue(_iso, _year, "REVENUE"); 
             if (isNaN(additional_revenue_per_capita_dollars))
             {
@@ -644,7 +644,7 @@ function getRevenue(_iso, _year, _method, _revenue) {
     else { // method "absolute"
 
         var additional_revenue_dollars
-        if (_method == "file"){
+        if (_revenue.method == "file"){
             additional_revenue_dollars = revdata.getvalue(_iso, _year, "REVENUE")  
             if (isNaN(additional_revenue_dollars))
             {
