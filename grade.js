@@ -29,6 +29,7 @@ var plottype = "population";
 var outcome = "SANITBASIC";
 var govtype = "GOVEFFECT";
 var multiplecountries = [];
+
 var selections = new Map([
     [
         "$-ALL",

@@ -570,7 +570,7 @@ function typeAndSetFixedEffects(d){
 
     e["countryname"]    = d["countryname"]
     e["year"]           = convertNumber(d["year"])
-    e["countrycode"]    = d["countrycode"]
+    e["ISO"]            = d["countrycode"]
     e["CORRUPTION"]     = convertNumber(d["eqgmmcoruption_efct"])
     e["GOVEFFECT"]      = convertNumber(d["eqgmmgoveff_efct"])
     e["POLSTAB"]        = convertNumber(d["eqgmmpolstab_efct"])
