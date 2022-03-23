@@ -289,13 +289,20 @@ function makeText(_iso, _year, _revenue, _governance) {
     }
 
     /*
-    var govtext = "";
-    result.gov.forEach(function (result, govmeasure) {
-        govtext = govtext + result.desc + ": <span class = 'ar'>" + result.value.toFixed(2) + "</span><br/>"
-    })
+     * Unused but leave commented: there is no "Delta" for an instantaneous change, as 
+     * the model depends on the Log of the previous revenue, but this code may be 
+     * useful in future so leave as is.
+    if (_governance.model == "ENDOGENOUS")
+    {
+        var govtext = "";
+        result.gov.forEach(function (result, govmeasure) {
+            govtext = govtext + result.desc + ": <span class = 'ar'>" + result.delta.toFixed(2) + "</span><br/>"
+        })
 
-    text = text + "<br/><br/><strong>Governance</strong><br/>" + govtext;
+        text = text + "<br/><br/><strong>Change in governance</strong><br/>" + govtext;
+    }
     */
+    
 
     return text;
 }

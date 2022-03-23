@@ -353,9 +353,11 @@ function C(_coeffs, index) {
 function computegovernance(_iso, _year, _gov, _grpc) {
     var ret = new Map();
     govMeasures.forEach(function (measure, govtype) {
+        var gov_value = getGov(govtype, _iso, _year, _gov, _grpc);
         ret.set(govtype, {
             desc: measure.desc,
-            value: getGov(govtype, _iso, _year, _gov, _grpc)
+            value: gov_value,
+            delta: gov_value - getGov(govtype, _iso, _year, {model: null}, _grpc)
         });
     })
     return ret;
