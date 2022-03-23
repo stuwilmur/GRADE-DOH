@@ -100,14 +100,21 @@ function getGov(_type, _iso, _year, _gov, _grpc = 0) {
     {
         current_gov_measure = popdata.getvalue(_iso, _year, _type, true);
         previous_gov_measure = popdata.getvalue(_iso, _year - 1, _type, true);
+        original_grpc = popdata.getvalue(_iso, _year, "GRPERCAP", true);
         current_grpc = _grpc;
         previous_grpc = popdata.getvalue(_iso, _year - 1, "GRPERCAP", true);
         fixed_effect = fixdata.getvalue(_iso, _year - 1, _type, true)
-        x = current_gov_measure + govMeasures.get(_type).fn(current_gov_measure, 
-                                                            previous_gov_measure,
-                                                            current_grpc, 
-                                                            previous_grpc,
-                                                            fixed_effect,)
+        residual = govMeasures.get(_type).fn(current_gov_measure, 
+                                             previous_gov_measure,
+                                             original_grpc, 
+                                             previous_grpc,
+                                             fixed_effect,)
+                   - current_gov_measure;
+        x = -residual + govMeasures.get(_type).fn(current_gov_measure, 
+                                                 previous_gov_measure,
+                                                 current_grpc, 
+                                                 previous_grpc,
+                                                 fixed_effect,)
     }
     // Limit all measures to the range [-2.5, 2.5]
     var limited = Math.min(Math.max(-2.5, x), 2.5)
