@@ -60,9 +60,9 @@ function getGov(_type, _iso, _year, _gov, _grpc = 0) {
     {
         if (_gov.table.has(_year))
         {
-            if (_gov.table[_year].has(_type))
+            if (_gov.table.get(_year).has(_type))
             {
-                x = _gov.table[_year][_type];
+                x = _gov.table.get(_year).get(_type);
             }
         }
     }
@@ -84,10 +84,10 @@ function forecastGovernance(_iso, _startYear, _yearsToForecast, _grpcMultiplier)
         var grpcOrig_prev;
         var grpcImproved;
         var grpcImproved_prev;
-        var corruption;
-        var corruption_prev;
-        var corruptionWithIncreasedGovRev;
-        var corruptionWithIncreasedGovRev_prev;
+        var gov = new Map();
+        var gov_prev;
+        var govImproved = new Map();
+        var govImproved_prev;
         
         if (i == 0)
         {
@@ -95,38 +95,45 @@ function forecastGovernance(_iso, _startYear, _yearsToForecast, _grpcMultiplier)
             grpcOrig = popdata.getvalue(_iso, year, "GRPERCAP", true)
             grpcImproved = grpcOrig * _grpcMultiplier
 
-            corruption = pop["CORRUPTION"];
-            corruptionWithIncreasedGovRev = pop["CORRUPTION"]
+            if (true)
+            {
+                var measure = "CORRUPTION"
+                gov.set(measure, pop[measure])
+                govImproved.set(measure, pop[measure])
+            }
         }
         else
         {
             grpcOrig = popdata.getvalue(_iso, year, "GRPERCAP", true)
             grpcImproved = grpcOrig * _grpcMultiplier
-            var residual;
 
-            corruption = pop["CORRUPTION"]
-            var corruptionFixedEffect = fixdata.getvalue(_iso, year, "CORRUPTION", true);
-            corruptionEquationForecast = govMeasures.get('CORRUPTION').fn(corruption_prev, 
+            if (true)
+            {
+                var measure = "CORRUPTION"
+                var residual;
+
+                gov.set(measure, pop[measure])
+                var fixedEffect = fixdata.getvalue(_iso, year, measure, true);
+                var measureEquationForecast = govMeasures.get(measure).fn(gov_prev.get(measure), 
                                                                           grpcOrig_prev,
-                                                                          corruptionFixedEffect,
+                                                                          fixedEffect,
                                                                           0)
-            residual = corruption - corruptionEquationForecast;
-            corruptionWithIncreasedGovRev = govMeasures.get('CORRUPTION').fn(corruptionWithIncreasedGovRev_prev,
-                                                                             grpcImproved_prev,
-                                                                             corruptionFixedEffect,
-                                                                             residual)
-                                                                             
+                residual = pop[measure] - measureEquationForecast;
+                var measureWithIncreasedGovRev = govMeasures.get(measure).fn(govImproved_prev.get(measure),
+                                                                                grpcImproved_prev,
+                                                                                fixedEffect,
+                                                                                residual)
+                govImproved.set(measure, measureWithIncreasedGovRev)
+            }
         }
         // Store results
-        table.set(year, new Map([
-            ["CORRUPTION", corruptionWithIncreasedGovRev]
-        ]))
+        table.set(year, govImproved)
 
         // Advance
-        grpcImproved_prev = grpcImproved;
-        corruption_prev = corruption;
         grpcOrig_prev = grpcOrig;
-        corruptionWithIncreasedGovRev_prev = corruptionWithIncreasedGovRev;
+        grpcImproved_prev = grpcImproved;
+        govImproved_prev = govImproved;
+        gov_prev = gov;
     }
 
     return (table)
