@@ -163,7 +163,8 @@ function getGovernanceInputs(){
     e =
     {
         value : governance,
-        model : governanceModel
+        model : governanceModel,
+        table : null,
     }
 
     return e;
@@ -735,6 +736,7 @@ function updateCountries() {
     colourCountries();
     updateplot();
     updatetarget();
+    forecastGovernance("AFG", 2010, 10, 1.1);
 }
 
 function updateYears(_firstyear, _lastyear){

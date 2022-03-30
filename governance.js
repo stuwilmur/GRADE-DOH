@@ -1,83 +1,37 @@
-function D1(x1, x0)
-{
-    return (x1 - x0);
-}
-
-function LOG(x0)
-{
-    return Math.log(x0);
-}
-
-function DLGOVREV_1(x1, x0) 
-{
-    return D1(LOG(x1), LOG(x0));
-}
-
 var govMeasures = new Map([
     ["CORRUPTION", {
         desc: "Corruption",
         positive: true,
-        fn : function(x1, x0, r1, r0, fe) {
-            f = -0.262062915863 
-                - 0.268386527335 * x0 
-                + 0.0388009869267 * LOG(r0) 
-                + fe;
-            return f;
+        fn: function (_corruption_prev, _grpc_prev, _fixed_effect, _residual)
+        {
+            var x = _corruption_prev
+                    -0.262062915863 
+                    - 0.268386527335 * _corruption_prev 
+                    + 0.0388009869267 * Math.log(_grpc_prev)
+                    + _fixed_effect
+                    + _residual;
+            return x;
         }
     }],
     ["GOVEFFECT", {
         desc: "Government effectiveness",
         positive: true,
-        fn : function(x1, x0, r1, r0, fe) {
-            f = -0.297756094448 
-                - 0.289017172809 * x0 
-                + 0.0445136292801 * LOG(r0) 
-                + fe;
-            return f;
-        }
     }],
     ["POLSTAB", {
         desc: "Political stability",
         positive: true,
-        fn : function(x1, x0, r1, r0, fe) {
-            f = -0.167147859521 
-                - 0.243193314392 * x0 
-                + 0.0241638211317 * LOG(r0) 
-                + fe;
-            return f;
-        }
     }],
     ["REGQUALITY", {
         desc: "Regulatory quality",
         positive: true,
-        fn : function(x1, x0, r1, r0, fe) {
-            f = -0.261581113717 
-                - 0.0620541606802 * D1(x1, x0) 
-                - 0.237039319473 * x0 
-                + 0.0395925282597 * LOG(r0) 
-                + fe
-            return f;
-        }
     }],
     ["RULELAW", {
         desc: "Rule of law",
         positive: true,
-        fn : function(x1, x0, r1, r0, fe) {
-            f = -0.189816187425 
-                + 0.0362663179499 * D1(x1, x0) 
-                - 0.246288840943 * x0 
-                - 0.040001478273 * DLGOVREV_1(r1, r0) 
-                + 0.0287195914492 * LOG(r0) 
-                + fe;
-            return f;
-        }
     }],
     ["VOICE", {
         desc: "Voice and accountability",
         positive: true,
-        fn : function(x1, x0, r1, r0, fe) {
-            return x1; 
-        }
     }],
 ]);
 
@@ -90,33 +44,86 @@ function getGov(_type, _iso, _year, _gov, _grpc = 0) {
         // Exogenous governance model
         x = pop[_type] + (govMeasures.get(_type).positive == true ? _gov.value : -_gov.value);
     }
-    else if (_gov.model == null)
+    else if (_gov.model == null || (_gov.model == "ENDOGENOUS" && _gov.table == null))
     {
+        /* 
+         * Just use the true value from the governance dataset. This method
+         * is also used if the endogenous model is selected, but no table
+         * has been supplied, which means that the function is not called
+         * from a projection
+         */
         var pop = popdata.getrow(_iso, _year);
         if (!pop) return NaN;
         x = pop[_type]
     }
-    else // ENDOGENOUS
+    else // ENDOGENOUS - use table lookup
     {
-        current_gov_measure = popdata.getvalue(_iso, _year, _type, true);
-        previous_gov_measure = popdata.getvalue(_iso, _year - 1, _type, true);
-        original_grpc = popdata.getvalue(_iso, _year, "GRPERCAP", true);
-        current_grpc = _grpc;
-        previous_grpc = popdata.getvalue(_iso, _year - 1, "GRPERCAP", true);
-        fixed_effect = fixdata.getvalue(_iso, _year - 1, _type, true)
-        residual = govMeasures.get(_type).fn(current_gov_measure, 
-                                             previous_gov_measure,
-                                             original_grpc, 
-                                             previous_grpc,
-                                             fixed_effect,)
-                   - current_gov_measure;
-        x = -residual + govMeasures.get(_type).fn(current_gov_measure, 
-                                                 previous_gov_measure,
-                                                 current_grpc, 
-                                                 previous_grpc,
-                                                 fixed_effect,)
+        if (_gov.table.has(_year))
+        {
+            if (_gov.table[_year].has(_type))
+            {
+                x = _gov.table[_year][_type];
+            }
+        }
     }
     // Limit all measures to the range [-2.5, 2.5]
     var limited = Math.min(Math.max(-2.5, x), 2.5)
     return limited;
+}
+
+function forecastGovernance(_iso, _startYear, _yearsToForecast, _grpcMultiplier)
+{
+    var table = new Map()
+    for (i = 0; i < (_yearsToForecast - 1); i++)
+    {
+        var year = _startYear + i;
+        var pop = popdata.getrow(_iso, year);
+        if (!pop) return NaN;
+        var corruption_prev;
+        var grpcOrig_prev;
+        var grpcImproved_prev;
+        var corruptionWithIncreasedGovRev_prev;
+        if (i == 0)
+        {
+            // Start with fixed values on first iteration
+            grpcOrig = popdata.getvalue(_iso, year, "GRPERCAP", true)
+            grpcImproved = grpcOrig * _grpcMultiplier
+
+            corruption = pop["CORRUPTION"];
+            corruptionWithIncreasedGovRev = pop["CORRUPTION"]
+        }
+        else
+        {
+            var grpcOrig = popdata.getvalue(_iso, year, "GRPERCAP", true)
+            var grpcImproved = grpcOrig * _grpcMultiplier
+
+            var corruptionFe = fixdata.getvalue(_iso, year, "CORRUPTION", true);
+            var corruption = pop["CORRUPTION"]
+            var corruptionEquationForecast = corruption_prev 
+                                         - 0.262062915863 
+                                         - 0.268386527335 * corruption_prev 
+                                         + 0.0388009869267 * Math.log(grpcOrig_prev) 
+                                         + corruptionFe;
+            var residual = corruption - corruptionEquationForecast;
+
+            corruptionWithIncreasedGovRev = corruptionWithIncreasedGovRev_prev
+                                            -0.262062915863 
+                                            - 0.268386527335 * corruptionWithIncreasedGovRev_prev 
+                                            + 0.0388009869267 * Math.log(grpcImproved_prev)
+                                            + corruptionFe
+                                            + residual;
+        }
+        // Store results
+        table.set(year, new Map([
+            ["CORRUPTION", corruptionWithIncreasedGovRev]
+        ]))
+
+        // Advance
+        grpcImproved_prev = grpcImproved;
+        corruption_prev = corruption;
+        grpcOrig_prev = grpcOrig;
+        corruptionWithIncreasedGovRev_prev = corruptionWithIncreasedGovRev;
+    }
+
+    return (table)
 }
