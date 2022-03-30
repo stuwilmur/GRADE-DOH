@@ -79,10 +79,16 @@ function forecastGovernance(_iso, _startYear, _yearsToForecast, _grpcMultiplier)
         var year = _startYear + i;
         var pop = popdata.getrow(_iso, year);
         if (!pop) return NaN;
-        var corruption_prev;
+        
+        var grpcOrig;
         var grpcOrig_prev;
+        var grpcImproved;
         var grpcImproved_prev;
+        var corruption;
+        var corruption_prev;
+        var corruptionWithIncreasedGovRev;
         var corruptionWithIncreasedGovRev_prev;
+        
         if (i == 0)
         {
             // Start with fixed values on first iteration
@@ -94,24 +100,22 @@ function forecastGovernance(_iso, _startYear, _yearsToForecast, _grpcMultiplier)
         }
         else
         {
-            var grpcOrig = popdata.getvalue(_iso, year, "GRPERCAP", true)
-            var grpcImproved = grpcOrig * _grpcMultiplier
+            grpcOrig = popdata.getvalue(_iso, year, "GRPERCAP", true)
+            grpcImproved = grpcOrig * _grpcMultiplier
+            var residual;
 
-            var corruptionFe = fixdata.getvalue(_iso, year, "CORRUPTION", true);
-            var corruption = pop["CORRUPTION"]
-            var corruptionEquationForecast = corruption_prev 
-                                         - 0.262062915863 
-                                         - 0.268386527335 * corruption_prev 
-                                         + 0.0388009869267 * Math.log(grpcOrig_prev) 
-                                         + corruptionFe;
-            var residual = corruption - corruptionEquationForecast;
-
-            corruptionWithIncreasedGovRev = corruptionWithIncreasedGovRev_prev
-                                            -0.262062915863 
-                                            - 0.268386527335 * corruptionWithIncreasedGovRev_prev 
-                                            + 0.0388009869267 * Math.log(grpcImproved_prev)
-                                            + corruptionFe
-                                            + residual;
+            corruption = pop["CORRUPTION"]
+            var corruptionFixedEffect = fixdata.getvalue(_iso, year, "CORRUPTION", true);
+            corruptionEquationForecast = govMeasures.get('CORRUPTION').fn(corruption_prev, 
+                                                                          grpcOrig_prev,
+                                                                          corruptionFixedEffect,
+                                                                          0)
+            residual = corruption - corruptionEquationForecast;
+            corruptionWithIncreasedGovRev = govMeasures.get('CORRUPTION').fn(corruptionWithIncreasedGovRev_prev,
+                                                                             grpcImproved_prev,
+                                                                             corruptionFixedEffect,
+                                                                             residual)
+                                                                             
         }
         // Store results
         table.set(year, new Map([
