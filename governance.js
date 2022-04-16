@@ -2,7 +2,7 @@ var govMeasures = new Map([
     ["CORRUPTION", {
         desc: "Corruption",
         positive: true,
-        fn: function (_corruption_prev, _grpc_prev, _fixed_effect, _residual)
+        fn: function (_corruption, _corruption_prev, _grpc, _grpc_prev, _grpc_lagged2, _fixed_effect, _residual)
         {
             var x = _corruption_prev
                     -0.262062915863 
@@ -16,22 +16,88 @@ var govMeasures = new Map([
     ["GOVEFFECT", {
         desc: "Government effectiveness",
         positive: true,
+        fn: function (_goveffect, _goveffect_prev, _grpc, _grpc_prev, _grpc_lagged2, _fixed_effect, _residual)
+        {
+            var x = _goveffect_prev
+                    -0.297756094448
+                    - 0.289017172809 * _goveffect_prev 
+                    + 0.0445136292801 * Math.log(_grpc_prev)
+                    + _fixed_effect
+                    + _residual;
+            return x;
+        }
     }],
     ["POLSTAB", {
         desc: "Political stability",
         positive: true,
+        fn: function (_polstab, _polstab_prev, _grpc, _grpc_prev, _grpc_lagged2, _fixed_effect, _residual)
+        {
+            var x = _polstab_prev
+                    -0.167147859521
+                    - 0.243193314392 * _polstab_prev 
+                    + 0.0241638211317 * Math.log(_grpc_prev)
+                    + _fixed_effect
+                    + _residual;
+            return x;
+        }
     }],
     ["REGQUALITY", {
         desc: "Regulatory quality",
         positive: true,
+        fn: function (_regquality, _regquality_prev, _grpc, _grpc_prev, _grpc_lagged2, _fixed_effect, _residual)
+        {
+            if (_grpc_lagged2 > 0)
+            {
+                var x = _regquality_prev
+                        - 0.261581113717 
+                        - 0.0620541606802 * (Math.log(_grpc_prev) - Math.log(_grpc_lagged2)) 
+                        - 0.237039319473 * _regquality_prev 
+                        + 0.0395925282597 * Math.log(_grpc_prev)
+                        + _fixed_effect
+                        + _residual;
+                return x;
+            }
+            else
+            {
+                // We don't yet have a value for the second lag of GRPC:
+                // set the return value unchanged
+                return _regquality;
+            }
+        }
     }],
     ["RULELAW", {
         desc: "Rule of law",
         positive: true,
+        fn: function (_rulelaw, _rulelaw_prev, _grpc, _grpc_prev, _grpc_lagged2, _fixed_effect, _residual)
+        {
+            if (_grpc_lagged2 > 0)
+            {
+                var x = _rulelaw_prev 
+                        -0.189816187425 
+                        + 0.0362663179499 * (Math.log(_grpc) - Math.log(_grpc_prev))
+                        - 0.246288840943 * _rulelaw_prev 
+                        - 0.040001478273 * (Math.log(_grpc_prev) - Math.log(_grpc_lagged2)) 
+                        + 0.0287195914492 * Math.log(_grpc_prev)
+                        + _fixed_effect
+                        + _residual;
+                return x;
+            }
+            else
+            {
+                // We don't yet have a value for the second lag of GRPC:
+                // set the return value unchanged
+                return _rulelaw;
+            }
+        }
     }],
     ["VOICE", {
         desc: "Voice and accountability",
         positive: true,
+        fn: function (_voice, _voice_prev, _grpc, _grpc_prev, _grpc_lagged2, _fixed_effect, _residual)
+        {
+            var x = _voice;
+            return x;
+        }
     }],
 ]);
 
@@ -74,20 +140,28 @@ function getGov(_type, _iso, _year, _gov, _grpc = 0) {
 function forecastGovernance(_iso, _startYear, _yearsToForecast, _grpcMultiplier)
 {
     var table = new Map()
+
+    var grpcOrig_prev = -1;
+    var grpcOrig_lagged2 = -1;
+
+    var grpcImproved_prev = -1;
+    var grpcImproved_lagged2 = -1;
+
+    var gov_prev;
+    var govImproved_prev;
+
     for (i = 0; i < (_yearsToForecast - 1); i++)
     {
         var year = _startYear + i;
+        
         var pop = popdata.getrow(_iso, year);
         if (!pop) return NaN;
         
         var grpcOrig;
-        var grpcOrig_prev;
         var grpcImproved;
-        var grpcImproved_prev;
+
         var gov = new Map();
-        var gov_prev;
         var govImproved = new Map();
-        var govImproved_prev;
         
         if (i == 0)
         {
@@ -95,44 +169,51 @@ function forecastGovernance(_iso, _startYear, _yearsToForecast, _grpcMultiplier)
             grpcOrig = popdata.getvalue(_iso, year, "GRPERCAP", true)
             grpcImproved = grpcOrig * _grpcMultiplier
 
-            if (true)
-            {
-                var measure = "CORRUPTION"
+            govMeasures.forEach(function(value, measure) {
                 gov.set(measure, pop[measure])
                 govImproved.set(measure, pop[measure])
-            }
+            });
         }
         else
         {
             grpcOrig = popdata.getvalue(_iso, year, "GRPERCAP", true)
             grpcImproved = grpcOrig * _grpcMultiplier
 
-            if (true)
-            {
-                var measure = "CORRUPTION"
+            govMeasures.forEach(function(value, measure) {
                 var residual;
 
                 gov.set(measure, pop[measure])
                 var fixedEffect = fixdata.getvalue(_iso, year, measure, true);
-                var measureEquationForecast = govMeasures.get(measure).fn(gov_prev.get(measure), 
+                var measureEquationForecast = govMeasures.get(measure).fn(pop[measure],
+                                                                          gov_prev.get(measure),
+                                                                          grpcOrig, 
                                                                           grpcOrig_prev,
+                                                                          grpcOrig_lagged2,
                                                                           fixedEffect,
                                                                           0)
                 residual = pop[measure] - measureEquationForecast;
-                var measureWithIncreasedGovRev = govMeasures.get(measure).fn(govImproved_prev.get(measure),
-                                                                                grpcImproved_prev,
-                                                                                fixedEffect,
-                                                                                residual)
+                var measureWithIncreasedGovRev = govMeasures.get(measure).fn(pop[measure],
+                                                                             govImproved_prev.get(measure),
+                                                                             grpcImproved,
+                                                                             grpcImproved_prev,
+                                                                             grpcImproved_lagged2,
+                                                                             fixedEffect,
+                                                                             residual)
                 govImproved.set(measure, measureWithIncreasedGovRev)
-            }
+            });
         }
         // Store results
         table.set(year, govImproved)
 
         // Advance
+        grpcOrig_lagged2 = grpcOrig_prev;
         grpcOrig_prev = grpcOrig;
+
+        grpcImproved_lagged2 = grpcImproved_prev
         grpcImproved_prev = grpcImproved;
+
         govImproved_prev = govImproved;
+
         gov_prev = gov;
     }
 
