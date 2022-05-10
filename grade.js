@@ -736,7 +736,8 @@ function updateCountries() {
     colourCountries();
     updateplot();
     updatetarget();
-    forecastGovernance("AFG", 2010, 10, 1.1);
+    var table = forecastGovernance("AFG", 2010, 10, 1.1);
+    console.log(table)
 }
 
 function updateYears(_firstyear, _lastyear){
