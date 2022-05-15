@@ -185,7 +185,7 @@ function forecastGovernance(_iso, _startYear, _yearsToForecast, _grpcMultiplier)
     var govImproved_prev = null;
     var govImproved_lagged2 = null;
 
-    for (i = 0; i < (_yearsToForecast - 1); i++)
+    for (i = 0; i < _yearsToForecast; i++)
     {
         var year = _startYear + i;
         

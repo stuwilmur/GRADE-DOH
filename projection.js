@@ -1,4 +1,4 @@
-const years_to_wait = 5;
+const fixed_years_to_wait = 5;
 
 function getProjectionData(_firstyear, _country, _outcome, _years_to_project, _revenue, _governance) {
     // Takes a baseline year an increase in revenue, and calculates the corresponding % increase in grpc:
@@ -7,6 +7,16 @@ function getProjectionData(_firstyear, _country, _outcome, _years_to_project, _r
     
     var ret = { data: [], error: null, years_of_effect: 0 };
     var grpcPcIncrease = 0;
+    var years_to_wait = fixed_years_to_wait;
+
+    if (_governance.model == "ENDOGENOUS")
+    {
+        years_to_wait = 0
+        var startRevenue = getRevenue(_country, _firstyear, _revenue)
+        var grpcIncreaseFactor = 1 + startRevenue["percentage increase"]
+        _governance.table = forecastGovernance(_country, _firstyear, _years_to_project + 1, grpcIncreaseFactor)
+    }
+
     for (y = _firstyear; y < popdata.lastyear && ((y - _firstyear) <= _years_to_project); y++) {
         var revenues = getRevenue(_country, y, _revenue);
         if (revenues === undefined) {
@@ -16,8 +26,9 @@ function getProjectionData(_firstyear, _country, _outcome, _years_to_project, _r
         }
         if (y == _firstyear) {
             grpcPcIncrease = revenues["percentage increase"];
-            grpc = revenues["historical grpc"];
-        } else if ((y - _firstyear) < years_to_wait) {
+        }
+        
+        if ((y - _firstyear) < years_to_wait) {
             grpc = revenues["historical grpc"];
         } else {
             grpc = revenues["historical grpc"] * (1 + grpcPcIncrease);
