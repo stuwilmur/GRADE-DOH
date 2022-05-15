@@ -70,7 +70,7 @@ var govMeasures = new Map([
                       _fixed_effect, 
                       _residual)
         {
-            if (_regquality_lagged2 > 0)
+            if (_regquality_lagged2 != null)
             {
                 var x = _regquality_prev
                         - 0.261581113717 
@@ -100,13 +100,13 @@ var govMeasures = new Map([
                       _fixed_effect, 
                       _residual)
         {
-            if (_rulelaw_lagged2 > 0)
+            if (_rulelaw_lagged2 != null)
             {
                 var x = _rulelaw_prev 
                         -0.189816187425 
                         + 0.0362663179499 * (Math.log(_grpc) - Math.log(_grpc_prev))
                         - 0.246288840943 * _rulelaw_prev 
-                        - 0.040001478273 * (Math.log(_rulelaw_prev) - Math.log(_rulelaw_lagged2)) 
+                        - 0.040001478273 * (_rulelaw_prev - _rulelaw_lagged2) 
                         + 0.0287195914492 * Math.log(_grpc_prev)
                         + _fixed_effect
                         + _residual;
@@ -221,7 +221,7 @@ function forecastGovernance(_iso, _startYear, _yearsToForecast, _grpcMultiplier)
                 gov.set(measure, pop[measure])
                 var fixedEffect = fixdata.getvalue(_iso, year, measure, true);
                 // On timestep 1, pass -1 for the unavailable second lagged meausre
-                var measure_lagged2 = gov_lagged2 == null ? -1 : gov_lagged2.get(measure);
+                var measure_lagged2 = gov_lagged2 == null ? null : gov_lagged2.get(measure);
                 var measureEquationForecast = govMeasures.get(measure).fn(pop[measure],
                                                                           gov_prev.get(measure),
                                                                           measure_lagged2,
@@ -234,7 +234,7 @@ function forecastGovernance(_iso, _startYear, _yearsToForecast, _grpcMultiplier)
 
                 // Forecast with improved GRPC and apply the residual
                 // On timestep 1, pass -1 for the unavailable second lagged meausre
-                var measureImproved_lagged2 = govImproved_lagged2 == null ? -1 : govImproved_lagged2.get(measure)
+                var measureImproved_lagged2 = govImproved_lagged2 == null ? null : govImproved_lagged2.get(measure)
                 var measureWithIncreasedGovRev = govMeasures.get(measure).fn(pop[measure],
                                                                              govImproved_prev.get(measure),
                                                                              measureImproved_lagged2,
