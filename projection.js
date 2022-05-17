@@ -88,6 +88,10 @@ function getProjectionCSVData(_year, _countries, _outcome, _years_to_project, _r
                 header += "," + property.name;
             });
 
+            data[0].gov.forEach(function (property) {
+                header += "," + property.desc;
+            });
+
             header += "\n";
             ret.str = header;
         }
@@ -103,6 +107,11 @@ function getProjectionCSVData(_year, _countries, _outcome, _years_to_project, _r
             datarow.additional.forEach(function (property) {
                 body += property.value + ",";
             });
+
+            datarow.gov.forEach(function (property) {
+                body += property.value + ",";
+            });
+
             body += row + "\n";
         });
         ret.str += body;
