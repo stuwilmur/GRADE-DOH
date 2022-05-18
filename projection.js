@@ -13,6 +13,12 @@ function getProjectionData(_firstyear, _country, _outcome, _years_to_project, _r
     {
         years_to_wait = 0
         var startRevenue = getRevenue(_country, _firstyear, _revenue)
+        if (startRevenue === undefined)
+        {
+            if (ret.error === null) { ret.error = []; }
+            ret.error.push("GRPC not available for " + _firstyear);
+            return ret;
+        }
         var grpcIncreaseFactor = 1 + startRevenue["percentage increase"]
         _governance.table = forecastGovernance(_country, _firstyear, _years_to_project + 1, grpcIncreaseFactor)
     }
@@ -62,10 +68,10 @@ function getProjectionCSVData(_year, _countries, _outcome, _years_to_project, _r
     var header = "country,iso,year";
     var ret = {str : null, errors : null};
     var headerDone = false;
-    for (i = 0; i < _countries.length; i++) 
+    for (iCountry = 0; iCountry < _countries.length; iCountry++) 
     {
         var body = "";
-        var _country = _countries[i];
+        var _country = _countries[iCountry];
         var plotdata = getProjectionData(_year, _country, _outcome, _years_to_project, _revenue, _governance);
 
         if (plotdata.error) {
