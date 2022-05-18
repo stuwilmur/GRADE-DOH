@@ -28,7 +28,7 @@ var prefix = "M";
 var plottype = "population";
 var outcome = "SANITBASIC";
 var govtype = "GOVEFFECT";
-var multiplecountries = [];
+var multiplecountries = ["$-ALL"];
 
 var selections = new Map([
     [
@@ -471,6 +471,7 @@ function setupMenus(_countries, _outcomes) {
         d3.select('#yearslider').property('value', year);
         d3.select('#yearsProjectVal').property('value', years_to_project);
         d3.select('#govVal').property('value', governance);
+        updateCountryFilters()
         //!! RADIO
         
         
@@ -672,7 +673,7 @@ function setupMenus(_countries, _outcomes) {
 
     function convertPropsToUpperCase(d) {
         Object.keys(d).forEach(function(origProp) {
-          var upperCaseProp = origProp.toLocaleUpperCase();
+          var upperCaseProp = origProp.toLocaleUpperCase().trim()
           // if the uppercase and the original property name differ
           // save the value associated with the original prop
           // into the uppercase prop and delete the original one
