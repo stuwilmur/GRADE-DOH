@@ -104,7 +104,7 @@ function getProjectionCSVData(_year, _countries, _outcome, _years_to_project, _r
 
         data.forEach(function (datarow) {
             var row = "";
-            body += countrycodes.get(_country).replace(/,.*$/g,"") + "," + _country + "," + datarow.year + ",";
+            body += countrycodes.get(_country).replace(","," -") + "," + _country + "," + datarow.year + ",";
 
             for (const property in datarow.grpc) {
                 body += datarow.grpc[property] + ",";
