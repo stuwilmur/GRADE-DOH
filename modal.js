@@ -31,8 +31,8 @@ function initModal(){
 
     var years = gdpDefByYear.map(d=> d.values[0].YEAR);
     years = years.sort(d=>-d);
-    // set up the year selector
-    d3.select('#deflatorYear')
+    // set up the year selectors
+    d3.selectAll('#deflatorYearIn,#deflatorYearOut')
             .on('change', function (d) {
                 updateDeflator();
             })

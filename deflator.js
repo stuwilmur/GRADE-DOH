@@ -28,7 +28,8 @@ function deflate(_amount, _yearIn, _yearOut = 2010){
 function updateDeflator(){
     var amount = document.getElementById("deflatorAmount").value;
     amount = str2Num(amount);
-    var year = document.getElementById("deflatorYear").value;
-    var result = deflate(amount, year);
+    var yearIn = document.getElementById("deflatorYearIn").value;
+    var yearOut = document.getElementById("deflatorYearOut").value;
+    var result = deflate(amount, yearIn, yearOut);
     document.getElementById("deflatorResult").value = result.toFixed(6);
 }

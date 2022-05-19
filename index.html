@@ -241,7 +241,7 @@
                             <li>Inflation data from <a href = "https://fred.stlouisfed.org/graph/?g=Crzt">FRED</a>&nbsp;<i class="fa fa-external-link"></i>&nbsp</li>
                         </ul>
                         <!--version-->
-                        <p id="version">v2.2.5 2022/05/19</p>
+                        <p id="version">v2.2.6 2022/05/19</p>
                     </div>
                 </div>
                 
@@ -295,12 +295,15 @@
                     <div class="uicontainer">
                         <label for="deflatorAmount">Enter amount:</label>
                         <input type="text" name="deflatorAmount" id="deflatorAmount" class="numeric" value="" />
-                        <label for ="deflatorYear">in</label>
-                        <select id="deflatorYear" name="deflatorYear">
+                        <label for ="deflatorYearIn">in</label>
+                        <select id="deflatorYearIn" name="deflatorYearIn">
                         </select> USD
                         =
                         <input type="text" id="deflatorResult" name="deflatorResult" readonly="readonly" />
-                        <label for="deflatorResult">in 2010 USD</label>
+                        <label for="deflatorResult">in
+                            <select id="deflatorYearOut" name="deflatorYearOut">
+                            </select> 
+                        USD</label>
                     </div>
                 </div>
             </div>
