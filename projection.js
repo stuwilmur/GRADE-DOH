@@ -1,6 +1,6 @@
 const fixed_years_to_wait = 5;
 
-function getProjectionData(_firstyear, _country, _outcome, _years_to_project, _revenue, _governance) {
+function getProjectionData(_firstyear, _country, _outcome, _years_to_return, _revenue, _governance) {
     // Takes a baseline year an increase in revenue, and calculates the corresponding % increase in grpc:
     // projects this by: allowing five years for increased revenue to act, where there is no effect;
     // applying the percentage increase for all remaining years (up to a total of years_to_project years). 
@@ -8,6 +8,14 @@ function getProjectionData(_firstyear, _country, _outcome, _years_to_project, _r
     var ret = { data: [], error: null, years_of_effect: 0 };
     var grpcPcIncrease = 0;
     var years_to_wait = fixed_years_to_wait;
+    var years_to_project = _years_to_return
+
+    if (_governance.model == "EXOGENOUS")
+    {
+        // This model uses smoothing, so we must always project for the
+        // entire wait period to get the final values for the effects
+        years_to_project = Math.max(years_to_project, years_to_wait);
+    }
 
     if (_governance.model == "ENDOGENOUS")
     {
@@ -20,10 +28,10 @@ function getProjectionData(_firstyear, _country, _outcome, _years_to_project, _r
             return ret;
         }
         var grpcIncreaseFactor = 1 + startRevenue["percentage increase"]
-        _governance.table = forecastGovernance(_country, _firstyear, _years_to_project + 1, grpcIncreaseFactor)
+        _governance.table = forecastGovernance(_country, _firstyear, years_to_project + 1, grpcIncreaseFactor)
     }
 
-    for (y = _firstyear; y < popdata.lastyear && ((y - _firstyear) <= _years_to_project); y++) {
+    for (y = _firstyear; y < popdata.lastyear && ((y - _firstyear) <= years_to_project); y++) {
         var revenues = getRevenue(_country, y, _revenue);
         if (revenues === undefined) {
             if (ret.error === null) { ret.error = []; }
@@ -59,8 +67,31 @@ function getProjectionData(_firstyear, _country, _outcome, _years_to_project, _r
         });
     }
 
+    if (_governance.model == "EXOGENOUS")
+    {
+        // Smooth all effects between the starting year (no effect)
+        // and the start of effect using linear interpolation
+        years_to_smooth = Math.min(years_to_wait, _years_to_return)
+
+        // Work on a temporary copy...
+        datacopy = ret.data.slice(0, _years_to_return + 1);
+
+        for (i = 1; i < years_to_smooth; i++)
+        {
+            for (const property_index in ret.data[i].additional)
+            {
+                start_value = ret.data[0].additional[property_index].value
+                end_value = ret.data[years_to_wait].additional[property_index].value
+                interpolated_value = start_value + i * (end_value - start_value) / years_to_wait 
+                datacopy[i].additional[property_index].value = interpolated_value;
+            }
+        }
+        // ...and use it to replace the data already in place
+        ret.data = datacopy
+    }
+
     ret.start_of_effect = Math.min(popdata.lastyear, _firstyear + years_to_wait);
-    return (ret);
+    return (ret)
 }
 
 function getProjectionCSVData(_year, _countries, _outcome, _years_to_project, _revenue, _governance)
