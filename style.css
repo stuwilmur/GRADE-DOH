@@ -387,6 +387,7 @@ div.tooltip {
     border-style: solid;
     border-color: #040404;
     border-width: 0px;
+    min-width: 25%;
 }
 
 h1.tooltip {
