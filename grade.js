@@ -663,7 +663,7 @@ function setupMenus(_countries, _outcomes) {
     d3.selectAll("input[name='governance model']").on("change", function(){
         governanceModel = this.value;
         document.getElementById('govSlider').disabled = (governanceModel == "ENDOGENOUS");
-        document.getElementById('governance panel').style.opacity =  governanceModel == "ENDOGENOUS" ? 0.5 : 1.0;
+        document.getElementById('governancepanel').style.opacity =  governanceModel == "ENDOGENOUS" ? 0.5 : 1.0;
         mainUpdate();
     });
 
