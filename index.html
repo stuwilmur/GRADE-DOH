@@ -236,7 +236,6 @@
                         <ul>
                             <li><a download href="BASE%20data.xlsx" class = "button"><i class="fa fa-download"></i>&nbsp;Excel (including notes on data)</a></li>
                             <li><a download href="BASE%20data.csv" class = "button"><i class="fa fa-download"></i>&nbsp;CSV</a></li>
-                            <li><a download href="fixed%20effects%20formatted.csv" class = "button"><i class="fa fa-download"></i>&nbsp;Fixed effects for GRD model</a></li>
                             <li>Map data from <a href = "https://www.naturalearthdata.com/">Natural Earth</a>&nbsp;<i class="fa fa-external-link"></i>&nbsp;</li>
                             <li>Inflation data from <a href = "https://fred.stlouisfed.org/graph/?g=Crzt">FRED</a>&nbsp;<i class="fa fa-external-link"></i>&nbsp;</li>
                         </ul>
@@ -272,7 +271,8 @@
                     -->
                     </div>
                     <div class="plottools">
-                        <button onclick="download_csv_plot()"><i class="fa fa-download"></i>&nbsp;Download plot data</button> 
+                        <button onclick="download_csv_plot()"><i class="fa fa-download"></i>&nbsp;Download plot data</button>
+                        <button onclick="reset()"><i class="fa fa-close"></i>&nbsp;Close</button> 
                         <!---
                         <select name="plottype" id="plottype">
                             <option value="u5m">Under-5 deaths averted</option>
@@ -513,7 +513,6 @@
                 .defer(d3.json, "countries.json")
                 .defer(d3.csv, "BASE data.csv", typeAndSetPopulation)
                 .defer(d3.csv, "GDPDEF.csv", typeAndSetDeflator)
-                .defer(d3.csv, "fixed effects formatted.csv", typeAndSetFixedEffects)
                 .await(loaded);
 
         </script>

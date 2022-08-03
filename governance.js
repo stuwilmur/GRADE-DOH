@@ -219,7 +219,8 @@ function forecastGovernance(_iso, _startYear, _yearsToForecast, _grpcMultiplier)
 
                 // Forecast with original GRPC
                 gov.set(measure, pop[measure])
-                var fixedEffect = fixdata.getvalue(_iso, year, measure, true);
+                // Fixed effect is absorbed by calculation of residual
+                var fixedEffect = 0;
                 // On timestep 1, pass -1 for the unavailable second lagged meausre
                 var measure_lagged2 = gov_lagged2 == null ? null : gov_lagged2.get(measure);
                 var measureEquationForecast = govMeasures.get(measure).fn(pop[measure],
