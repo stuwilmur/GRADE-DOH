@@ -511,7 +511,7 @@
 
             queue()
                 .defer(d3.json, "countries.json")
-                .defer(d3.csv, "BASE data.csv", typeAndSetPopulation)
+                .defer(d3.csv, "BASE data 2022.csv", typeAndSetPopulation)
                 .defer(d3.csv, "GDPDEF.csv", typeAndSetDeflator)
                 .await(loaded);
 
