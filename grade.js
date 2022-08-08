@@ -3,7 +3,7 @@
 // sort projection range size
 
 var subheight = 100;
-var legendCells = 10;
+var legendCells = 11;
 var transitionTime = 500;
 var legendLinear;
 var countrycodes = new Map();

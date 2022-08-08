@@ -240,7 +240,7 @@
                             <li>Inflation data from <a href = "https://fred.stlouisfed.org/graph/?g=Crzt">FRED</a>&nbsp;<i class="fa fa-external-link"></i>&nbsp;</li>
                         </ul>
                         <!--version-->
-                        <p id="version">GRADE v3.0.1 2022/08/03</p>
+                        <p id="version">GRADE v3.1.0 2022/08/08</p>
                     </div>
                 </div>
                 
@@ -511,7 +511,7 @@
 
             queue()
                 .defer(d3.json, "countries.json")
-                .defer(d3.csv, "BASE data 2022.csv", typeAndSetPopulation)
+                .defer(d3.csv, "BASE data.csv", typeAndSetPopulation)
                 .defer(d3.csv, "GDPDEF.csv", typeAndSetDeflator)
                 .await(loaded);
 
