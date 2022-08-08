@@ -5,7 +5,7 @@ grade determinants of health model
 
 ### BASE data
 
-See notes in Base data.xlsx file
+See notes in BASE data.xlsx file
 
 
 
