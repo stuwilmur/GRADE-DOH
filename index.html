@@ -234,13 +234,13 @@
                             Click to download <em>base data</em> used to drive the GRADE model, in Excel or CSV format.
                         </p>
                         <ul>
-                            <li><a download href="BASE%20data.xlsx" class = "button"><i class="fa fa-download"></i>&nbsp;Excel (including notes on data)</a></li>
-                            <li><a download href="BASE%20data.csv" class = "button"><i class="fa fa-download"></i>&nbsp;CSV</a></li>
+                            <li><a download href="BASE%20data%202022.xlsx" class = "button"><i class="fa fa-download"></i>&nbsp;Excel (including notes on data)</a></li>
+                            <li><a download href="BASE%20data%202022.csv" class = "button"><i class="fa fa-download"></i>&nbsp;CSV</a></li>
                             <li>Map data from <a href = "https://www.naturalearthdata.com/">Natural Earth</a>&nbsp;<i class="fa fa-external-link"></i>&nbsp;</li>
                             <li>Inflation data from <a href = "https://fred.stlouisfed.org/graph/?g=Crzt">FRED</a>&nbsp;<i class="fa fa-external-link"></i>&nbsp;</li>
                         </ul>
                         <!--version-->
-                        <p id="version">GRADE v3.1.0 2022/08/08</p>
+                        <p id="version">GRADE v3.2.0 2022/08/10</p>
                     </div>
                 </div>
                 
@@ -511,7 +511,7 @@
 
             queue()
                 .defer(d3.json, "countries.json")
-                .defer(d3.csv, "BASE data.csv", typeAndSetPopulation)
+                .defer(d3.csv, "BASE data 2022.csv", typeAndSetPopulation)
                 .defer(d3.csv, "GDPDEF.csv", typeAndSetDeflator)
                 .await(loaded);
 

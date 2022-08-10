@@ -533,7 +533,7 @@ function typeAndSetPopulation(d) {
     e.CORRUPTION    =convertNumber(d["Control of Corruption: Estimate"])
     e.Country 	    =d["countryname"]                                      
     e.GOVEFFECT 	=convertNumber(d["Government Effectiveness: Estimate"])
-    e.GRPERCAP 	    =convertNumber(d["GRpc UNU WIDER"])
+    e.GRPERCAP 	    =convertNumber(d["GRpcUNUWIDER 2022"])
     e.IMUNISATION	=convertNumber(d["Immunization, DPT (% of children ages 12-23 months)"])
     e.ISO 	        =d["countrycode"]
     e.POLSTAB 	    =convertNumber(d["Political Stability and Absence of Violence/Terrorism: Estimate"])
