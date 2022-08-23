@@ -67,6 +67,11 @@ function getProjectionData(_firstyear, _country, _outcome, _years_to_return, _re
         });
     }
 
+    /* TODO: return projected data up to year where there is error (replace returns with breaks above)
+    Only do the smoothing if there is years to wait of data, otherwise error and don't return data
+    i.e. ret.data should have length of at least years_to_wait + 1 (check)
+    //*/
+
     if (_governance.model == "EXOGENOUS")
     {
         // Smooth all effects between the starting year (no effect)
@@ -74,7 +79,8 @@ function getProjectionData(_firstyear, _country, _outcome, _years_to_return, _re
         years_to_smooth = Math.min(years_to_wait, _years_to_return + 1)
 
         // Work on a temporary copy...
-        datacopy = ret.data.slice(0, _years_to_return + 1);
+        // Note: slice may be shorter than length specified if projection stopped early due to error
+        datacopy = ret.data.slice(0, _years_to_return + 1); 
 
         for (i = 1; i < years_to_smooth; i++)
         {
