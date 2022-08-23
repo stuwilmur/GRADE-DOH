@@ -71,7 +71,7 @@ function getProjectionData(_firstyear, _country, _outcome, _years_to_return, _re
     {
         // Smooth all effects between the starting year (no effect)
         // and the start of effect using linear interpolation
-        years_to_smooth = Math.min(years_to_wait, _years_to_return)
+        years_to_smooth = Math.min(years_to_wait, _years_to_return + 1)
 
         // Work on a temporary copy...
         datacopy = ret.data.slice(0, _years_to_return + 1);
