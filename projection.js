@@ -31,7 +31,7 @@ function getProjectionData(_firstyear, _country, _outcome, _years_to_return, _re
         _governance.table = forecastGovernance(_country, _firstyear, years_to_project + 1, grpcIncreaseFactor)
     }
 
-    for (y = _firstyear; y < popdata.lastyear && ((y - _firstyear) <= years_to_project); y++) {
+    for (y = _firstyear; y <= popdata.lastyear && ((y - _firstyear) <= years_to_project); y++) {
         var revenues = getRevenue(_country, y, _revenue);
         if (revenues === undefined) {
             if (ret.error === null) { ret.error = []; }
