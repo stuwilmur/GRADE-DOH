@@ -226,7 +226,7 @@ function makeText2(_year, _iso, _outcome, _years_to_project, _revenue, _governan
         else{
             
             var theOutcome = outcomesMap.get(_outcome);
-            var varText = theOutcome.isStockVar ? "Average" : "Cumulative";
+            var varText = projection.effect_description;
             
             text = text 
             + "<br/><br/><strong>" + _year + "</strong>"

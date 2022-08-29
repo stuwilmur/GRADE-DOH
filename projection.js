@@ -164,9 +164,8 @@ function getProjectionCSVData(_year, _countries, _outcome, _years_to_project, _r
 
 function calcProjection(_year, _country, _outcome, _years_to_project, _revenue, _governance)
 {
-    // calculate the totals of projected effects for flow variables, and the
-    // averages for stock variables.
-    var ret = {data : null, error : null};
+    // calculate the total [final] values of projected effects for flow [stock] variables
+    var ret = {data : null, error : null, effect_description : null};
     var plotdata = getProjectionData(_year, _country, _outcome, _years_to_project, _revenue, _governance);
     
     if (plotdata.error){
@@ -177,39 +176,48 @@ function calcProjection(_year, _country, _outcome, _years_to_project, _revenue, 
      var theOutcome = outcomesMap.get(outcome);
     
      var totals = new Map();
+     var final_values = new Map();
      plotdata.data.forEach(function(d){
          d.additional.forEach(function(result){
              if (totals.has(result.name)){
-                 totProjectionPeriod = totals.get(result.name).projection + result.value
                  if (d.year >= plotdata.start_of_effect) {
                      totEffectPeriod = totals.get(result.name).effect + result.value
+                     finalEffect = result.value
                  } 
                  else {
                      totEffectPeriod = 0
+                     finalEffect = 0
                  }
+                 final_values.set(result.name, {"effect" : finalEffect})
                  totals.set(result.name, {"projection" : totals.get(result.name).projection + result.value, "effect" : totEffectPeriod} )
              }
              else{
                 totEffectPeriod = d.year >= plotdata.start_of_effect ? result.value : 0
-                 totals.set(result.name, {"projection" : result.value, "effect" : totEffectPeriod});
+                finalEffect = d.year >= plotdata.start_of_effect ? result.value : 0
+                totals.set(result.name, {"projection" : result.value, "effect" : totEffectPeriod});
+                final_values.set(result.name, {"effect" : finalEffect})
              }
          })
      })
     
     if (theOutcome.isStockVar){
+
+        // Calculate average over the effect period (unused for now)
         var averages = new Map();
         totals.forEach( function(value, result){
             var result_avg_effect = plotdata.years_of_effect > 0 ? value.effect / plotdata.years_of_effect : 0;
             var result_avg_projection = value.projection / plotdata.data.length;
             averages.set(result, {"projection" : result_avg_projection, "effect" : result_avg_effect});            
         })
-        ret.data = averages;
+
+        ret.data = final_values;
     }
     else{
         ret.data = totals;   
     }
 
     ret.start_of_effect = plotdata.start_of_effect;
+    ret.effect_description = theOutcome.isStockVar ? "Final" : "Cumulative"
     
     return ret;
 }
