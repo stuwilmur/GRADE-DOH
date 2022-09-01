@@ -200,6 +200,16 @@
                                 </select>
                                 <div class="filteroptions" id="countryfilter">
                                 </div>
+                                <label class="container">
+                                    Selected outcome
+                                    <input type="radio" id="multioutcome" name="multi csv outcome" value="THIS" checked>
+                                    <span class="checkmark"></span>
+                                </label>
+                                <label class="container">
+                                    All outcomes
+                                    <input type="radio" id="multioutcome" name="multi csv outcome" value="ALL">
+                                    <span class="checkmark"></span>
+                                </label>
                                 <button id="multibutton" onclick="download_csv_multi()"><i class="fa fa-download"></i>&nbsp;Download projection data</button>
                                 <button id="clearmultibutton" onclick="clear_multi()"><i class="fa fa-trash"></i>&nbsp;Clear all</button>
                                 <p id = "multicountryerror">

@@ -29,6 +29,7 @@ var plottype = "population";
 var outcome = "SANITBASIC";
 var govtype = "GOVEFFECT";
 var multiplecountries = ["$-ALL"];
+var multioutcome = "THIS";
 
 var selections = new Map([
     [
@@ -666,6 +667,10 @@ function setupMenus(_countries, _outcomes) {
         mainUpdate();
     });
 
+    d3.selectAll("input[name='multi csv outcome']").on("change", function(){
+        multioutcome = this.value;
+    });
+
     fileElem = document.getElementById("fileElem");
 
     fileElem.addEventListener("change", handleRevenueCsv, false);
@@ -821,13 +826,13 @@ function updatetarget(){
     .html(text);
 }
 
-function download_csv(_year, _years_to_project, _countries, _outcome, _revenue, _governance) {
+function download_csv(_year, _years_to_project, _countries, _outcomes, _revenue, _governance) {
     if (_countries.length < 1)
     {
         return ["No countries selected",];
     }
     var final_year = getProjectionEnd(_year, _years_to_project);
-    var csvdata = getProjectionCSVData(_year, _countries, _outcome, _years_to_project, _revenue, _governance);
+    var csvdata = getProjectionCSVData(_year, _countries, _outcomes, _years_to_project, _revenue, _governance);
     var button_title =  _year + "-" + final_year + ".csv";
     if (_countries.length == 1)
     {
@@ -851,7 +856,7 @@ function download_csv(_year, _years_to_project, _countries, _outcome, _revenue, 
 }
 
 function download_csv_plot(){
-    download_csv(+year, +years_to_project, [country,], outcome, getRevenueInputs(), getGovernanceInputs());
+    download_csv(+year, +years_to_project, [country,], [outcome,], getRevenueInputs(), getGovernanceInputs());
 }
 
 function download_csv_multi(){
@@ -871,7 +876,20 @@ function download_csv_multi(){
         }
     });
 
-    var error = download_csv(+year, +years_to_project, countries_to_export.sort(), outcome, getRevenueInputs(), getGovernanceInputs());
+    // handle selected or all outcomes
+    let outcomes = []
+    if (multioutcome == "THIS")
+    {
+        outcomes.push(outcome)
+    }
+    else
+    {
+        outcomesList.forEach(function (o){
+            outcomes.push(o[0])
+        })
+    }
+
+    var error = download_csv(+year, +years_to_project, countries_to_export.sort(), outcomes, getRevenueInputs(), getGovernanceInputs());
     if (error){
         d3.select("#multicountryerror")
         .html(error.join("<br />"));

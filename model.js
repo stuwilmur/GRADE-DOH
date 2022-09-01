@@ -421,13 +421,14 @@ function computeAdditionalResults(_iso, _year, _outcome, improved, original){
     var popChildrenSurvive1 = popdata.getvalue(_iso, _year, "Children survive to 1 year");
     var popBirths = popdata.getvalue(_iso, _year, "Number of births")
     var popChildrenSurvive5 = popdata.getvalue(_iso, _year, "Number of children surviving to five");
+    let outcomeName = outcomesMap.get(_outcome).name
 
     var additional = [];
 
     if (_outcome == "SANITBASIC" || _outcome == "SANITSAFE" || _outcome == "WATERBASIC" || _outcome == "WATERSAFE") {
-        additional.push({name : "People with increased access",  value : (improved - original) / 100 * popTotal, keyvariable : true});
-        additional.push({name : "Children < 5 with increased access", value : (improved - original) / 100 * popU5, keyvariable : true});
-        additional.push({name : "Females 15-49 with increased access", value: (improved - original) / 100 * popFemale15_49, keyvariable : true});
+        additional.push({name : "People with increased access to " + outcomeName,  value : (improved - original) / 100 * popTotal, keyvariable : true});
+        additional.push({name : "Children < 5 with increased access to " + outcomeName, value : (improved - original) / 100 * popU5, keyvariable : true});
+        additional.push({name : "Females 15-49 with increased access to " + outcomeName, value: (improved - original) / 100 * popFemale15_49, keyvariable : true});
     } else if (_outcome == "IMUNISATION") {
         additional.push({name : "Number of infants immunised", value : (improved - original) / 100 * popChildrenSurvive1, keyvariable : true})
     } else if (_outcome == "SCHOOLPERC") {

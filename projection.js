@@ -145,25 +145,40 @@ function getProjectionData(_firstyear, _country, _outcome, _years_to_return, _re
     return (ret)
 }
 
-function getProjectionCSVData(_year, _countries, _outcome, _years_to_project, _revenue, _governance)
+function getProjectionCSVData(_year, _countries, _outcomes, _years_to_project, _revenue, _governance)
 {
     var header = "country,iso,year";
     var ret = {str : null, errors : null};
     var headerDone = false;
     for (iCountry = 0; iCountry < _countries.length; iCountry++) 
     {
-        var body = "";
-        var _country = _countries[iCountry];
-        var projectionData = getProjectionData(_year, _country, _outcome, _years_to_project, _revenue, _governance);
+        let body = "";
+        let _country = _countries[iCountry];
+        let data = null;
 
-        if (projectionData.error) {
-            if (ret.errors === null){
-                ret.errors = []
+        _outcomes.forEach(function (thisOutcome)
+        {
+            let projectionData = getProjectionData(_year, _country, thisOutcome, _years_to_project, _revenue, _governance);
+
+            if (projectionData.error) {
+                if (ret.errors === null){
+                    ret.errors = []
+                }
+                ret.errors.push(countrycodes.get(_country) + ": " + projectionData.error);
             }
-            ret.errors.push(countrycodes.get(_country) + ": " + projectionData.error);
-        }
 
-        var data = projectionData.data;
+            if (data === null)
+            {
+                data = projectionData.data;
+            }
+            else
+            {
+                projectionData.data.forEach(function(row, index)
+                {
+                    data[index].additional.push(...row.additional)
+                })
+            }
+        })
         
         if(!headerDone){
             headerDone = true;
@@ -184,7 +199,7 @@ function getProjectionCSVData(_year, _countries, _outcome, _years_to_project, _r
         }
 
         data.forEach(function (datarow) {
-            var row = "";
+            let row = "";
             body += countrycodes.get(_country).replace(","," -") + "," + _country + "," + datarow.year + ",";
 
             for (const property in datarow.grpc) {
