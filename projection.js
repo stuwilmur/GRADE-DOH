@@ -7,8 +7,21 @@ function getProjectionData(_firstyear, _country, _outcome, _years_to_return, _re
     
     var ret = { data: [], error: null, years_of_effect: 0 };
     var grpcPcIncrease = 0;
+    let years_successful = 0;
     var years_to_wait = fixed_years_to_wait;
-    var years_to_project = _years_to_return
+    var years_to_project = _years_to_return;
+    
+    let grpcPrototype = {
+        "historical grpc": null,
+        "improved grpc": null
+    }
+    
+    let datarowPrototype = {
+        "year": null,
+        "additional": null,
+        "grpc": Object.create(grpcPrototype),
+        "gov": null,
+    }
 
     if (_governance.model == "EXOGENOUS")
     {
@@ -19,60 +32,92 @@ function getProjectionData(_firstyear, _country, _outcome, _years_to_return, _re
 
     if (_governance.model == "ENDOGENOUS")
     {
+        // Forecast governance over the projection period
         years_to_wait = 0
         var startRevenue = getRevenue(_country, _firstyear, _revenue)
         if (startRevenue === undefined)
         {
             if (ret.error === null) { ret.error = []; }
             ret.error.push("GRPC not available for " + _firstyear);
-            return ret;
+            _governance.table = NaN;
         }
-        var grpcIncreaseFactor = 1 + startRevenue["percentage increase"]
-        _governance.table = forecastGovernance(_country, _firstyear, years_to_project + 1, grpcIncreaseFactor)
+        else
+        {
+            var grpcIncreaseFactor = 1 + startRevenue["percentage increase"]
+            _governance.table = forecastGovernance(_country, _firstyear, years_to_project + 1, grpcIncreaseFactor)
+        }
     }
 
-    for (y = _firstyear; y <= popdata.lastyear && ((y - _firstyear) <= years_to_project); y++) {
+    let firstRevenueError = true;
+
+    for (y = _firstyear; y <= popdata.lastyear && ((y - _firstyear) <= years_to_project); y++) 
+    {
+        let historical_grpc = NaN
+        let grpc = NaN
+        let revenueOK = true
+
         var revenues = getRevenue(_country, y, _revenue);
         if (revenues === undefined) {
-            if (ret.error === null) { ret.error = []; }
-            ret.error.push("GRPC not available for " + y);
-            return ret;
+            revenueOK = false
+            if (firstRevenueError)
+            {
+                // This is the first revenue error, so add it to the errors list,
+                // and toggle the flag so that no subsequent errors are recorded
+                firstRevenueError = false
+                if (ret.error === null) { ret.error = []; }
+                ret.error.push("GRPC not available for " + y);
+            }
         }
-        if (y == _firstyear) {
-            grpcPcIncrease = revenues["percentage increase"];
+
+        if (revenueOK)
+        {
+            historical_grpc = revenues['historical grpc']
+            if (y == _firstyear) {
+                grpcPcIncrease = revenues["percentage increase"];
+            }
+            
+            if ((y - _firstyear) < years_to_wait) {
+                grpc = revenues["historical grpc"];
+            } else {
+                grpc = revenues["historical grpc"] * (1 + grpcPcIncrease);
+                ret.years_of_effect += 1;
+            }
         }
+
+        if (ret.error === null)
+        {
+            var computed = computeResult(_country, y, _outcome, grpc, revenues["historical grpc"], _governance, 1E-6);
+            if (computed.error) {
+                if (ret.error === null) { ret.error = []; }
+                ret.error = ret.error.concat(computed.error);
+            }
+        }
+
+        let grpcrow = Object.create(grpcPrototype)
+        let datarow = Object.create(datarowPrototype)
+
+        grpcrow['historical grpc'] = historical_grpc
+        grpcrow['improved grpc'] = grpc
+        datarow.grpc = grpcrow
+
+        datarow.year = +y
         
-        if ((y - _firstyear) < years_to_wait) {
-            grpc = revenues["historical grpc"];
-        } else {
-            grpc = revenues["historical grpc"] * (1 + grpcPcIncrease);
-            ret.years_of_effect += 1;
+        if (ret.error === null)
+        {
+            datarow.additional = computed.additional
+            datarow.gov = computed.gov
+            years_successful++;
+        }
+        else
+        {
+            datarow.additional = computeAdditionalResults(_country, y, _outcome, NaN, NaN)
+            datarow.gov = computegovernance(_country, y, _governance, grpc)
         }
 
-        var computed = computeResult(_country, y, _outcome, grpc, revenues["historical grpc"], _governance, 1E-6);
-        if (computed.error) {
-            if (ret.error === null) { ret.error = []; }
-            ret.error = ret.error.concat(computed.error);
-            return ret;
-        }
-
-        ret.data.push({
-            "year": +y,
-            "additional": computed.additional,
-            "grpc": {
-                "historical grpc": revenues["historical grpc"],
-                "improved grpc": grpc
-            },
-            "gov": computed.gov,
-        });
+        ret.data.push(datarow);
     }
 
-    /* TODO: return projected data up to year where there is error (replace returns with breaks above)
-    Only do the smoothing if there is years to wait of data, otherwise error and don't return data
-    i.e. ret.data should have length of at least years_to_wait + 1 (check)
-    //*/
-
-    if (_governance.model == "EXOGENOUS")
+    if (_governance.model == "EXOGENOUS" && (years_successful > years_to_wait))
     {
         // Smooth all effects between the starting year (no effect)
         // and the start of effect using linear interpolation
@@ -109,17 +154,16 @@ function getProjectionCSVData(_year, _countries, _outcome, _years_to_project, _r
     {
         var body = "";
         var _country = _countries[iCountry];
-        var plotdata = getProjectionData(_year, _country, _outcome, _years_to_project, _revenue, _governance);
+        var projectionData = getProjectionData(_year, _country, _outcome, _years_to_project, _revenue, _governance);
 
-        if (plotdata.error) {
+        if (projectionData.error) {
             if (ret.errors === null){
                 ret.errors = []
             }
-            ret.errors.push(countrycodes.get(_country) + ": " + plotdata.error);
-            continue;
+            ret.errors.push(countrycodes.get(_country) + ": " + projectionData.error);
         }
 
-        var data = plotdata.data;
+        var data = projectionData.data;
         
         if(!headerDone){
             headerDone = true;
