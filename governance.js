@@ -160,7 +160,7 @@ function getGov(_type, _iso, _year, _gov, _grpc = 0) {
     }
     else // ENDOGENOUS - use table lookup
     {
-        if (_gov.table.has(_year))
+        if ((_gov.table.size > 0) && _gov.table.has(_year))
         {
             if (_gov.table.get(_year).has(_type))
             {
@@ -176,6 +176,7 @@ function getGov(_type, _iso, _year, _gov, _grpc = 0) {
 function forecastGovernance(_iso, _startYear, _yearsToForecast, _grpcMultiplier)
 {
     var table = new Map()
+    var blankTable = new Map()
 
     var grpcOrig_prev;
     var grpcImproved_prev;
@@ -190,7 +191,7 @@ function forecastGovernance(_iso, _startYear, _yearsToForecast, _grpcMultiplier)
         var year = _startYear + i;
         
         var pop = popdata.getrow(_iso, year);
-        if (!pop) return NaN;
+        if (!pop) return blankTable
         
         var grpcOrig;
         var grpcImproved;
