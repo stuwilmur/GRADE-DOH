@@ -662,8 +662,13 @@ function setupMenus(_countries, _outcomes) {
 
     d3.selectAll("input[name='governance model']").on("change", function(){
         governanceModel = this.value;
+        
+        // Disable the governance slider if using the endogenous model
         document.getElementById('govSlider').disabled = (governanceModel == "ENDOGENOUS");
         document.getElementById('governancepanel').style.opacity =  governanceModel == "ENDOGENOUS" ? 0.5 : 1.0;
+        // Disable the target SDG controls if using the endogenous model
+        document.getElementById('targetInput').disabled = (governanceModel == "ENDOGENOUS");
+        document.getElementById('targetpanel').style.opacity =  governanceModel == "ENDOGENOUS" ? 0.5 : 1.0;
         mainUpdate();
     });
 
