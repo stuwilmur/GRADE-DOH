@@ -191,7 +191,7 @@ function forecastGovernance(_iso, _startYear, _yearsToForecast, _grpcMultiplier)
         var year = _startYear + i;
         
         var pop = popdata.getrow(_iso, year);
-        if (!pop) return blankTable
+        if (!pop) return blankTable // returning an empty table signals failure
         
         var grpcOrig;
         var grpcImproved;
