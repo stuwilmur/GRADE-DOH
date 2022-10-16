@@ -1,7 +1,7 @@
 # GRADE-DOH
 Governement Revenue And Development Estimators Determinants Of Health interactive visualisation.
 
-##What is this?
+## What is this?
 
 This webtool provides an interactive data visualisation of the results of the Government Revenue and Development Estimators Determinants Of Health (GRADE) modelling work.
 
@@ -9,7 +9,7 @@ The underlying research is documented in Stephen Hall, Marisol Lopez, Stuart Mur
 
 This tool is currently hosted at https://www.st-andrews.ac.uk/~grade/doh/
 
-##How do I use it?
+## How do I use it?
 
 There are no additional dependencies: simply lauch a server in the root directory and browse to index.html
 
