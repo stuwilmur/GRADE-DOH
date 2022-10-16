@@ -1,5 +1,5 @@
 # GRADE-DOH
-Governement Revenue And Development Estimators Determinants Of Health model.
+Governement Revenue And Development Estimators Determinants Of Health interactive visualisation.
 
 ## Notes on the data
 
