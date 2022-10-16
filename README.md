@@ -1,5 +1,5 @@
-# grade-DOH
-grade determinants of health model
+# GRADE-DOH
+Governement Revenue And Development Indicators Determinants Of Health model.
 
 ## Notes on the data
 
