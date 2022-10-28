@@ -31,5 +31,5 @@ function updateDeflator(){
     var yearIn = document.getElementById("deflatorYearIn").value;
     var yearOut = document.getElementById("deflatorYearOut").value;
     var result = deflate(amount, yearIn, yearOut);
-    document.getElementById("deflatorResult").value = result.toFixed(6);
+    document.getElementById("deflatorResult").value = result.toFixed(2);
 }

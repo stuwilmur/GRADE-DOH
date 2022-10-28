@@ -21,6 +21,8 @@ function getProjectionData(_firstyear, _country, _outcome, _years_to_return, _re
         "additional": null,
         "grpc": Object.create(grpcPrototype),
         "gov": null,
+        "incomelevel": null,
+        "region": null
     }
 
     if (_governance.model == "EXOGENOUS")
@@ -106,6 +108,8 @@ function getProjectionData(_firstyear, _country, _outcome, _years_to_return, _re
         {
             datarow.additional = computed.additional
             datarow.gov = computed.gov
+            datarow.incomelevel = computed.incomelevel
+            datarow.region = computed.region
             years_successful++;
         }
         else
@@ -149,7 +153,7 @@ function getProjectionData(_firstyear, _country, _outcome, _years_to_return, _re
 
 function getProjectionCSVData(_year, _countries, _outcomes, _years_to_project, _revenue, _governance)
 {
-    var header = "country,iso,year";
+    var header = "country,iso,year,income level,region";
     var ret = {str : null, errors : null};
     var headerDone = false;
     for (iCountry = 0; iCountry < _countries.length; iCountry++) 
@@ -202,7 +206,7 @@ function getProjectionCSVData(_year, _countries, _outcomes, _years_to_project, _
 
         data.forEach(function (datarow) {
             let row = "";
-            body += countrycodes.get(_country).replace(","," -") + "," + _country + "," + datarow.year + ",";
+            body += countrycodes.get(_country).replace(","," -") + "," + _country + "," + datarow.year + "," + datarow.incomelevel + "," + datarow.region + ",";
 
             for (const property in datarow.grpc) {
                 body += datarow.grpc[property] + ",";

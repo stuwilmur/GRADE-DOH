@@ -513,7 +513,9 @@ function computeResult(_iso, _year, _outcome, _grpc, _grpcOrig, _govImprovement,
         "fitted": fitted,
         "additional": computeAdditionalResults(_iso, _year, _outcome, improved, original),
         "special": computeSpecialResults(_iso, _year, _outcome, improved, original, (_grpc - _grpcOrig)),
-        "gov": govresults
+        "gov": govresults,
+        "incomelevel" : popdata.getstring(_iso, _year, 'incomelevel'),
+        "region": popdata.getstring(_iso, _year, 'region')
     };
     return ret;
 }
