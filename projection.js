@@ -118,6 +118,9 @@ function getProjectionData(_firstyear, _country, _outcome, _years_to_return, _re
             datarow.additional = computeAdditionalResults(_country, y, _outcome, NaN, NaN)
             // Try and compute the governance despite the error being present
             datarow.gov = computegovernance(_country, y, _governance, grpc)
+            // Fill in income level and region directly from the population data
+            datarow.incomelevel = popdata.getstring(_country, y, 'incomelevel'),
+            datarow.region = popdata.getstring(_country, y, 'region')
         }
 
         ret.data.push(datarow);
