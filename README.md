@@ -14,7 +14,7 @@ This tool is currently hosted at https://www.st-andrews.ac.uk/~grade/doh/
 
 ## How do I use it?
 
-There are no additional dependencies: simply lauch a server in the root directory and browse to index.html
+There are no additional dependencies: simply launch a server in the root directory and browse to index.html
 
 
 
