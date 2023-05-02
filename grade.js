@@ -122,7 +122,6 @@ var selections = new Map([
 var plotlayout = {
     showlegend: true,
 	legend: {"orientation": "h"},
-    yaxis: {hoverformat: ',f0', tickformat : ',f0'},
     xaxis: {tickformat: 'd'},
 };
 
@@ -825,6 +824,15 @@ function updateplot() {
         
         if (y_var_max < 1E-6){
             plotlayout.yaxis.range = [-1,1];
+        }
+
+        if (plottype == 'coverage')
+        {
+            plotlayout.yaxis = {hoverformat: ',.2f', tickformat : ',.1f'};
+        }
+        else
+        {
+            plotlayout.yaxis = {hoverformat: ',.0f', tickformat : ',.0f'};
         }
 
         Plotly.newPlot('plot', plotdata, plotlayout, config);
