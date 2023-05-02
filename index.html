@@ -260,7 +260,7 @@
                                 class="fa fa-external-link"></i>&nbsp;</li>
                     </ul>
                     <!--version-->
-                    <p id="version">GRADE v3.3.3 2023/03/26 <a href="https://github.com/stuwilmur/GRADE-DOH">GitHub</a>
+                    <p id="version">GRADE v3.4.0 2023/05/01 <a href="https://github.com/stuwilmur/GRADE-DOH">GitHub</a>
                     </p>
                 </div>
             </div>
@@ -292,6 +292,16 @@
                     -->
                 </div>
                 <div class="plottools">
+                    <label class="container">
+                        Plot population result
+                        <input type="radio" id="population" name="Plot type" value="population" checked>
+                        <span class="checkmark"></span>
+                    </label>
+                    <label class="container">
+                        Plot coverage percentage
+                        <input type="radio" id="coverage" name="Plot type" value="coverage">
+                        <span class="checkmark"></span>
+                    </label>
                     <button onclick="download_csv_plot()"><i class="fa fa-download"></i>&nbsp;Download plot
                         data</button>
                     <button onclick="reset()"><i class="fa fa-close"></i>&nbsp;Close</button>

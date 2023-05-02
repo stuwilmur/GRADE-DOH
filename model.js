@@ -363,6 +363,18 @@ function computegovernance(_iso, _year, _gov, _grpc) {
     return ret;
 }
 
+function getobservedgovernance(_iso, _year) {
+    var ret = new Map();
+    govMeasures.forEach(function (measure, govtype) {
+        var gov_value = popdata.getvalue(_iso, _year, govtype)
+        ret.set(govtype, {
+            desc: `historical ${measure.desc}`,
+            value: gov_value,
+        });
+    })
+    return ret;
+}
+
 function compute(_iso, _year, _outcome, _grpc, _gov) {
     return outcomesMap.get(_outcome).fn(_grpc, _iso, _year, _gov);
 }
@@ -474,10 +486,10 @@ function computeResult(_iso, _year, _outcome, _grpc, _grpcOrig, _govImprovement,
     var fitted = compute(_iso, _year, _outcome, _grpcOrig, {model : null})
     var bInterp = (outcomesMap.get(_outcome)).isInterpolated;
     var original = popdata.getvalue(_iso, _year, _outcome, bInterp);
+    var outcome_name = (outcomesMap.get(_outcome)).name;
     
     // treat zero as "no data"
     if (original === 0 || isNaN(original)){
-        var outcome_name = (outcomesMap.get(_outcome)).name;
         return {error : [outcome_name + " not available for " + _year]};
     }
     var improved = compute(_iso, _year, _outcome, _grpc, _govImprovement)
@@ -511,11 +523,16 @@ function computeResult(_iso, _year, _outcome, _grpc, _grpcOrig, _govImprovement,
         "original": original,
         "improved": improved,
         "fitted": fitted,
+        "population": popdata.getvalue(_iso, _year, "Population, total"),
         "additional": computeAdditionalResults(_iso, _year, _outcome, improved, original),
         "special": computeSpecialResults(_iso, _year, _outcome, improved, original, (_grpc - _grpcOrig)),
         "gov": govresults,
         "incomelevel" : popdata.getstring(_iso, _year, 'incomelevel'),
-        "region": popdata.getstring(_iso, _year, 'region')
+        "region": popdata.getstring(_iso, _year, 'region'),
+        "coverage" : [
+            {name:`historical ${outcome_name} coverage`, value: original, keyvariable : true},
+            {name: `improved ${outcome_name} coverage`, value : improved, keyvariable : true}
+        ],
     };
     return ret;
 }

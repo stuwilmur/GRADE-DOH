@@ -19,10 +19,13 @@ function getProjectionData(_firstyear, _country, _outcome, _years_to_return, _re
     let datarowPrototype = {
         "year": null,
         "additional": null,
+        "coverage" : null,
         "grpc": Object.create(grpcPrototype),
+        "govObserved" : null,
         "gov": null,
         "incomelevel": null,
-        "region": null
+        "region": null,
+        "population": null,
     }
 
     if (_governance.model == "EXOGENOUS")
@@ -103,24 +106,30 @@ function getProjectionData(_firstyear, _country, _outcome, _years_to_return, _re
         datarow.grpc = grpcrow
 
         datarow.year = +y
+        datarow.govObserved = getobservedgovernance(_country, y);
         
         if (ret.error === null)
         {
             datarow.additional = computed.additional
+            datarow.coverage = computed.coverage
             datarow.gov = computed.gov
             datarow.incomelevel = computed.incomelevel
             datarow.region = computed.region
+            datarow.population = computed.population
             years_successful++;
         }
         else
         {
             // Get a blank set of additional results (set to NaN)
             datarow.additional = computeAdditionalResults(_country, y, _outcome, NaN, NaN)
+            // Just get the coverage from the computed coverage
+            datarow.coverage = computed.coverage;
             // Try and compute the governance despite the error being present
             datarow.gov = computegovernance(_country, y, _governance, grpc)
-            // Fill in income level and region directly from the population data
-            datarow.incomelevel = popdata.getstring(_country, y, 'incomelevel'),
+            // Fill in income level, region and population directly from the population data
+            datarow.incomelevel = popdata.getstring(_country, y, 'incomelevel')
             datarow.region = popdata.getstring(_country, y, 'region')
+            datarow.population = popdata.getvalue(_country, y, "Population, total");
         }
 
         ret.data.push(datarow);
@@ -156,7 +165,7 @@ function getProjectionData(_firstyear, _country, _outcome, _years_to_return, _re
 
 function getProjectionCSVData(_year, _countries, _outcomes, _years_to_project, _revenue, _governance)
 {
-    var header = "country,iso,year,income level,region";
+    var header = "country,iso,year,income level,region, total population";
     var ret = {str : null, errors : null};
     var headerDone = false;
     for (iCountry = 0; iCountry < _countries.length; iCountry++) 
@@ -185,6 +194,7 @@ function getProjectionCSVData(_year, _countries, _outcomes, _years_to_project, _
                 projectionData.data.forEach(function(row, index)
                 {
                     data[index].additional.push(...row.additional)
+                    data[index].coverage.push(...row.coverage)
                 })
             }
         })
@@ -195,8 +205,16 @@ function getProjectionCSVData(_year, _countries, _outcomes, _years_to_project, _
                 header += "," + property;
             }
 
+            data[0].coverage.forEach(function (property) {
+                header += "," + property.name;
+            });
+
             data[0].additional.forEach(function (property) {
                 header += "," + property.name;
+            });
+
+            data[0].govObserved.forEach(function (property) {
+                header += "," + property.desc;
             });
 
             data[0].gov.forEach(function (property) {
@@ -209,13 +227,21 @@ function getProjectionCSVData(_year, _countries, _outcomes, _years_to_project, _
 
         data.forEach(function (datarow) {
             let row = "";
-            body += countrycodes.get(_country).replace(","," -") + "," + _country + "," + datarow.year + "," + datarow.incomelevel + "," + datarow.region + ",";
+            body += countrycodes.get(_country).replace(","," -") + "," + _country + "," + datarow.year + "," + datarow.incomelevel + "," + datarow.region + "," + datarow.population + ",";
 
             for (const property in datarow.grpc) {
                 body += datarow.grpc[property] + ",";
             }
 
+            datarow.coverage.forEach(function (property) {
+                body += property.value + ",";
+            });
+
             datarow.additional.forEach(function (property) {
+                body += property.value + ",";
+            });
+
+            datarow.govObserved.forEach(function (property) {
                 body += property.value + ",";
             });
 

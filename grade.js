@@ -676,6 +676,11 @@ function setupMenus(_countries, _outcomes) {
         multioutcome = this.value;
     });
 
+    d3.selectAll("input[name='Plot type']").on("change", function(){
+        plottype = this.value;
+        mainUpdate();
+    });
+
     fileElem = document.getElementById("fileElem");
 
     fileElem.addEventListener("change", handleRevenueCsv, false);
@@ -777,11 +782,12 @@ function updateplot() {
        
         var plotdata = [];
         var spaces = "          ";
+        const resultToPlot = plottype == "population" ? 'additional' : 'coverage';
         
-        (data[0]).additional.forEach(function(property,i){
+        (data[0])[resultToPlot].forEach(function(property,i){
             var outcomedata = {
                 x: data.map(a => a.year),
-                y: data.map(a => a.additional[i].value),
+                y: data.map(a => a[resultToPlot][i].value),
                 text: data.map(function(a){
                                 var s = "";
                                 a.gov.forEach(function(gov_result,k){
