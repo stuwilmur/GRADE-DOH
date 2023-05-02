@@ -165,7 +165,7 @@ function getProjectionData(_firstyear, _country, _outcome, _years_to_return, _re
 
 function getProjectionCSVData(_year, _countries, _outcomes, _years_to_project, _revenue, _governance)
 {
-    var header = "country,iso,year,income level,region, total population";
+    var header = "country,iso,year,income level,region,total population";
     var ret = {str : null, errors : null};
     var headerDone = false;
     for (iCountry = 0; iCountry < _countries.length; iCountry++) 
