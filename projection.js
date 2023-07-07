@@ -1,6 +1,6 @@
 const fixed_years_to_wait = 5;
 
-function getProjectionData(_firstyear, _country, _outcome, _years_to_return, _revenue, _governance) {
+function getProjectionData(_firstyear, _country, _outcome, _years_to_return, _revenue, _governance, _smooth) {
     // Takes a baseline year an increase in revenue, and calculates the corresponding % increase in grpc:
     // projects this by: allowing five years for increased revenue to act, where there is no effect;
     // applying the percentage increase for all remaining years (up to a total of years_to_project years). 
@@ -135,7 +135,7 @@ function getProjectionData(_firstyear, _country, _outcome, _years_to_return, _re
         ret.data.push(datarow);
     }
 
-    if (_governance.model == "EXOGENOUS" && (years_successful > years_to_wait))
+    if (_smooth && _governance.model == "EXOGENOUS" && (years_successful > years_to_wait))
     {
         // Smooth all effects between the starting year (no effect)
         // and the start of effect using linear interpolation
@@ -163,7 +163,7 @@ function getProjectionData(_firstyear, _country, _outcome, _years_to_return, _re
     return (ret)
 }
 
-function getProjectionCSVData(_year, _countries, _outcomes, _years_to_project, _revenue, _governance)
+function getProjectionCSVData(_year, _countries, _outcomes, _years_to_project, _revenue, _governance, _smooth)
 {
     var header = "country,iso,year,income level,region,total population";
     var ret = {str : null, errors : null};
@@ -176,7 +176,7 @@ function getProjectionCSVData(_year, _countries, _outcomes, _years_to_project, _
 
         _outcomes.forEach(function (thisOutcome)
         {
-            let projectionData = getProjectionData(_year, _country, thisOutcome, _years_to_project, _revenue, _governance);
+            let projectionData = getProjectionData(_year, _country, thisOutcome, _years_to_project, _revenue, _governance, _smooth);
 
             if (projectionData.error) {
                 if (ret.errors === null){
@@ -256,11 +256,11 @@ function getProjectionCSVData(_year, _countries, _outcomes, _years_to_project, _
     return ret;
 }
 
-function calcProjection(_year, _country, _outcome, _years_to_project, _revenue, _governance)
+function calcProjection(_year, _country, _outcome, _years_to_project, _revenue, _governance, _smooth)
 {
     // calculate the total [final] values of projected effects for flow [stock] variables
     var ret = {data : null, error : null, effect_description : null};
-    var plotdata = getProjectionData(_year, _country, _outcome, _years_to_project, _revenue, _governance);
+    var plotdata = getProjectionData(_year, _country, _outcome, _years_to_project, _revenue, _governance, _smooth);
     
     if (plotdata.error){
         ret.error = plotdata.error;

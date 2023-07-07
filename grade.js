@@ -30,6 +30,7 @@ var outcome = "SANITBASIC";
 var govtype = "GOVEFFECT";
 var multiplecountries = ["$-ALL"];
 var multioutcome = "THIS";
+var smooth = true;
 
 var selections = new Map([
     [
@@ -198,13 +199,13 @@ function getColor(_cid, _year, _revenue, _governance) {
     }
 }
 
-function makeText2(_year, _iso, _outcome, _years_to_project, _revenue, _governance)
+function makeText2(_year, _iso, _outcome, _years_to_project, _revenue, _governance, _smooth)
 {
     // accompanies makeText() (which does the instantaneous calculation)
     // as version that is specific to the projection.
     
     var end_year = getProjectionEnd(_year, _years_to_project)
-    var projection = calcProjection(_year, _iso, _outcome, _years_to_project, _revenue, _governance)
+    var projection = calcProjection(_year, _iso, _outcome, _years_to_project, _revenue, _governance, _smooth)
     var text = "";
     text = text 
         + "<h1 class='tooltip'> " +  countrycodes.get(_iso) + "</h1>"
@@ -365,13 +366,13 @@ function getPrefixValue(p) {
         return 1;
 }
 
-function getText(_d, _bProjection, _revenue, _year, _governance) {
+function getText(_d, _bProjection, _revenue, _year, _governance, _smooth) {
     if (_d.id.slice(0, 2) == "$-") {
         return "";
     }
 
     if (_bProjection) {
-        return makeText2(_year, _d.id, outcome, +years_to_project, _revenue, _governance);
+        return makeText2(_year, _d.id, outcome, +years_to_project, _revenue, _governance, _smooth);
     } else {
         return makeText(_d.id, _year, _revenue, _governance)
     }
@@ -661,6 +662,9 @@ function setupMenus(_countries, _outcomes) {
 
     d3.selectAll("input[name='governance model']").on("change", function(){
         governanceModel = this.value;
+
+        // Only show the "smooth" checkbox for the exogenous model
+        document.getElementById("smooth").style.display =  governanceModel == "EXOGENOUS" ? "block" : "none";
         
         // Disable the governance slider if using the endogenous model
         document.getElementById('govSlider').disabled = (governanceModel == "ENDOGENOUS");
@@ -668,6 +672,11 @@ function setupMenus(_countries, _outcomes) {
         // Disable the target SDG controls if using the endogenous model
         document.getElementById('targetInput').disabled = (governanceModel == "ENDOGENOUS");
         document.getElementById('targetpanel').style.opacity =  governanceModel == "ENDOGENOUS" ? 0.5 : 1.0;
+        mainUpdate();
+    });
+
+    d3.selectAll("input[name='smooth']").on("change", function(){
+        smooth = this.checked;
         mainUpdate();
     });
 
@@ -741,7 +750,7 @@ function updateCountries() {
         "id": country
     };
     if (true){ // set true to show instantaneous box
-        var text = getText(d, true, getRevenueInputs(), +year, getGovernanceInputs());
+        var text = getText(d, true, getRevenueInputs(), +year, getGovernanceInputs(), smooth);
         d3.select("#countrytext").
         html(text);
         d3.select("#countrydata")
@@ -764,7 +773,7 @@ function updateplot() {
         d3.select("#plotwrapper").style("display", "none");
         //d3.select("#ploterror").style("display", "none"); //!! remove
     } else {
-        var plotdata = getProjectionData(+year, country, outcome, +years_to_project, getRevenueInputs(), getGovernanceInputs());
+        var plotdata = getProjectionData(+year, country, outcome, +years_to_project, getRevenueInputs(), getGovernanceInputs(), smooth);
         
         if (plotdata.error){
             d3.select("#plotwrapper").style("display", "none");
@@ -845,13 +854,13 @@ function updatetarget(){
     .html(text);
 }
 
-function download_csv(_year, _years_to_project, _countries, _outcomes, _revenue, _governance) {
+function download_csv(_year, _years_to_project, _countries, _outcomes, _revenue, _governance, _smooth) {
     if (_countries.length < 1)
     {
         return ["No countries selected",];
     }
     var final_year = getProjectionEnd(_year, _years_to_project);
-    var csvdata = getProjectionCSVData(_year, _countries, _outcomes, _years_to_project, _revenue, _governance);
+    var csvdata = getProjectionCSVData(_year, _countries, _outcomes, _years_to_project, _revenue, _governance, _smooth);
     var button_title =  _year + "-" + final_year + ".csv";
     if (_countries.length == 1)
     {
@@ -875,7 +884,7 @@ function download_csv(_year, _years_to_project, _countries, _outcomes, _revenue,
 }
 
 function download_csv_plot(){
-    download_csv(+year, +years_to_project, [country,], [outcome,], getRevenueInputs(), getGovernanceInputs());
+    download_csv(+year, +years_to_project, [country,], [outcome,], getRevenueInputs(), getGovernanceInputs(), smooth);
 }
 
 function download_csv_multi(){
@@ -908,7 +917,7 @@ function download_csv_multi(){
         })
     }
 
-    var error = download_csv(+year, +years_to_project, countries_to_export.sort(), outcomes, getRevenueInputs(), getGovernanceInputs());
+    var error = download_csv(+year, +years_to_project, countries_to_export.sort(), outcomes, getRevenueInputs(), getGovernanceInputs(), smooth);
     if (error){
         d3.select("#multicountryerror")
         .html(error.join("<br />"));
@@ -982,7 +991,7 @@ function loaded(error, _countries, _popdata, _gdpdef) {
         })
         .call(d3.helper.tooltip(
             function (d, i) {
-                return getText(d, false, getRevenueInputs(), +year, getGovernanceInputs());
+                return getText(d, false, getRevenueInputs(), +year, getGovernanceInputs(), false);
             })); // tooltip based on an example from Roger Veciana: http://bl.ocks.org/rveciana/5181105    
 
     svg2.append("g")
