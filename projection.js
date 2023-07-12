@@ -122,8 +122,16 @@ function getProjectionData(_firstyear, _country, _outcome, _years_to_return, _re
         {
             // Get a blank set of additional results (set to NaN)
             datarow.additional = computeAdditionalResults(_country, y, _outcome, NaN, NaN)
-            // Just get the coverage from the computed coverage
-            datarow.coverage = computed.coverage;
+            if (computed == undefined || computed.coverage == undefined)
+            {
+                // Just create a blank coverage entry
+                datarow.coverage = coverageObject(_outcome, NaN, NaN)
+            }
+            else
+            {
+                // Use the computed coverage
+                datarow.coverage = computed.coverage;
+            }
             // Try and compute the governance despite the error being present
             datarow.gov = computegovernance(_country, y, _governance, grpc)
             // Fill in income level, region and population directly from the population data

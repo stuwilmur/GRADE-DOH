@@ -481,6 +481,15 @@ function computeSpecialResults(_iso, _year, _outcome, _improved, _original, _add
     return special_results;
 }
 
+function coverageObject(_outcome, _original, _improved)
+{
+    var outcome_name = (outcomesMap.get(_outcome)).name;
+    return [
+        {name:`historical ${outcome_name} coverage`, value: _original, keyvariable : true},
+        {name: `improved ${outcome_name} coverage`, value : _improved, keyvariable : true}
+    ];
+}
+
 function computeResult(_iso, _year, _outcome, _grpc, _grpcOrig, _govImprovement, _epsilon = 0) {
  
     var fitted = compute(_iso, _year, _outcome, _grpcOrig, {model : null})
@@ -529,10 +538,7 @@ function computeResult(_iso, _year, _outcome, _grpc, _grpcOrig, _govImprovement,
         "gov": govresults,
         "incomelevel" : popdata.getstring(_iso, _year, 'incomelevel'),
         "region": popdata.getstring(_iso, _year, 'region'),
-        "coverage" : [
-            {name:`historical ${outcome_name} coverage`, value: original, keyvariable : true},
-            {name: `improved ${outcome_name} coverage`, value : improved, keyvariable : true}
-        ],
+        "coverage" : coverageObject(_outcome, original, improved),
     };
     return ret;
 }
