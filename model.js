@@ -311,6 +311,161 @@ var outcomesList = [
                 return res;
             },
          }],
+         ["PRIMARYSCHOOL",
+        {
+            name: "Primary school - TODO check name",
+            loCol: "#dee5f8",
+            hiCol: "#e09900",
+            fixedExtent: [0, 1],
+            desc: "TODO",
+            isStockVar : false,
+            isInterpolated : false,
+            target: 1,
+            fn :    function(_grpc, _iso, _year, _gov) { 
+                g = _type => getGov(_type, _iso, _year, _gov, _grpc);
+                const result =
+                1.0 /
+                (1.0 +
+                Math.exp(
+                -(
+                    0.589328646943 +
+                    0.124605780877 * g("CORRUPTION") -
+                    0.022521406946 * g("POLSTAB") -
+                    0.0395534844738 * g("REGQUALITY") -
+                    0.0897099747213 * g("RULELAW") +
+                    0.155803357829 * g("GOVEFFECT") +
+                    0.168729825949 * g("VOICE")
+                ) *
+                    (Math.log(_grpc) -
+                    (2.19330330895 +
+                        1.5612672242 * g("CORRUPTION") -
+                        0.763089270327 * g("POLSTAB") -
+                        0.749356781002 * g("RULELAW") +
+                        1.67274041346 * g("VOICE"))),
+                ));
+                return result;
+            },
+            inv_fn : function(_target, _iso, _year, _gov){
+                g = _type => getGov(_type, _iso, _year, _gov);
+                const A = -(
+                    0.589328646943 +
+                    0.124605780877 * g("CORRUPTION") -
+                    0.022521406946 * g("POLSTAB") -
+                    0.0395534844738 * g("REGQUALITY") -
+                    0.0897099747213 * g("RULELAW") +
+                    0.155803357829 * g("GOVEFFECT") +
+                    0.168729825949 * g("VOICE")
+                  );
+                  const B =
+                    2.19330330895 +
+                    1.5612672242 * g("CORRUPTION") -
+                    0.763089270327 * g("POLSTAB") -
+                    0.749356781002 * g("RULELAW") +
+                    1.67274041346 * g("VOICE");
+                  const result = Math.exp(Math.log(1.0 / target - 1.0) / A + B);
+                  return result;
+            },
+         }],
+         ["LOWERSCHOOL",
+        {
+            name: "Lower school - TODO check name",
+            loCol: "#dee5f8",
+            hiCol: "#e09900",
+            fixedExtent: [0, 1],
+            desc: "TODO",
+            isStockVar : false,
+            isInterpolated : false,
+            target: 1,
+            fn :    function(_grpc, _iso, _year, _gov) { 
+                g = _type => getGov(_type, _iso, _year, _gov, _grpc);
+                const result =
+                1.0 /
+                (1.0 +
+                Math.exp(
+                    -(
+                    0.679930922743 +
+                    0.11304679055 * g("CORRUPTION") -
+                    0.0707268839476 * g("RULELAW") +
+                    0.223730449682 * g("GOVEFFECT") +
+                    0.109364715484 * g("VOICE")
+                    ) *
+                    (Math.log(_grpc) -
+                        (3.85500426861 +
+                        0.753438911315 * g("CORRUPTION") -
+                        0.254913022991 * g("POLSTAB") +
+                        0.104173700723 * g("REGQUALITY") -
+                        0.516714762024 * g("RULELAW") +
+                        0.709822881619 * g("GOVEFFECT") +
+                        0.497976176438 * g("VOICE"))),
+                ));
+                return result;
+            },
+            inv_fn : function(_target, _iso, _year, _gov){
+                g = _type => getGov(_type, _iso, _year, _gov);
+                const A = -(
+                    0.679930922743 +
+                    0.11304679055 * g("CORRUPTION") -
+                    0.0707268839476 * g("RULELAW") +
+                    0.223730449682 * g("GOVEFFECT") +
+                    0.109364715484 * g("VOICE")
+                  );
+                const B =
+                3.85500426861 +
+                0.753438911315 * g("CORRUPTION") -
+                0.254913022991 * g("POLSTAB") +
+                0.104173700723 * g("REGQUALITY") -
+                0.516714762024 * g("RULELAW") +
+                0.709822881619 * g("GOVEFFECT") +
+                0.497976176438 * g("VOICE");
+                const result = Math.exp(Math.log(1.0 / target - 1.0) / A + B);
+                return result;
+            },
+         }],
+         ["UPPERSCHOOL",
+        {
+            name: "Upper school - TODO check name",
+            loCol: "#dee5f8",
+            hiCol: "#e09900",
+            fixedExtent: [0, 1],
+            desc: "TODO",
+            isStockVar : false,
+            isInterpolated : false,
+            target: 1,
+            fn :    function(_grpc, _iso, _year, _gov) { 
+                g = _type => getGov(_type, _iso, _year, _gov, _grpc);
+                const result =
+                1.0 /
+                (1.0 +
+                Math.exp(
+                    -(
+                    0.469760642832 -
+                    0.0249360651581 * g("POLSTAB") +
+                    0.123301081621 * g("REGQUALITY")
+                    ) *
+                    (Math.log(_grpc) -
+                        (5.22968033236 +
+                        0.236802808614 * g("CORRUPTION") -
+                        0.14616763297 * g("POLSTAB") -
+                        0.287536755867 * g("VOICE"))),
+                ));
+                return result;
+            },
+            inv_fn : function(_target, _iso, _year, _gov){
+                g = _type => getGov(_type, _iso, _year, _gov);
+                const A = -(
+                    0.469760642832 -
+                    0.0249360651581 * g("POLSTAB") +
+                    0.123301081621 * g("REGQUALITY")
+                  );
+                const B =
+                5.22968033236 +
+                0.236802808614 * g("CORRUPTION") -
+                0.14616763297 * g("POLSTAB") -
+                0.287536755867 * g("VOICE");
+                const result = Math.exp(Math.log(1.0 / target - 1.0) / A + B);
+                return result;
+            },
+         }],
 
 		/*["IMUNISATION",
         {
@@ -585,6 +740,9 @@ function typeAndSetPopulation(d) {
     e["incomelevel"]                            = d["incomelevel"]
     e["Number of children surviving to five"]   =convertNumber(d["Number of children surviving to five "])
     e["region"]                                 =d["region"]
+    e.PRIMARYSCHOOL                             = convertNumber(d["In school: Primary school"]);
+    e.LOWERSCHOOL                               = convertNumber(d["In school: Lower school"]);
+    e.UPPERSCHOOL                               = convertNumber(d["In school: Upper school"]);
 
     return e;
 }
