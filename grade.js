@@ -1,4 +1,4 @@
-//!! TODO
+// TODO
 // ensure initial options consistent (without resorting to on change)
 // sort projection range size
 

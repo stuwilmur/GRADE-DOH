@@ -313,11 +313,11 @@ var outcomesList = [
          }],
          ["PRIMARYSCHOOL",
         {
-            name: "Primary school - TODO check name",
+            name: "Primary school - TODO: check name",
             loCol: "#dee5f8",
             hiCol: "#e09900",
             fixedExtent: [0, 1],
-            desc: "TODO",
+            desc: "TODO: description",
             isStockVar : false,
             isInterpolated : false,
             target: 1,
@@ -368,11 +368,11 @@ var outcomesList = [
          }],
          ["LOWERSCHOOL",
         {
-            name: "Lower school - TODO check name",
+            name: "Lower school - TODO: check name",
             loCol: "#dee5f8",
             hiCol: "#e09900",
             fixedExtent: [0, 1],
-            desc: "TODO",
+            desc: "TODO: description",
             isStockVar : false,
             isInterpolated : false,
             target: 1,
@@ -423,11 +423,11 @@ var outcomesList = [
          }],
          ["UPPERSCHOOL",
         {
-            name: "Upper school - TODO check name",
+            name: "Upper school - TODO: check name",
             loCol: "#dee5f8",
             hiCol: "#e09900",
             fixedExtent: [0, 1],
-            desc: "TODO",
+            desc: "TODO: description",
             isStockVar : false,
             isInterpolated : false,
             target: 1,
@@ -608,6 +608,8 @@ function computeAdditionalResults(_iso, _year, _outcome, improved, original){
         additional.push({name : "Maternal deaths averted", value : (improved - original) / 100 * popBirths, keyvariable : true})
         additional.push({name : "Maternal deaths", value : (1 - original / 100) * popBirths, keyvariable : false})
         additional.push({name : "Maternal deaths with additional revenue", value : (1 - improved / 100) * popBirths, keyvariable : false})
+    } else if (_outcome == "PRIMARYSCHOOL" || _outcome == "LOWERSCHOOL" || _outcome == "UPPERSCHOOL"){
+        additional.push({name : "TODO: add population result", value:0, keyvariable:true})
     }
 
     return additional;
