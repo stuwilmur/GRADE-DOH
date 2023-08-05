@@ -260,6 +260,7 @@ function makeText(_iso, _year, _revenue, _governance) {
         return "<strong>" + countrycodes.get(_iso) + "<\/strong>" + ": " + result.error.join("<br>");
     }
     var text = "";
+    var coverageDescriptor = outcomesMap.get(outcome).isPercentage ? "% coverage" : "coverage ratio";
     text = text + "<h1 class='tooltip'> " +  countrycodes.get(_iso) + "</h1>" +
     "<br/><strong>" + _year + "</strong>" +
     "<br/>Current Gov. rev. per capita: <span class = 'ar'>$" + d3.format(",")(revenues["historical grpc"].toFixed(2)) + "</span>" +
@@ -274,8 +275,8 @@ function makeText(_iso, _year, _revenue, _governance) {
     "<br/><br/><strong>" + outcomesMap.get(outcome).name + "</strong>" 
     +
     "<br/>(instantaneous effect)"
-    +"<br/>Current % coverage: <span class = 'ar'>" + result.original.toFixed(2) + "</span>" +
-    "<br/>New % coverage: <span class = 'ar'>" + result.improved.toFixed(2) + "</span>";
+    +"<br/>Current " + coverageDescriptor + ": <span class = 'ar'>" + result.original.toFixed(2) + "</span>" +
+    "<br/>New " + coverageDescriptor + ": <span class = 'ar'>" + result.improved.toFixed(2) + "</span>";
 
     if (result.hasOwnProperty("additional")) {
         result.additional.forEach(function(property) {
@@ -830,10 +831,6 @@ function updateplot() {
                 ay: +50
             }
           ]
-        
-        if (y_var_max < 1E-6){
-            plotlayout.yaxis.range = [-1,1];
-        }
 
         if (plottype == 'coverage')
         {
@@ -842,6 +839,15 @@ function updateplot() {
         else
         {
             plotlayout.yaxis = {hoverformat: ',.0f', tickformat : ',.0f'};
+        }
+
+        if (plottype == "coverage")
+        {
+            plotlayout.yaxis.range = theOutcome.fixedExtent;
+        }
+        
+        if (y_var_max < 1E-6){
+            plotlayout.yaxis.range = [-1,1];
         }
 
         Plotly.newPlot('plot', plotdata, plotlayout, config);

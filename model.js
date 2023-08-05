@@ -9,6 +9,7 @@ var outcomesList = [
             desc: "The percentage of the population drinking water from an improved source, provided collection time is not more than 30 minutes for a round trip.",
             isStockVar : true,
             isInterpolated : false,
+            isPercentage: true,
             target: 100,
             coeffs : new Map(
                 [
@@ -49,6 +50,7 @@ var outcomesList = [
             and free from faecal and priority chemical contamination.`,
             isStockVar : true,
             isInterpolated : false,
+            isPercentage: true,
             target: 100,
             coeffs : new Map(
                 [
@@ -94,6 +96,7 @@ var outcomesList = [
             sanitation facilities that are not shared with other households.`,
             isStockVar : true,
             isInterpolated : false,
+            isPercentage: true,
             target: 100,
             coeffs : new Map(
                 [
@@ -144,6 +147,7 @@ var outcomesList = [
             offsite.`,
             isStockVar : true,
             isInterpolated : false,
+            isPercentage: true,
             target: 100,
             coeffs : new Map(
                 [
@@ -187,6 +191,7 @@ var outcomesList = [
             desc: `The percentage of child school life expectancy, where 100% represents 17 years of schooling.`,
             isStockVar : false,
             isInterpolated : true,
+            isPercentage: true,
             target : 100,
             coeffs : new Map(
                 [
@@ -229,6 +234,7 @@ var outcomesList = [
             desc: "Under-5 survival",
             isStockVar : false,
             isInterpolated : false,
+            isPercentage: true,
             target: 99.9, // upper limit of mortality of 1 in 1000
             coeffs : new Map(
                 [
@@ -273,6 +279,7 @@ var outcomesList = [
             desc: "Maternal survival",
             isStockVar : false,
             isInterpolated : false,
+            isPercentage: true,
             target: 100,
             coeffs : new Map(
                 [
@@ -320,6 +327,7 @@ var outcomesList = [
             desc: "TODO: description",
             isStockVar : false,
             isInterpolated : false,
+            isPercentage: false,
             target: 1,
             fn :    function(_grpc, _iso, _year, _gov) { 
                 g = _type => getGov(_type, _iso, _year, _gov, _grpc);
@@ -375,6 +383,7 @@ var outcomesList = [
             desc: "TODO: description",
             isStockVar : false,
             isInterpolated : false,
+            isPercentage: false,
             target: 1,
             fn :    function(_grpc, _iso, _year, _gov) { 
                 g = _type => getGov(_type, _iso, _year, _gov, _grpc);
@@ -430,6 +439,7 @@ var outcomesList = [
             desc: "TODO: description",
             isStockVar : false,
             isInterpolated : false,
+            isPercentage: false,
             target: 1,
             fn :    function(_grpc, _iso, _year, _gov) { 
                 g = _type => getGov(_type, _iso, _year, _gov, _grpc);
