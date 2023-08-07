@@ -618,8 +618,18 @@ function computeAdditionalResults(_iso, _year, _outcome, improved, original){
         additional.push({name : "Maternal deaths averted", value : (improved - original) / 100 * popBirths, keyvariable : true})
         additional.push({name : "Maternal deaths", value : (1 - original / 100) * popBirths, keyvariable : false})
         additional.push({name : "Maternal deaths with additional revenue", value : (1 - improved / 100) * popBirths, keyvariable : false})
-    } else if (_outcome == "PRIMARYSCHOOL" || _outcome == "LOWERSCHOOL" || _outcome == "UPPERSCHOOL"){
-        additional.push({name : "TODO: add population result", value:0, keyvariable:true})
+    } else if (_outcome == "PRIMARYSCHOOL"){
+        additional.push({name : "Additional children in primary education, both sexes (number)", value: (improved - original) * popdata.getvalue(_iso, _year, "School age population, primary education, both sexes (number)"), keyvariable:true})
+        additional.push({name : "Additional children in primary education, female (number)", value: (improved - original) * popdata.getvalue(_iso, _year, "School age population, primary education, female (number)"), keyvariable:true})
+        additional.push({name : "Additional children in primary education, male (number)", value: (improved - original) * popdata.getvalue(_iso, _year, "School age population, primary education, male (number)"), keyvariable:true})
+    } else if (_outcome == "LOWERSCHOOL"){
+        additional.push({name : "Additional children in lower secondary education, both sexes (number)", value: (improved - original) * popdata.getvalue(_iso, _year, "School age population, lower secondary education, both sexes (number)"), keyvariable:true})
+        additional.push({name : "Additional children in lower secondary education, female (number)", value: (improved - original) * popdata.getvalue(_iso, _year, "School age population, lower secondary education, female (number)"), keyvariable:true})
+        additional.push({name : "Additional children in lower secondary education, male (number)", value: (improved - original) * popdata.getvalue(_iso, _year, "School age population, lower secondary education, male (number)"), keyvariable:true})
+    } else if (_outcome == "UPPERSCHOOL"){
+        additional.push({name : "Additional children in upper secondary education, both sexes (number)", value: (improved - original) * popdata.getvalue(_iso, _year, "School age population, upper secondary education, both sexes (number)"), keyvariable:true})
+        additional.push({name : "Additional children in upper secondary education, female (number)", value: (improved - original) * popdata.getvalue(_iso, _year, "School age population, upper secondary education, female (number)"), keyvariable:true})
+        additional.push({name : "Additional children in upper secondary education, male (number)", value: (improved - original) * popdata.getvalue(_iso, _year, "School age population, upper secondary education, male (number)"), keyvariable:true})
     }
 
     return additional;
@@ -755,6 +765,15 @@ function typeAndSetPopulation(d) {
     e.PRIMARYSCHOOL                             = convertNumber(d["In school: Primary school"]);
     e.LOWERSCHOOL                               = convertNumber(d["In school: Lower school"]);
     e.UPPERSCHOOL                               = convertNumber(d["In school: Upper school"]);
+    e["School age population, primary education, both sexes (number)"]          = convertNumber(d["School age population, primary education, both sexes (number)"]          );
+    e["School age population, primary education, female (number)"]              = convertNumber(d["School age population, primary education, female (number)"]);
+    e["School age population, primary education, male (number)"]                = convertNumber(d["School age population, primary education, male (number)"]);
+    e["School age population, lower secondary education, both sexes (number)"]  = convertNumber(d["School age population, lower secondary education, both sexes (number)"]);
+    e["School age population, lower secondary education, female (number)"]      = convertNumber(d["School age population, lower secondary education, female (number)"]);
+    e["School age population, lower secondary education, male (number)"]        = convertNumber(d["School age population, lower secondary education, male (number)"]);
+    e["School age population, upper secondary education, both sexes (number)"]  = convertNumber(d["School age population, upper secondary education, both sexes (number)"]);
+    e["School age population, upper secondary education, female (number)"]      = convertNumber(d["School age population, upper secondary education, female (number)"]);
+    e["School age population, upper secondary education, male (number)"]        = convertNumber(d["School age population, upper secondary education, male (number)"]);
 
     return e;
 }
