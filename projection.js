@@ -171,9 +171,14 @@ function getProjectionData(_firstyear, _country, _outcome, _years_to_return, _re
     return (ret)
 }
 
+function quote(string)
+{
+    return `"${string}"`
+}
+
 function getProjectionCSVData(_year, _countries, _outcomes, _years_to_project, _revenue, _governance, _smooth)
 {
-    var header = "country,iso,year,income level,region,total population";
+    var header = `country,iso,year,"income level",region,"total population"`;
     var ret = {str : null, errors : null};
     var headerDone = false;
     for (iCountry = 0; iCountry < _countries.length; iCountry++) 
@@ -210,23 +215,23 @@ function getProjectionCSVData(_year, _countries, _outcomes, _years_to_project, _
         if(!headerDone){
             headerDone = true;
             for (const property in data[0].grpc) {
-                header += "," + property;
+                header += "," + quote(property);
             }
 
             data[0].coverage.forEach(function (property) {
-                header += "," + property.name;
+                header += "," + quote(property.name);
             });
 
             data[0].additional.forEach(function (property) {
-                header += "," + property.name;
+                header += "," + quote(property.name);
             });
 
             data[0].govObserved.forEach(function (property) {
-                header += "," + property.desc;
+                header += "," + quote(property.desc);
             });
 
             data[0].gov.forEach(function (property) {
-                header += "," + property.desc;
+                header += "," + quote(property.desc);
             });
 
             header += "\n";
