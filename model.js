@@ -320,11 +320,11 @@ var outcomesList = [
          }],
          ["PRIMARYSCHOOL",
         {
-            name: "Primary school - TODO: check name",
+            name: "Primary school attendance",
             loCol: "#dee5f8",
             hiCol: "#e09900",
             fixedExtent: [0, 1],
-            desc: "TODO: description",
+            desc: "Proportion of primary-school-age children who attend primary school",
             isStockVar : false,
             isInterpolated : false,
             isPercentage: false,
@@ -376,7 +376,7 @@ var outcomesList = [
          }],
          ["LOWERSCHOOL",
         {
-            name: "Lower school - TODO: check name",
+            name: "Proportion of lower-school-age children who attend lower school",
             loCol: "#dee5f8",
             hiCol: "#e09900",
             fixedExtent: [0, 1],
@@ -432,7 +432,7 @@ var outcomesList = [
          }],
          ["UPPERSCHOOL",
         {
-            name: "Upper school - TODO: check name",
+            name: "Proportion of upper-school-age children who attend upper school",
             loCol: "#dee5f8",
             hiCol: "#e09900",
             fixedExtent: [0, 1],
