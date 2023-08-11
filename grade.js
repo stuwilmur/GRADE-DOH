@@ -31,6 +31,7 @@ var govtype = "GOVEFFECT";
 var multiplecountries = ["$-ALL"];
 var multioutcome = "THIS";
 var smooth = true;
+var limitgovernance = false;
 
 var selections = new Map([
     [
@@ -678,6 +679,11 @@ function setupMenus(_countries, _outcomes) {
 
     d3.selectAll("input[name='smooth']").on("change", function(){
         smooth = this.checked;
+        mainUpdate();
+    });
+
+    d3.selectAll("input[name='limit']").on("change", function(){
+        limitgovernance = this.checked;
         mainUpdate();
     });
 
