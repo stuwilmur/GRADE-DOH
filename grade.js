@@ -555,7 +555,7 @@ function setupMenus(_countries, _outcomes) {
         d3.select("#prefix")
             .on("change", function (d) {
                 prefix = this.options[this.selectedIndex].value;
-                var sliderVar = document.getElementById('#absRevSlider');
+                var sliderVar = document.getElementById('absRevSlider').value;
                 var prefixValue = getPrefixValue(prefix);
                 absGovRev = str2Num(sliderVar) * prefixValue;
                 d3.select("#absRevenueVal").text("$" + Math.round(absGovRev / prefixValue) + getPrefix(prefix));

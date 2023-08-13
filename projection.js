@@ -209,7 +209,7 @@ function getProjectionCSVData(_year, _countries, _outcomes, _years_to_project, _
                 projectionData.data.forEach(function(row, index)
                 {
                     data[index].additional.push(...row.additional)
-                    data[index].coverage.push(...row.coverage)
+                    data[index].coverage = data[index].coverage.concat(row.coverage);
                 })
             }
         })
