@@ -658,6 +658,25 @@ function computeSpecialResults(_iso, _year, _outcome, _improved, _original, _add
     return special_results;
 }
 
+function getPopulationResults(_iso, _year, _outcome)
+{
+    results = [];
+    if (_outcome == "PRIMARYSCHOOL"){
+        results.push({name : "School age population, primary education, both sexes (number)", value: popdata.getvalue(_iso, _year, "School age population, primary education, both sexes (number)")})
+        results.push({name : "School age population, primary education, female (number)", value: popdata.getvalue(_iso, _year, "School age population, primary education, female (number)")})
+        results.push({name : "School age population, primary education, male (number)", value: popdata.getvalue(_iso, _year, "School age population, primary education, male (number)")})
+    } else if (_outcome == "LOWERSCHOOL"){
+        results.push({name : "School age population, lower secondary education, both sexes (number)", value: popdata.getvalue(_iso, _year, "School age population, lower secondary education, both sexes (number)")})
+        results.push({name : "School age population, lower secondary education, female (number)", value: popdata.getvalue(_iso, _year, "School age population, lower secondary education, female (number)")})
+        results.push({name : "School age population, lower secondary education, male (number)", value: popdata.getvalue(_iso, _year, "School age population, lower secondary education, male (number)")})
+    } else if (_outcome == "UPPERSCHOOL"){
+        results.push({name : "School age population, upper secondary education, both sexes (number)", value: popdata.getvalue(_iso, _year, "School age population, upper secondary education, both sexes (number)")})
+        results.push({name : "School age population, upper secondary education, female (number)", value: popdata.getvalue(_iso, _year, "School age population, upper secondary education, female (number)")})
+        results.push({name : "School age population, upper secondary education, male (number)", value: popdata.getvalue(_iso, _year, "School age population, upper secondary education, male (number)")})
+    }
+    return results;
+}
+
 function coverageObject(_outcome, _original, _improved)
 {
     var outcome_name = (outcomesMap.get(_outcome)).name;

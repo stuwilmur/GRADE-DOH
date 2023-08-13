@@ -22,6 +22,7 @@ function getProjectionData(_firstyear, _country, _outcome, _years_to_return, _re
         "coverage" : null,
         "grpc": Object.create(grpcPrototype),
         "govObserved" : null,
+        "populationResults" : null,
         "gov": null,
         "incomelevel": null,
         "region": null,
@@ -107,6 +108,7 @@ function getProjectionData(_firstyear, _country, _outcome, _years_to_return, _re
 
         datarow.year = +y
         datarow.govObserved = getobservedgovernance(_country, y);
+        datarow.populationResults = getPopulationResults(_country, y, _outcome);
         
         if (ret.error === null)
         {
@@ -214,6 +216,11 @@ function getProjectionCSVData(_year, _countries, _outcomes, _years_to_project, _
         
         if(!headerDone){
             headerDone = true;
+
+            data[0].populationResults.forEach(function (property) {
+                header += "," + quote(property.name);
+            });
+
             for (const property in data[0].grpc) {
                 header += "," + quote(property);
             }
@@ -241,6 +248,10 @@ function getProjectionCSVData(_year, _countries, _outcomes, _years_to_project, _
         data.forEach(function (datarow) {
             let row = "";
             body += countrycodes.get(_country).replace(","," -") + "," + _country + "," + datarow.year + "," + datarow.incomelevel + "," + datarow.region + "," + datarow.population + ",";
+
+            datarow.populationResults.forEach(function (property) {
+                body += property.value + ",";
+            });
 
             for (const property in datarow.grpc) {
                 body += datarow.grpc[property] + ",";
