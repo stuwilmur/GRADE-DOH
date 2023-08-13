@@ -9,6 +9,7 @@ var outcomesList = [
             desc: "The percentage of the population drinking water from an improved source, provided collection time is not more than 30 minutes for a round trip.",
             isStockVar : true,
             isInterpolated : false,
+            isPercentage: true,
             target: 100,
             coeffs : new Map(
                 [
@@ -49,6 +50,7 @@ var outcomesList = [
             and free from faecal and priority chemical contamination.`,
             isStockVar : true,
             isInterpolated : false,
+            isPercentage: true,
             target: 100,
             coeffs : new Map(
                 [
@@ -94,6 +96,7 @@ var outcomesList = [
             sanitation facilities that are not shared with other households.`,
             isStockVar : true,
             isInterpolated : false,
+            isPercentage: true,
             target: 100,
             coeffs : new Map(
                 [
@@ -144,6 +147,7 @@ var outcomesList = [
             offsite.`,
             isStockVar : true,
             isInterpolated : false,
+            isPercentage: true,
             target: 100,
             coeffs : new Map(
                 [
@@ -187,6 +191,7 @@ var outcomesList = [
             desc: `The percentage of child school life expectancy, where 100% represents 17 years of schooling.`,
             isStockVar : false,
             isInterpolated : true,
+            isPercentage: true,
             target : 100,
             coeffs : new Map(
                 [
@@ -229,6 +234,7 @@ var outcomesList = [
             desc: "Under-5 survival",
             isStockVar : false,
             isInterpolated : false,
+            isPercentage: true,
             target: 99.9, // upper limit of mortality of 1 in 1000
             coeffs : new Map(
                 [
@@ -273,6 +279,7 @@ var outcomesList = [
             desc: "Maternal survival",
             isStockVar : false,
             isInterpolated : false,
+            isPercentage: true,
             target: 100,
             coeffs : new Map(
                 [
@@ -309,6 +316,164 @@ var outcomesList = [
                 + C(l, 23) * g("REGQUALITY") + C(l, 24) * g("RULELAW") + C(l, 25) * g("GOVEFFECT") + C(l, 26) * g("VOICE"))
                 var res = Math.log((100.0 - 95.0) / (_target - 95) - 1) / A + B;
                 return res;
+            },
+         }],
+         ["PRIMARYSCHOOL",
+        {
+            name: "Primary school attendance",
+            loCol: "#dee5f8",
+            hiCol: "#e09900",
+            fixedExtent: [0, 1],
+            desc: "Proportion of primary-school-age children who attend primary school",
+            isStockVar : false,
+            isInterpolated : false,
+            isPercentage: false,
+            target: 1,
+            fn :    function(_grpc, _iso, _year, _gov) { 
+                g = _type => getGov(_type, _iso, _year, _gov, _grpc);
+                const result =
+                1.0 /
+                (1.0 +
+                Math.exp(
+                -(
+                    0.589328646943 +
+                    0.124605780877 * g("CORRUPTION") -
+                    0.022521406946 * g("POLSTAB") -
+                    0.0395534844738 * g("REGQUALITY") -
+                    0.0897099747213 * g("RULELAW") +
+                    0.155803357829 * g("GOVEFFECT") +
+                    0.168729825949 * g("VOICE")
+                ) *
+                    (Math.log(_grpc) -
+                    (2.19330330895 +
+                        1.5612672242 * g("CORRUPTION") -
+                        0.763089270327 * g("POLSTAB") -
+                        0.749356781002 * g("RULELAW") +
+                        1.67274041346 * g("VOICE"))),
+                ));
+                return result;
+            },
+            inv_fn : function(_target, _iso, _year, _gov){
+                g = _type => getGov(_type, _iso, _year, _gov);
+                const A = -(
+                    0.589328646943 +
+                    0.124605780877 * g("CORRUPTION") -
+                    0.022521406946 * g("POLSTAB") -
+                    0.0395534844738 * g("REGQUALITY") -
+                    0.0897099747213 * g("RULELAW") +
+                    0.155803357829 * g("GOVEFFECT") +
+                    0.168729825949 * g("VOICE")
+                  );
+                  const B =
+                    2.19330330895 +
+                    1.5612672242 * g("CORRUPTION") -
+                    0.763089270327 * g("POLSTAB") -
+                    0.749356781002 * g("RULELAW") +
+                    1.67274041346 * g("VOICE");
+                  const result = Math.exp(Math.log(1.0 / target - 1.0) / A + B);
+                  return result;
+            },
+         }],
+         ["LOWERSCHOOL",
+        {
+            name: "Lower school attendance",
+            loCol: "#dee5f8",
+            hiCol: "#e09900",
+            fixedExtent: [0, 1],
+            desc: "Proportion of lower-school-age children who attend lower school",
+            isStockVar : false,
+            isInterpolated : false,
+            isPercentage: false,
+            target: 1,
+            fn :    function(_grpc, _iso, _year, _gov) { 
+                g = _type => getGov(_type, _iso, _year, _gov, _grpc);
+                const result =
+                1.0 /
+                (1.0 +
+                Math.exp(
+                    -(
+                    0.679930922743 +
+                    0.11304679055 * g("CORRUPTION") -
+                    0.0707268839476 * g("RULELAW") +
+                    0.223730449682 * g("GOVEFFECT") +
+                    0.109364715484 * g("VOICE")
+                    ) *
+                    (Math.log(_grpc) -
+                        (3.85500426861 +
+                        0.753438911315 * g("CORRUPTION") -
+                        0.254913022991 * g("POLSTAB") +
+                        0.104173700723 * g("REGQUALITY") -
+                        0.516714762024 * g("RULELAW") +
+                        0.709822881619 * g("GOVEFFECT") +
+                        0.497976176438 * g("VOICE"))),
+                ));
+                return result;
+            },
+            inv_fn : function(_target, _iso, _year, _gov){
+                g = _type => getGov(_type, _iso, _year, _gov);
+                const A = -(
+                    0.679930922743 +
+                    0.11304679055 * g("CORRUPTION") -
+                    0.0707268839476 * g("RULELAW") +
+                    0.223730449682 * g("GOVEFFECT") +
+                    0.109364715484 * g("VOICE")
+                  );
+                const B =
+                3.85500426861 +
+                0.753438911315 * g("CORRUPTION") -
+                0.254913022991 * g("POLSTAB") +
+                0.104173700723 * g("REGQUALITY") -
+                0.516714762024 * g("RULELAW") +
+                0.709822881619 * g("GOVEFFECT") +
+                0.497976176438 * g("VOICE");
+                const result = Math.exp(Math.log(1.0 / target - 1.0) / A + B);
+                return result;
+            },
+         }],
+         ["UPPERSCHOOL",
+        {
+            name: "Upper school attendance",
+            loCol: "#dee5f8",
+            hiCol: "#e09900",
+            fixedExtent: [0, 1],
+            desc: "Proportion of upper-school-age children who attend upper school",
+            isStockVar : false,
+            isInterpolated : false,
+            isPercentage: false,
+            target: 1,
+            fn :    function(_grpc, _iso, _year, _gov) { 
+                g = _type => getGov(_type, _iso, _year, _gov, _grpc);
+                const result =
+                1.0 /
+                (1.0 +
+                Math.exp(
+                    -(
+                    0.469760642832 -
+                    0.0249360651581 * g("POLSTAB") +
+                    0.123301081621 * g("REGQUALITY")
+                    ) *
+                    (Math.log(_grpc) -
+                        (5.22968033236 +
+                        0.236802808614 * g("CORRUPTION") -
+                        0.14616763297 * g("POLSTAB") -
+                        0.287536755867 * g("VOICE"))),
+                ));
+                return result;
+            },
+            inv_fn : function(_target, _iso, _year, _gov){
+                g = _type => getGov(_type, _iso, _year, _gov);
+                const A = -(
+                    0.469760642832 -
+                    0.0249360651581 * g("POLSTAB") +
+                    0.123301081621 * g("REGQUALITY")
+                  );
+                const B =
+                5.22968033236 +
+                0.236802808614 * g("CORRUPTION") -
+                0.14616763297 * g("POLSTAB") -
+                0.287536755867 * g("VOICE");
+                const result = Math.exp(Math.log(1.0 / target - 1.0) / A + B);
+                return result;
             },
          }],
 
@@ -453,6 +618,18 @@ function computeAdditionalResults(_iso, _year, _outcome, improved, original){
         additional.push({name : "Maternal deaths averted", value : (improved - original) / 100 * popBirths, keyvariable : true})
         additional.push({name : "Maternal deaths", value : (1 - original / 100) * popBirths, keyvariable : false})
         additional.push({name : "Maternal deaths with additional revenue", value : (1 - improved / 100) * popBirths, keyvariable : false})
+    } else if (_outcome == "PRIMARYSCHOOL"){
+        additional.push({name : "Additional children in primary education, both sexes (number)", value: (improved - original) * popdata.getvalue(_iso, _year, "School age population, primary education, both sexes (number)"), keyvariable:true})
+        additional.push({name : "Additional children in primary education, female (number)", value: (improved - original) * popdata.getvalue(_iso, _year, "School age population, primary education, female (number)"), keyvariable:true})
+        additional.push({name : "Additional children in primary education, male (number)", value: (improved - original) * popdata.getvalue(_iso, _year, "School age population, primary education, male (number)"), keyvariable:true})
+    } else if (_outcome == "LOWERSCHOOL"){
+        additional.push({name : "Additional children in lower secondary education, both sexes (number)", value: (improved - original) * popdata.getvalue(_iso, _year, "School age population, lower secondary education, both sexes (number)"), keyvariable:true})
+        additional.push({name : "Additional children in lower secondary education, female (number)", value: (improved - original) * popdata.getvalue(_iso, _year, "School age population, lower secondary education, female (number)"), keyvariable:true})
+        additional.push({name : "Additional children in lower secondary education, male (number)", value: (improved - original) * popdata.getvalue(_iso, _year, "School age population, lower secondary education, male (number)"), keyvariable:true})
+    } else if (_outcome == "UPPERSCHOOL"){
+        additional.push({name : "Additional children in upper secondary education, both sexes (number)", value: (improved - original) * popdata.getvalue(_iso, _year, "School age population, upper secondary education, both sexes (number)"), keyvariable:true})
+        additional.push({name : "Additional children in upper secondary education, female (number)", value: (improved - original) * popdata.getvalue(_iso, _year, "School age population, upper secondary education, female (number)"), keyvariable:true})
+        additional.push({name : "Additional children in upper secondary education, male (number)", value: (improved - original) * popdata.getvalue(_iso, _year, "School age population, upper secondary education, male (number)"), keyvariable:true})
     }
 
     return additional;
@@ -479,6 +656,25 @@ function computeSpecialResults(_iso, _year, _outcome, _improved, _original, _add
     }
 
     return special_results;
+}
+
+function getPopulationResults(_iso, _year, _outcome)
+{
+    results = [];
+    if (_outcome == "PRIMARYSCHOOL"){
+        results.push({name : "School age population, primary education, both sexes (number)", value: popdata.getvalue(_iso, _year, "School age population, primary education, both sexes (number)")})
+        results.push({name : "School age population, primary education, female (number)", value: popdata.getvalue(_iso, _year, "School age population, primary education, female (number)")})
+        results.push({name : "School age population, primary education, male (number)", value: popdata.getvalue(_iso, _year, "School age population, primary education, male (number)")})
+    } else if (_outcome == "LOWERSCHOOL"){
+        results.push({name : "School age population, lower secondary education, both sexes (number)", value: popdata.getvalue(_iso, _year, "School age population, lower secondary education, both sexes (number)")})
+        results.push({name : "School age population, lower secondary education, female (number)", value: popdata.getvalue(_iso, _year, "School age population, lower secondary education, female (number)")})
+        results.push({name : "School age population, lower secondary education, male (number)", value: popdata.getvalue(_iso, _year, "School age population, lower secondary education, male (number)")})
+    } else if (_outcome == "UPPERSCHOOL"){
+        results.push({name : "School age population, upper secondary education, both sexes (number)", value: popdata.getvalue(_iso, _year, "School age population, upper secondary education, both sexes (number)")})
+        results.push({name : "School age population, upper secondary education, female (number)", value: popdata.getvalue(_iso, _year, "School age population, upper secondary education, female (number)")})
+        results.push({name : "School age population, upper secondary education, male (number)", value: popdata.getvalue(_iso, _year, "School age population, upper secondary education, male (number)")})
+    }
+    return results;
 }
 
 function coverageObject(_outcome, _original, _improved)
@@ -585,6 +781,18 @@ function typeAndSetPopulation(d) {
     e["incomelevel"]                            = d["incomelevel"]
     e["Number of children surviving to five"]   =convertNumber(d["Number of children surviving to five "])
     e["region"]                                 =d["region"]
+    e.PRIMARYSCHOOL                             = convertNumber(d["In school: Primary school"]);
+    e.LOWERSCHOOL                               = convertNumber(d["In school: Lower school"]);
+    e.UPPERSCHOOL                               = convertNumber(d["In school: Upper school"]);
+    e["School age population, primary education, both sexes (number)"]          = convertNumber(d["School age population, primary education, both sexes (number)"]          );
+    e["School age population, primary education, female (number)"]              = convertNumber(d["School age population, primary education, female (number)"]);
+    e["School age population, primary education, male (number)"]                = convertNumber(d["School age population, primary education, male (number)"]);
+    e["School age population, lower secondary education, both sexes (number)"]  = convertNumber(d["School age population, lower secondary education, both sexes (number)"]);
+    e["School age population, lower secondary education, female (number)"]      = convertNumber(d["School age population, lower secondary education, female (number)"]);
+    e["School age population, lower secondary education, male (number)"]        = convertNumber(d["School age population, lower secondary education, male (number)"]);
+    e["School age population, upper secondary education, both sexes (number)"]  = convertNumber(d["School age population, upper secondary education, both sexes (number)"]);
+    e["School age population, upper secondary education, female (number)"]      = convertNumber(d["School age population, upper secondary education, female (number)"]);
+    e["School age population, upper secondary education, male (number)"]        = convertNumber(d["School age population, upper secondary education, male (number)"]);
 
     return e;
 }

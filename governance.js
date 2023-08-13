@@ -168,9 +168,12 @@ function getGov(_type, _iso, _year, _gov, _grpc = 0) {
             }
         }
     }
-    // Limit all measures to the range [-2.5, 2.5]
-    var limited = Math.min(Math.max(-2.5, x), 2.5)
-    return limited;
+    if (limitgovernance)
+    {
+        // Limit all measures to the range [-2.5, 2.5]
+        x = Math.min(Math.max(-2.5, x), 2.5)
+    }
+    return x;
 }
 
 function forecastGovernance(_iso, _startYear, _yearsToForecast, _grpcMultiplier)

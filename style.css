@@ -693,6 +693,6 @@ input[type="file"] {
     background: white;
 }
 
-label#smooth {
+.smalllabel {
     font-size: 90%;
 }

@@ -158,8 +158,8 @@
                         <input type="radio" id="endogenous" name="governance model" value="ENDOGENOUS">
                         <span class="checkmark"></span>
                     </label>
-                    <label id="smooth" for="smooth"><input type="checkbox" id="smooth" name="smooth" value="smooth"
-                            checked>Smooth
+                    <label class="smalllabel" id="smooth" for="smooth"><input type="checkbox" id="smooth" name="smooth"
+                            value="smooth" checked>Smooth
                         results</label>
                 </div>
             </div>
@@ -234,6 +234,10 @@
                             <i class="fa fa-arrow-left fa-lg arrow"></i>&nbsp;worsening&nbsp;&nbsp;<span
                                 class="ar">improving&nbsp;<i class="fa fa-arrow-right fa-lg arrow"></i></span>
                         </div>
+                        <div class="uicontainer">
+                            <label class="smalllabel" id="limit" for="limit"><input type="checkbox" id="limit"
+                                    name="limit" value="limit">Limit governance between -2.5 and 2.5</label>
+                        </div>
                     </div>
                 </div>
                 <button class="accordion subaccordion">Target SDG</button>
@@ -253,17 +257,18 @@
                         Click to download <em>base data</em> used to drive the GRADE model, in Excel or CSV format.
                     </p>
                     <ul>
-                        <li><a download href="BASE%20data%202022.xlsx" class="button"><i
-                                    class="fa fa-download"></i>&nbsp;Excel (including notes on data)</a></li>
-                        <li><a download href="BASE%20data%202022.csv" class="button"><i
-                                    class="fa fa-download"></i>&nbsp;CSV</a></li>
+                        <li><a download href="BASE%20data%202022%20with%20education%20and%20population.xlsx"
+                                class="button"><i class="fa fa-download"></i>&nbsp;Excel (including notes on data)</a>
+                        </li>
+                        <li><a download href="BASE%20data%202022%20with%20education%20and%20population.csv"
+                                class="button"><i class="fa fa-download"></i>&nbsp;CSV</a></li>
                         <li>Map data from <a href="https://www.naturalearthdata.com/">Natural Earth</a>&nbsp;<i
                                 class="fa fa-external-link"></i>&nbsp;</li>
                         <li>Inflation data from <a href="https://fred.stlouisfed.org/graph/?g=Crzt">FRED</a>&nbsp;<i
                                 class="fa fa-external-link"></i>&nbsp;</li>
                     </ul>
                     <!--version-->
-                    <p id="version">GRADE v3.6.3 2023/08/11 <a href="https://github.com/stuwilmur/GRADE-DOH">GitHub</a>
+                    <p id="version">GRADE v3.7.0 2023/08/13 <a href="https://github.com/stuwilmur/GRADE-DOH">GitHub</a>
                     </p>
                 </div>
             </div>
@@ -301,7 +306,7 @@
                         <span class="checkmark"></span>
                     </label>
                     <label class="container">
-                        Plot coverage percentage
+                        Plot coverage
                         <input type="radio" id="coverage" name="Plot type" value="coverage">
                         <span class="checkmark"></span>
                     </label>
@@ -546,7 +551,7 @@
 
         queue()
             .defer(d3.json, "countries.json")
-            .defer(d3.csv, "BASE data 2022.csv", typeAndSetPopulation)
+            .defer(d3.csv, "BASE data 2022 with education data and population.csv", typeAndSetPopulation)
             .defer(d3.csv, "GDPDEF.csv", typeAndSetDeflator)
             .await(loaded);
 
