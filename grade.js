@@ -1108,6 +1108,7 @@ function set_outcome_target(){
     .style('box-shadow', '0 0 5px #ffdb8d')
     .style('background-color', '#ffdb8d');
     target = target_value;
+    d3.select("#targetLabel").text(outcomesMap.get(outcome).isPercentage ? '%' : '');
 }
 
 function str2Num(str){
