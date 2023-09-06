@@ -370,7 +370,7 @@ var outcomesList = [
                     0.763089270327 * g("POLSTAB") -
                     0.749356781002 * g("RULELAW") +
                     1.67274041346 * g("VOICE");
-                  const result = Math.exp(Math.log(1.0 / target - 1.0) / A + B);
+                  const result = Math.exp(Math.log(1.0 / _target - 1.0) / A + B);
                   return result;
             },
          }],
@@ -426,7 +426,7 @@ var outcomesList = [
                 0.516714762024 * g("RULELAW") +
                 0.709822881619 * g("GOVEFFECT") +
                 0.497976176438 * g("VOICE");
-                const result = Math.exp(Math.log(1.0 / target - 1.0) / A + B);
+                const result = Math.exp(Math.log(1.0 / _target - 1.0) / A + B);
                 return result;
             },
          }],
@@ -472,7 +472,7 @@ var outcomesList = [
                 0.236802808614 * g("CORRUPTION") -
                 0.14616763297 * g("POLSTAB") -
                 0.287536755867 * g("VOICE");
-                const result = Math.exp(Math.log(1.0 / target - 1.0) / A + B);
+                const result = Math.exp(Math.log(1.0 / _target - 1.0) / A + B);
                 return result;
             },
          }],
