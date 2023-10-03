@@ -376,7 +376,7 @@ var outcomesList = [
          }],
          ["LOWERSCHOOL",
         {
-            name: "Lower school attendance",
+            name: "Lower-secondary school attendance",
             loCol: "#dee5f8",
             hiCol: "#e09900",
             fixedExtent: [0, 1],
@@ -432,7 +432,7 @@ var outcomesList = [
          }],
          ["UPPERSCHOOL",
         {
-            name: "Upper school attendance",
+            name: "Upper-secondary school attendance",
             loCol: "#dee5f8",
             hiCol: "#e09900",
             fixedExtent: [0, 1],
