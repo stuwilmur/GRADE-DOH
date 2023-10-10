@@ -9,7 +9,6 @@
     <link href="https://fonts.googleapis.com/css?family=Open+Sans&amp;display=swap" rel="stylesheet" type="text/css">
     <link rel="icon" href="data:,">
     <link rel="stylesheet" href="//code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
     <link rel="stylesheet" type="text/css" href="style.css">
 </head>
 
@@ -31,6 +30,7 @@
     <script src="governance.js"></script>
     <script src="https://code.jquery.com/jquery-1.12.4.js"></script>
     <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
+    <script src="https://kit.fontawesome.com/db670d846f.js" crossorigin="anonymous"></script>
     <div class="all">
         <div class="menu" id="menu">
             <div class="inline-div">
@@ -261,13 +261,16 @@
                         </li>
                         <li><a download href="BASE%20data%202023%20interpolated.csv" class="button"><i
                                     class="fa fa-download"></i>&nbsp;CSV</a></li>
-                        <li>Map data from <a href="https://www.naturalearthdata.com/">Natural Earth</a>&nbsp;<i
-                                class="fa fa-external-link"></i>&nbsp;</li>
-                        <li>Inflation data from <a href="https://fred.stlouisfed.org/graph/?g=Crzt">FRED</a>&nbsp;<i
-                                class="fa fa-external-link"></i>&nbsp;</li>
+                        <li>Map data from <a href="https://www.naturalearthdata.com/">Natural Earth&nbsp;<i
+                                    class="fa fa-external-link"></i>&nbsp;</a></li>
+                        <li>Inflation data from <a href="https://fred.stlouisfed.org/graph/?g=Crzt">FRED&nbsp;<i
+                                    class="fa fa-external-link"></i>&nbsp;</a></li>
                     </ul>
                     <!--version-->
-                    <p id="version">GRADE v3.8.3 2023/10/03 <a href="https://github.com/stuwilmur/GRADE-DOH">GitHub</a>
+                    <p id="version"><span id="versiondate"></span>
+                        <a href="https://github.com/stuwilmur/GRADE-DOH">
+                            <i class="fa-brands fa-github"></i>
+                        </a>
                     </p>
                 </div>
             </div>

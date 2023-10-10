@@ -2,6 +2,8 @@
 // ensure initial options consistent (without resorting to on change)
 // sort projection range size
 
+var version = "GRADE v3.8.4"
+var date = "2023/10/10"
 var subheight = 100;
 var legendCells = 11;
 var transitionTime = 500;
@@ -581,6 +583,8 @@ function setupMenus(_countries, _outcomes) {
     initMenus(_countries, _outcomes);
     d3.select("#revenueVal").text(govRevenue);
     d3.select("#yearVal").text(year);
+
+    d3.select("#versiondate").text(version + " " + date);
 
 
     d3.select("#revSlider").on("input", function (d) {
