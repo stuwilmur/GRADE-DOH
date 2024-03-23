@@ -476,7 +476,109 @@ var outcomesList = [
                 return result;
             },
          }],
-
+         ["INVPRIMARYTEACHERS",
+        {
+            name: "Primary school teacher to pupil ratio",
+            
+            loCol: "#dee5f8",
+	    hiCol: "#e09900",            
+	    fixedExtent: [0.005, 0.1],
+            isStockVar : true,
+            isInterpolated : false,
+            isPercentage: false,
+            target: 10,
+            fn :    function(_grpc, _iso, _year, _gov) { 
+                g = _type => getGov(_type, _iso, _year, _gov, _grpc);
+                const result = 
+		1.0 / 
+		(1.0 + 
+		Math.exp(
+			-(
+			0.249125249935 - 
+			0.0380480729266 * g("REGQUALITY") -
+			0.0232115856432 * g("RULELAW") + 
+			0.024632796074 * g("GOVEFFECT") + 
+			0.052699249015 * g("VOICE")) * 
+			(Math.log(_grpc) - 
+				(18.3150008653 - 
+				0.450794543557 * g("CORRUPTION") + 
+				0.377434867789 * g("POLSTAB")
+				+1.67273746972 * g("REGQUALITY") - 
+				2.26693766319 * g("VOICE")))
+			 ));
+                return result;
+            },
+            inv_fn : function(_target, _iso, _year, _gov){
+                g = _type => getGov(_type, _iso, _year, _gov);
+                const A = -(
+			0.249125249935 - 
+			0.0380480729266 * g("REGQUALITY") -
+			0.0232115856432 * g("RULELAW") + 
+			0.024632796074 * g("GOVEFFECT") + 
+			0.052699249015 * g("VOICE")
+                  );
+                const B =
+                18.3150008653 - 
+		0.450794543557 * g("CORRUPTION") + 
+		0.377434867789 * g("POLSTAB") +
+		1.67273746972 * g("REGQUALITY") - 
+		2.26693766319 * g("VOICE");
+                const result = Math.exp(Math.log(1.0 / _target - 1.0) / A + B);
+                return result;
+            },
+         }],
+         ["INVUPPERTEACHERS",
+        {
+            name: "Upper school school teacher to pupil ratio",
+            
+            loCol: "#dee5f8",
+	    hiCol: "#e09900",            
+	    fixedExtent: [0.005, 0.1],
+            desc: "Number of upper school teachers per pupil",
+            isStockVar : true,
+            isInterpolated : false,
+            isPercentage: false,
+            target: 10,
+            fn :    function(_grpc, _iso, _year, _gov) { 
+                g = _type => getGov(_type, _iso, _year, _gov, _grpc);
+                const result 
+		= 1.0 /
+		(1.0 + 
+		Math.exp(
+			-(0.298043732869 + 
+			0.0412424811223 * g("CORRUPTION") + 
+			0.00859565812208 * g("POLSTAB") - 
+			0.0777401202 * g("RULELAW") -
+			0.0207754476388 * g("GOVEFFECT")
+			+0.0673886052541 * g("VOICE")) *
+			(Math.log(_grpc) - 
+				(17.0358391075 - 
+				1.18785253583 * g("CORRUPTION") +
+				1.65861596332 * g("RULELAW") + 
+				0.85305123799*g("GOVEFFECT") - 
+				2.0226464466 * g("VOICE")))
+			));
+                return result;
+            },
+            inv_fn : function(_target, _iso, _year, _gov){
+                g = _type => getGov(_type, _iso, _year, _gov);
+                const A = -(0.298043732869 + 
+			0.0412424811223 * g("CORRUPTION") + 
+			0.00859565812208 * g("POLSTAB") - 
+			0.0777401202 * g("RULELAW")-
+			0.0207754476388 * g("GOVEFFECT")
+			+0.0673886052541 * g("VOICE")
+                  );
+                const B =
+                17.0358391075 - 
+		1.18785253583 * g("CORRUPTION") +
+		1.65861596332 * g("RULELAW") + 
+		0.85305123799*g("GOVEFFECT") - 
+		2.0226464466 * g("VOICE");
+                const result = Math.exp(Math.log(1.0 / _target - 1.0) / A + B);
+                return result;
+            },
+         }],
 		/*["IMUNISATION",
         {
             name: "Child immunisation",
@@ -793,6 +895,12 @@ function typeAndSetPopulation(d) {
     e["School age population, upper secondary education, both sexes (number)"]  = convertNumber(d["School age population, upper secondary education, both sexes (number)"]);
     e["School age population, upper secondary education, female (number)"]      = convertNumber(d["School age population, upper secondary education, female (number)"]);
     e["School age population, upper secondary education, male (number)"]        = convertNumber(d["School age population, upper secondary education, male (number)"]);
+    e["INVPRIMARYTEACHERS"] = convertNumber(d["INVPRIMARYTEACHERS"]);
+    e["PRIMARYTEACHERS"]    = convertNumber(d["PRIMARYTEACHERS"]);
+    e["INVLOWERTEACHERS"]   = convertNumber(d["INVLOWERTEACHERS"]);
+    e["LOWERTEACHERS"]      = convertNumber(d["LOWERTEACHERS"]);
+    e["INVUPPERTEACHERS"]   = convertNumber(d["INVUPPERTEACHERS"]);
+    e["UPPERTEACHERS"]      = convertNumber(d["UPPERTEACHERS"]);
 
     return e;
 }
