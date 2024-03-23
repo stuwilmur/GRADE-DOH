@@ -16,6 +16,9 @@ This tool is currently hosted at https://www.st-andrews.ac.uk/~grade/model/
 
 There are no additional dependencies: simply launch a server in the root directory and browse to index.html
 
+## Can I get access to the underlying model and calculations
+
+Yes! The [GRADE-DOH-model](https://github.com/stuwilmur/GRADE-DOH-model) which includes a simple API is freely available as a separate package, which allows forecasts and calculations to be performed using the GRADE model. 
 
 
 
