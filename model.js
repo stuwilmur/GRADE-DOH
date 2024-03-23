@@ -483,6 +483,7 @@ var outcomesList = [
             loCol: "#dee5f8",
 	    hiCol: "#e09900",            
 	    fixedExtent: [0.005, 0.1],
+            desc: "Number of primary school teachers per pupil",
             isStockVar : true,
             isInterpolated : false,
             isPercentage: false,
