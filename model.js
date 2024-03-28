@@ -182,49 +182,6 @@ var outcomesList = [
                 return res;
             },
         }],
-		["SCHOOLPERC",
-        {
-            name: "Child school years (SDG 4)",
-            loCol: "#dee5f8",
-            hiCol: "#e09900",
-            fixedExtent: [0, 100],
-            desc: `The percentage of child school life expectancy, where 100% represents 17 years of schooling.`,
-            isStockVar : true,
-            isInterpolated : true,
-            isPercentage: true,
-            target : 100,
-            coeffs : new Map(
-                [
-                    [1, 2.13E-05],
-                    [12, -2.44E-06],
-                    [15, -4.48E-06],
-                    [16, 3.87E-06],
-                    [2, -28011.95],
-                    [21, -5385.622],
-                    [22, -5740.458],
-                    [24, 8537.920],
-                    [25, -17828.86]
-                ]),
-            fn :    function(_grpc, _iso, _year, _gov) { 
-                g = _type => getGov(_type, _iso, _year, _gov, _grpc);
-                var l = this.coeffs;
-                var res = 100 / (1 + Math.exp(-(C(l, 1) + 0 * g("CORRUPTION") + C(l, 12) * g("POLSTAB") + 0 *
-                g("REGQUALITY") + 0 * g("RULELAW") + C(l, 15) * g("GOVEFFECT") + C(l, 16) * g("VOICE")) *
-                (_grpc - (C(l, 2) + C(l, 21) * g("CORRUPTION") + C(l, 22) * g("POLSTAB") + 0 *
-                g("REGQUALITY") + C(l, 24) * g("RULELAW") + C(l, 25) * g("GOVEFFECT") + 0 * g("VOICE")))));
-                return res;
-            },
-            inv_fn : function(_target, _iso, _year, _gov){
-                g = _type => getGov(_type, _iso, _year, _gov);
-                var l = this.coeffs;
-                var A = -(C(l, 1) + 0 * g("CORRUPTION") + C(l, 12) * g("POLSTAB") + 0 *
-                g("REGQUALITY") + 0 * g("RULELAW") + C(l, 15) * g("GOVEFFECT") + C(l, 16) * g("VOICE"))
-                var B = (C(l, 2) + C(l, 21) * g("CORRUPTION") + C(l, 22) * g("POLSTAB") + 0 *
-                g("REGQUALITY") + C(l, 24) * g("RULELAW") + C(l, 25) * g("GOVEFFECT") + 0 * g("VOICE"))
-                var res = Math.log(100.0 / _target - 1.0) / A + B;
-                return res;
-            },
-        }],
         ["U5MSURV",
         {
             name: "Under-5 survival (SDG 3)",
@@ -478,12 +435,63 @@ var outcomesList = [
          }],
          ["INVPRIMARYTEACHERS",
         {
-            name: "Primary school teacher to pupil ratio",
+            name: "Primary school teacher ratio",
             
             loCol: "#dee5f8",
 	    hiCol: "#e09900",            
 	    fixedExtent: [0.005, 0.1],
-            desc: "Number of primary school teachers per pupil",
+            desc: "Number of primary school teachers per lower school-age child",
+            isStockVar : true,
+            isInterpolated : false,
+            isPercentage: false,
+            target: 10,
+            fn :    function(_grpc, _iso, _year, _gov) { 
+                g = _type => getGov(_type, _iso, _year, _gov, _grpc);
+                const result = 
+		1.0 / 
+		  (1.0 + 
+		  Math.exp(
+		   	-(0.235464224795 - 
+			0.00905813072628 * g("POLSTAB") + 
+			0.033709633743 * g("RULELAW") -
+			0.0218140639331 * g("VOICE")) * 
+			(Math.log(_grpc) - 
+			(19.7561871646 + 
+			0.678880371607 * g("POLSTAB") -
+			0.450545238623 * g("REGQUALITY") -
+			2.02637551438 * g("RULELAW") + 
+			0.41977998279 * g("GOVEFFECT") +
+			1.13267641272 * g("VOICE")))
+			));
+                	return result;
+            },
+            inv_fn : function(_target, _iso, _year, _gov){
+                g = _type => getGov(_type, _iso, _year, _gov);
+                const A = -(
+			0.235464224795 - 
+			0.00905813072628 * g("POLSTAB") + 
+			0.033709633743 * g("RULELAW") -
+			0.0218140639331 * g("VOICE")
+                  );
+                const B =
+                19.7561871646 + 
+		0.678880371607 * g("POLSTAB") -
+		0.450545238623 * g("REGQUALITY") -
+		2.02637551438 * g("RULELAW") + 
+		0.41977998279 * g("GOVEFFECT") +
+		1.13267641272 * G("VOICE")
+                const result = Math.exp(Math.log(1.0 / _target - 1.0) / A + B);
+                return result;
+            },
+         }],
+         ["INVLOWERTEACHERS",
+        {
+            name: "Lower school teacher ratio",
+            
+            loCol: "#dee5f8",
+	    hiCol: "#e09900",            
+	    fixedExtent: [0.005, 0.1],
+            desc: "Number of lower school teachers per lower school-age child",
             isStockVar : true,
             isInterpolated : false,
             isPercentage: false,
@@ -530,12 +538,12 @@ var outcomesList = [
          }],
          ["INVUPPERTEACHERS",
         {
-            name: "Upper school school teacher to pupil ratio",
+            name: "Upper school teacher ratio",
             
             loCol: "#dee5f8",
 	    hiCol: "#e09900",            
 	    fixedExtent: [0.005, 0.1],
-            desc: "Number of upper school teachers per pupil",
+            desc: "Number of upper school teachers per upper school-age child",
             isStockVar : true,
             isInterpolated : false,
             isPercentage: false,
@@ -580,36 +588,6 @@ var outcomesList = [
                 return result;
             },
          }],
-		/*["IMUNISATION",
-        {
-            name: "Child immunisation",
-            loCol: "#dee5f8",
-            hiCol: "#e09900",
-            fixedExtent: [0, 100],
-            desc: "The percentage of children ages 12-23 months who received DPT vaccinations before 12 months or at any time before the survey.",
-            coeffs : new Map(
-                [
-                    [1, 8.14E-05],
-                    [11, -1.51E-05],
-                    [2, -25232.71],
-                    [21, -8328.613]
-                ]),
-            fn : function(_grpc, _iso, _year, _gov){
-                g = _type => getGov(_type, _iso, _year, _gov, _grpc);
-                var l = this.coeffs;
-                var res = 100 / (1 + Math.exp(-(C(l, 1) + C(l, 11) * g("POLSTAB")) * (_grpc - (C(l, 2) + C(l, 21) * g("POLSTAB")))));
-                return res;
-            },
-            inv_fn : function(_target, _iso, _year, _gov){
-                g = _type => getGov(_type, _iso, _year, _gov);
-                var l = this.coeffs;
-                var A = -(C(l, 1) + C(l, 11) * g("POLSTAB"))
-                var B = (C(l, 2) + C(l, 21) * g("POLSTAB"))
-                var res = Math.log(100.0 / _target - 1.0) / A + B;
-                return res;
-            },
-        }],*/
-            
 ];
 
 var outcomesMap = new Map(outcomesList);
@@ -733,6 +711,12 @@ function computeAdditionalResults(_iso, _year, _outcome, improved, original){
         additional.push({name : "Additional children in upper secondary education, both sexes (number)", value: (improved - original) * popdata.getvalue(_iso, _year, "School age population, upper secondary education, both sexes (number)"), keyvariable:true})
         additional.push({name : "Additional children in upper secondary education, female (number)", value: (improved - original) * popdata.getvalue(_iso, _year, "School age population, upper secondary education, female (number)"), keyvariable:true})
         additional.push({name : "Additional children in upper secondary education, male (number)", value: (improved - original) * popdata.getvalue(_iso, _year, "School age population, upper secondary education, male (number)"), keyvariable:true})
+    } else if (_outcome == "INVPRIMARYTEACHERS"){
+	additional.push({name : "Additional primary-school teachers (number)", value: (improved - original) * popdata.getvalue(_iso, _year, "School age population, primary education, both sexes (number)"), keyvariable:true})
+    } else if (_outcome == "INVLOWERTEACHERS"){
+	additional.push({name : "Additional lower-school teachers (number)", value: (improved - original) * popdata.getvalue(_iso, _year, "School age population, lower secondary education, both sexes (number)"), keyvariable:true})
+    } else if (_outcome == "INVUPPERTEACHERS"){
+	additional.push({name : "Additional lower-school teachers (number)", value: (improved - original) * popdata.getvalue(_iso, _year, "School age population, upper secondary education, both sexes (number)"), keyvariable:true})
     }
 
     return additional;
