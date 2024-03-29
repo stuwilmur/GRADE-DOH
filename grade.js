@@ -1,9 +1,5 @@
-// TODO
-// ensure initial options consistent (without resorting to on change)
-// sort projection range size
-
-var version = "GRADE v3.8.4"
-var date = "2023/10/10"
+var version = "GRADE v3.9.0"
+var date = "2024/03/29"
 var subheight = 100;
 var legendCells = 11;
 var transitionTime = 500;
@@ -12,7 +8,7 @@ var countrycodes = new Map();
 var numGovernanceSteps = 200;
 var maxGovernance = 2;
 
-// inputs / initial values
+// inputs & initial values
 var govRevenue = 0;
 var enteredGrpc = 0;
 var absGovRev = 0;
@@ -132,7 +128,6 @@ var plotlayout = {
 var config = {
     toImageButtonOptions: {
       format: 'png', // one of png, svg, jpeg, webp
-      //filename: 'custom_image',
       height: null,
       width: null,
       scale: 1 // Multiply title/legend/axis/canvas sizes by this factor
@@ -242,7 +237,6 @@ function makeText2(_year, _iso, _outcome, _years_to_project, _revenue, _governan
             + "<strong>" + varText + " effect, after start of effect in " + projection.start_of_effect + ":</strong>"
             
             projection.data.forEach(function(value, result){
-              //text += "<br/>" + result + ":<br/> <span class = 'ar'>" + d3.format(",")(value.projection.toFixed(0)) + "</span>"; 
               text += "<br/>" + result + ":<br/> <span class = 'ar'>" + d3.format(",")(value.effect.toFixed(0)) + "</span>";
             })
             text += "</div>"
@@ -264,22 +258,18 @@ function makeText(_iso, _year, _revenue, _governance) {
     }
     var text = "";
     var coverageDescriptor = outcomesMap.get(outcome).isPercentage ? "% coverage" : "coverage ratio";
+    var dp = outcomesMap.get(outcome).dp;
     text = text + "<h1 class='tooltip'> " +  countrycodes.get(_iso) + "</h1>" +
     "<br/><strong>" + _year + "</strong>" +
     "<br/>Current Gov. rev. per capita: <span class = 'ar'>$" + d3.format(",")(revenues["historical grpc"].toFixed(2)) + "</span>" +
     "<br/>New Gov. rev. per capita: <span class = 'ar'>$" + d3.format(",")(revenues["new grpc"].toFixed(2)) + "</span>" +
     "<br/>Increase in Gov. rev. per capita: <span class = 'ar'>" + (revenues["percentage increase"] * 100).toFixed(2) + "%</span>" 
-    
-    // 04/02/21 hide instantaenous effect values so as not to confuse with plot
-    // 09/02/21 hide governance so we can use this more generally
-    // 10/02/21 turn instantaneous effect back on
-    
     +
     "<br/><br/><strong>" + outcomesMap.get(outcome).name + "</strong>" 
     +
     "<br/>(instantaneous effect)"
-    +"<br/>Current " + coverageDescriptor + ": <span class = 'ar'>" + result.original.toFixed(2) + "</span>" +
-    "<br/>New " + coverageDescriptor + ": <span class = 'ar'>" + result.improved.toFixed(2) + "</span>";
+    +"<br/>Current " + coverageDescriptor + ": <span class = 'ar'>" + result.original.toFixed(dp) + "</span>" +
+    "<br/>New " + coverageDescriptor + ": <span class = 'ar'>" + result.improved.toFixed(dp) + "</span>";
 
     if (result.hasOwnProperty("additional")) {
         result.additional.forEach(function(property) {
@@ -292,22 +282,6 @@ function makeText(_iso, _year, _revenue, _governance) {
             text = text + "<br/>" + property.name + ":&nbsp&nbsp<span class = 'arb'>" + d3.format(",")(property.value.toFixed(0)) + "</span>";
         })
     }
-
-    /*
-     * Unused but leave commented: there is no "Delta" for an instantaneous change, as 
-     * the model depends on the Log of the previous revenue, but this code may be 
-     * useful in future so leave as is.
-    if (_governance.model == "ENDOGENOUS")
-    {
-        var govtext = "";
-        result.gov.forEach(function (result, govmeasure) {
-            govtext = govtext + result.desc + ": <span class = 'ar'>" + result.delta.toFixed(2) + "</span><br/>"
-        })
-
-        text = text + "<br/><br/><strong>Change in governance</strong><br/>" + govtext;
-    }
-    */
-    
 
     return text;
 }
@@ -475,22 +449,8 @@ function setupMenus(_countries, _outcomes) {
         d3.select('#yearslider').property('value', year);
         d3.select('#yearsProjectVal').property('value', years_to_project);
         d3.select('#govVal').property('value', governance);
-        updateCountryFilters()
-        //!! RADIO
-        
-        
-        // individual governance sliders
-        /*
-        d3.select("#govList")
-        .selectAll("option")
-        .data(govMeasures)
-        .enter()
-        .append("option")
-        .attr('value', function(d){return d.name})
-        .text(function(d){return d.desc;})
-        */
+        updateCountryFilters();
 
-        //!! refactor
         d3.select("#methodlist")
             .on("change", function (d) {
                 method = this.options[this.selectedIndex].value;
@@ -569,15 +529,6 @@ function setupMenus(_countries, _outcomes) {
             file_method = this.options[this.selectedIndex].value;
             mainUpdate();
         })
-        
-        /*
-        //!! remove
-        d3.select("#plottype")
-        .on("change", function(d){
-            plottype = this.options[this.selectedIndex].value;
-            updateplot();
-            })
-        */
     }
 
     initMenus(_countries, _outcomes);
@@ -630,21 +581,6 @@ function setupMenus(_countries, _outcomes) {
         mainUpdate();
     });
 
-
-    /*
-    d3.select("#yearSlider").on("input", function (d) {
-        year = this.value;
-        d3.select("#yearVal").text(year);
-        mainUpdate();
-    });
-    
-    d3.select("#yearsProjectSlider").on("input", function (d) {
-        years_to_project = this.value;
-        d3.select("#yearsProjectVal").text(years_to_project);
-        mainUpdate();
-    });
-    */
-
     d3.selectAll("#outcomes").on("change", function (d) {
         outcome = this.options[this.selectedIndex].value
         updateLegend();
@@ -652,13 +588,6 @@ function setupMenus(_countries, _outcomes) {
         mainUpdate();
         set_outcome_target();
     });
-
-    /*
-    d3.selectAll("#govList").on("change", function(d){
-            govtype = this.value;
-            mainUpdate();
-    })
-    */
 
     d3.selectAll(".colourscheme").on("input", function (d) {
         ccolor = this.value;
@@ -782,14 +711,11 @@ function updateYears(_firstyear, _lastyear){
 function updateplot() {
     if (country.slice(0, 2) == "$-") {
         d3.select("#plotwrapper").style("display", "none");
-        //d3.select("#ploterror").style("display", "none"); //!! remove
     } else {
         var plotdata = getProjectionData(+year, country, outcome, +years_to_project, getRevenueInputs(), getGovernanceInputs(), smooth);
         
         if (plotdata.error){
             d3.select("#plotwrapper").style("display", "none");
-            //d3.select("#ploterrortext").html(plotdata.error.join("<br>")); //!! remove
-            //d3.select("#ploterror").style("display", "inline-block"); //!! remove
             return;
         }
         
@@ -797,7 +723,6 @@ function updateplot() {
         var x_annotation = plotdata.start_of_effect;
 
         d3.select("#plotwrapper").style("display", "inline-block");
-        //d3.select("#ploterror").style("display", "none"); //!! remove
        
         var plotdata = [];
         var spaces = "          ";
@@ -827,6 +752,7 @@ function updateplot() {
         var y_var_max = Math.max(plotdata.map(d => Math.max(d.y)));
         
         var theOutcome = outcomesMap.get(outcome);
+	var dp = theOutcome.dp;
         plotlayout.title = "Projection for " + countrycodes.get(country) + ": " + theOutcome.name;
         plotlayout.hovermode = "closest"
         plotlayout.annotations = [{
@@ -844,7 +770,7 @@ function updateplot() {
 
         if (plottype == 'coverage')
         {
-            plotlayout.yaxis = {hoverformat: ',.2f', tickformat : ',.1f'};
+            plotlayout.yaxis = {hoverformat: `,.${dp}f`, tickformat : `,.${dp-2}f`};
         }
         else
         {
@@ -961,18 +887,7 @@ function updateLegend() {
 }
 
 function loaded(error, _countries, _popdata, _gdpdef) {
-    /*
-    // used to handle non-fixed variable extents - to be updated if required
-    outcomesMap.forEach(function (v, k) {
-        outcomesMap.get(k).extent = d3.extent(simulationsData, function (d) {
-            return parseFloat(d[k]);
-        });
-    })
 
-    colorScale.domain(d3.extent(simulationsData, function (d) {
-        return parseFloat(d[outcome]);
-    }));
-    */
     initDeflator(_gdpdef);
     initModal();
     
@@ -989,11 +904,6 @@ function loaded(error, _countries, _popdata, _gdpdef) {
     
     c2 = new Set(_countries.map( d => d.id));
     c1 = new Set(popdata.nesteddata.map(d=> d.key));
-    
-    /*
-    let difference1 = new Set([...c2].filter(x => !c1.has(x))); // in countries, not popdata
-    let difference2 = new Set([...c1].filter(x => !c2.has(x))); // in popdata, not countries
-    */
 
     svg.selectAll('path.countries')
         .data(_countries)
@@ -1026,23 +936,8 @@ function loaded(error, _countries, _popdata, _gdpdef) {
     d3.select("#legend-label")
     .html(outcomesMap.get(outcome).desc);
 
-    /*
-    d3.select("#revSlider").on("change", function (d) {
-        govRevenue = this.value / 100.0;
-    });
-    d3.select("#absRevSlider").on("change", function () {
-        absGovRevSlider = this.value;
-        absGovRev = absGovRevSlider * getPrefixValue(prefix);
-    })
-    d3.select("#pcRevSlider").on("change", function () {
-        pcGovRev = this.value * 1;
-    });
-    d3.select("#grpcSlider").on("change", function () {
-        enteredGrpc = this.value * 1;
-    });
-    */
     d3.select("#yearSlider")
-        //.attr("min", popdata.firstyear) // min set manually to 1980
+        // min set manually to 1980
         .attr("max", popdata.lastyear)
 
     setupMenus(popcountries, outcomesList);
@@ -1091,7 +986,6 @@ function updateCountryFilters(){
     u.exit().remove();
 
     var button = document.getElementById('multibutton')
-    //button.disabled = (multiplecountries.length == 0); // give an error instead
 }
 
 function clear_multi(){
@@ -1108,7 +1002,9 @@ function set_outcome_target(){
     if (isNaN(target_value)){
         target_value = outcomesMap.get(outcome).target;
     }
-    d3.select("#targetInput").property("value", target_value.toFixed(2))
+
+    var dp = outcomesMap.get(outcome).dp;
+    d3.select("#targetInput").property("value", target_value.toFixed(dp))
     .style('box-shadow', '0 0 5px #ffdb8d')
     .style('background-color', '#ffdb8d');
     target = target_value;

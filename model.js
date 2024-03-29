@@ -11,6 +11,7 @@ var outcomesList = [
             isInterpolated : false,
             isPercentage: true,
             target: 100,
+	    dp:2,
             coeffs : new Map(
                 [
                     [1, 0.002777],
@@ -52,6 +53,7 @@ var outcomesList = [
             isInterpolated : false,
             isPercentage: true,
             target: 100,
+	    dp:2,
             coeffs : new Map(
                 [
                     [1, 0.002115],
@@ -98,6 +100,7 @@ var outcomesList = [
             isInterpolated : false,
             isPercentage: true,
             target: 100,
+	    dp:2,
             coeffs : new Map(
                 [
                     [1, 0.002240],
@@ -149,6 +152,7 @@ var outcomesList = [
             isInterpolated : false,
             isPercentage: true,
             target: 100,
+	    dp:2,
             coeffs : new Map(
                 [
                     [1, 7.29E-05],
@@ -193,6 +197,7 @@ var outcomesList = [
             isInterpolated : false,
             isPercentage: true,
             target: 99.9, // upper limit of mortality of 1 in 1000
+	    dp:2,
             coeffs : new Map(
                 [
                     [1, 0.000487660315618],
@@ -238,6 +243,7 @@ var outcomesList = [
             isInterpolated : false,
             isPercentage: true,
             target: 100,
+	    dp:2,
             coeffs : new Map(
                 [
                      [1, 0.00162428846511],
@@ -286,6 +292,7 @@ var outcomesList = [
             isInterpolated : false,
             isPercentage: false,
             target: 1,
+	    dp:4,
             fn :    function(_grpc, _iso, _year, _gov) { 
                 g = _type => getGov(_type, _iso, _year, _gov, _grpc);
                 const result =
@@ -342,6 +349,7 @@ var outcomesList = [
             isInterpolated : false,
             isPercentage: false,
             target: 1,
+	    dp:4,
             fn :    function(_grpc, _iso, _year, _gov) { 
                 g = _type => getGov(_type, _iso, _year, _gov, _grpc);
                 const result =
@@ -398,6 +406,7 @@ var outcomesList = [
             isInterpolated : false,
             isPercentage: false,
             target: 1,
+	    dp:4,
             fn :    function(_grpc, _iso, _year, _gov) { 
                 g = _type => getGov(_type, _iso, _year, _gov, _grpc);
                 const result =
@@ -444,7 +453,8 @@ var outcomesList = [
             isStockVar : true,
             isInterpolated : false,
             isPercentage: false,
-            target: 10,
+            target:0.1,
+	    dp:4,
             fn :    function(_grpc, _iso, _year, _gov) { 
                 g = _type => getGov(_type, _iso, _year, _gov, _grpc);
                 const result = 
@@ -495,7 +505,8 @@ var outcomesList = [
             isStockVar : true,
             isInterpolated : false,
             isPercentage: false,
-            target: 10,
+            target: 0.1,
+	    dp:4,
             fn :    function(_grpc, _iso, _year, _gov) { 
                 g = _type => getGov(_type, _iso, _year, _gov, _grpc);
                 const result = 
@@ -547,7 +558,8 @@ var outcomesList = [
             isStockVar : true,
             isInterpolated : false,
             isPercentage: false,
-            target: 10,
+            target:0.1,
+	    dp:4,
             fn :    function(_grpc, _iso, _year, _gov) { 
                 g = _type => getGov(_type, _iso, _year, _gov, _grpc);
                 const result 
@@ -641,12 +653,13 @@ function computeTarget(_iso, _year, _outcome, _target, _grpcOrig)
     var original = popdata.getvalue(_iso, _year, _outcome, bInterp);
     var residual = original - fitted;
     var limit = (outcomesMap.get(_outcome)).target
+    var dp = (outcomesMap.get(_outcome)).dp
     if (original > limit){
         limit = 100;
     }
 
     if (original > _target){
-        return {error : ["Target value (" + _target + "%) is less than original (" + original.toFixed(2) + "%)",]};
+        return {error : ["Target value (" + _target + "%) is less than original (" + original.toFixed(dp) + "%)",]};
     }
     if (_target < 0 || _target > limit){
         return {error : ["Target value (" + _target + "%) is outside limits",]};
