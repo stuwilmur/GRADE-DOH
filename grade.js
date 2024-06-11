@@ -1,5 +1,5 @@
-var version = "GRADE v3.9.0"
-var date = "2024/03/29"
+var version = "GRADE v3.10.0"
+var date = "2024/06/11"
 var subheight = 100;
 var legendCells = 11;
 var transitionTime = 500;
@@ -17,7 +17,7 @@ var pcGovRev = 0;
 var year = 2002;
 var years_to_project = 10;
 var governance = 0;
-var governanceModel = "EXOGENOUS"
+var governanceModel = "ENDOGENOUS"
 var target = 100;
 var country = "$-ALL";
 var method = "absolute";
@@ -632,6 +632,12 @@ function setupMenus(_countries, _outcomes) {
     fileElem = document.getElementById("fileElem");
 
     fileElem.addEventListener("change", handleRevenueCsv, false);
+
+    // Retire the exogenous model (governance specified) and hide the
+    // associated controls and the target feature
+    document.getElementById("gov controls").style.display =  "none"
+    document.getElementById("gov quality").style.display = "none"
+    document.getElementById("target sdg").style.display = "none"
 
     function convertPropsToUpperCase(d) {
         Object.keys(d).forEach(function(origProp) {
