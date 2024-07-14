@@ -729,7 +729,7 @@ function computeAdditionalResults(_iso, _year, _outcome, improved, original){
     } else if (_outcome == "INVLOWERTEACHERS"){
 	additional.push({name : "Additional lower-school teachers (number)", value: (improved - original) * popdata.getvalue(_iso, _year, "School age population, lower secondary education, both sexes (number)"), keyvariable:true})
     } else if (_outcome == "INVUPPERTEACHERS"){
-	additional.push({name : "Additional lower-school teachers (number)", value: (improved - original) * popdata.getvalue(_iso, _year, "School age population, upper secondary education, both sexes (number)"), keyvariable:true})
+	additional.push({name : "Additional upper-school teachers (number)", value: (improved - original) * popdata.getvalue(_iso, _year, "School age population, upper secondary education, both sexes (number)"), keyvariable:true})
     }
 
     return additional;
