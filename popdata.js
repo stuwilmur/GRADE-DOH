@@ -76,6 +76,10 @@ class PopData {
         if (!series) {return NaN};
         return series.map(function(d){return [d.year, d[_var]];})
     }
+
+    getcountries(){
+        return this.nesteddata.map(x=>x.key)
+    }
 }
 
 function removeblanks(_s){

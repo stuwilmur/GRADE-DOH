@@ -1,4 +1,4 @@
-var version = "GRADE v3.10.1"
+var version = "GRADE v3.10.2"
 var date = "2024/07/14"
 var subheight = 100;
 var legendCells = 11;
@@ -808,11 +808,28 @@ function download_csv(_year, _years_to_project, _countries, _outcomes, _revenue,
         return ["No countries selected",];
     }
     var final_year = getProjectionEnd(_year, _years_to_project);
-    var csvdata = getProjectionCSVData(_year, _countries, _outcomes, _years_to_project, _revenue, _governance, _smooth);
-    var button_title =  _year + "-" + final_year + ".csv";
-    if (_countries.length == 1)
+
+    
+    let countries
+    if (_revenue.method == "file")
+    { 
+        let csvCountries = revdata.getcountries();
+	countries = _countries.filter(iso => csvCountries.includes(iso));
+	if (countries.length < 1)
+	{
+	    return ["CSV file has no revenue data for selected countries",];
+	}
+    }
+    else
     {
-        button_title = _countries[0] + "_" + button_title;
+        countries = _countries;
+    }
+
+    var csvdata = getProjectionCSVData(_year, countries, _outcomes, _years_to_project, _revenue, _governance, _smooth);
+    var button_title =  _year + "-" + final_year + ".csv";
+    if (countries.length == 1)
+    {
+        button_title = countries[0] + "_" + button_title;
     }
 
     if (csvdata.str)
