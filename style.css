@@ -223,6 +223,8 @@ svg {
     padding-top: 5px;
     padding-bottom: 5px;
     padding-left: 3%;
+    border-color: rgb(180 180 180);
+    border-style: solid;
 }
 
 .uiouter {

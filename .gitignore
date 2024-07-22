@@ -14,3 +14,4 @@ revenue.csv
 .htpasswd
 doh/*
 *~
+*.html#
