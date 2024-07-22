@@ -489,7 +489,7 @@ var outcomesList = [
 		0.450545238623 * g("REGQUALITY") -
 		2.02637551438 * g("RULELAW") + 
 		0.41977998279 * g("GOVEFFECT") +
-		1.13267641272 * G("VOICE")
+		1.13267641272 * g("VOICE")
                 const result = Math.exp(Math.log(1.0 / _target - 1.0) / A + B);
                 return result;
             },

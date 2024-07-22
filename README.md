@@ -1,3 +1,4 @@
+![GRADE project logo](https://github.com/stuwilmur/GRADE-DOH/blob/main/grade-logo.png?raw=true)
 # GRADE-DOH
 Governement Revenue And Development Estimators Determinants Of Health interactive visualisation.
 
