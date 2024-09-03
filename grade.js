@@ -1,5 +1,5 @@
-var version = "GRADE v3.10.3"
-var date = "2024/07/22"
+var version = "GRADE v3.11.0"
+var date = "2024/09/03"
 var subheight = 100;
 var legendCells = 11;
 var transitionTime = 500;
@@ -170,8 +170,7 @@ function getGovernanceInputs(){
 
 function getColor(_cid, _year, _revenue, _governance) {
     var value = getResult(_cid, _year, _revenue, _governance);
-    var incomelevel = popdata.getstring(_cid, _year, "incomelevel");
-    
+        
     if (!isNaN(value)) {
         if (country.slice(0,1) == "$")
         {
@@ -224,7 +223,6 @@ function makeText2(_year, _iso, _outcome, _years_to_project, _revenue, _governan
         }
         else{
             
-            var theOutcome = outcomesMap.get(_outcome);
             var varText = projection.effect_description;
             
             text = text 
@@ -718,7 +716,7 @@ function updateplot() {
     if (country.slice(0, 2) == "$-") {
         d3.select("#plotwrapper").style("display", "none");
     } else {
-        var plotdata = getProjectionData(+year, country, outcome, +years_to_project, getRevenueInputs(), getGovernanceInputs(), smooth);
+        let plotdata = getProjectionData(+year, country, outcome, +years_to_project, getRevenueInputs(), getGovernanceInputs(), smooth);
         
         if (plotdata.error){
             d3.select("#plotwrapper").style("display", "none");
@@ -730,7 +728,7 @@ function updateplot() {
 
         d3.select("#plotwrapper").style("display", "inline-block");
        
-        var plotdata = [];
+        plotdata = [];
         var spaces = "          ";
         const resultToPlot = plottype == "population" ? 'additional' : 'coverage';
         
@@ -755,7 +753,7 @@ function updateplot() {
             plotdata.push(outcomedata);
         })
         
-        var y_var_max = Math.max(plotdata.map(d => Math.max(d.y)));
+        var y_var_max = d3.max(plotdata.map(d => d3.max(d.y)));
         
         var theOutcome = outcomesMap.get(outcome);
 	var dp = theOutcome.dp;
@@ -1007,8 +1005,6 @@ function updateCountryFilters(){
     u.html(gethtml);
 
     u.exit().remove();
-
-    var button = document.getElementById('multibutton')
 }
 
 function clear_multi(){

@@ -141,7 +141,7 @@ function getGov(_type, _iso, _year, _gov, _grpc = 0) {
     var x = NaN
     if (_gov.model == "EXOGENOUS")
     {
-        var pop = popdata.getrow(_iso, _year);
+        let pop = popdata.getrow(_iso, _year);
         if (!pop) return NaN;
         // Exogenous governance model
         x = pop[_type] + (govMeasures.get(_type).positive == true ? _gov.value : -_gov.value);
@@ -154,7 +154,7 @@ function getGov(_type, _iso, _year, _gov, _grpc = 0) {
          * has been supplied, which means that the function is not called
          * from a projection
          */
-        var pop = popdata.getrow(_iso, _year);
+        let pop = popdata.getrow(_iso, _year);
         if (!pop) return NaN;
         x = pop[_type]
     }
@@ -189,7 +189,7 @@ function forecastGovernance(_iso, _startYear, _yearsToForecast, _grpcMultiplier)
     var govImproved_prev = null;
     var govImproved_lagged2 = null;
 
-    for (i = 0; i < _yearsToForecast; i++)
+    for (let i = 0; i < _yearsToForecast; i++)
     {
         var year = _startYear + i;
         

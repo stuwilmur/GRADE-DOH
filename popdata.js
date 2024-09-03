@@ -84,5 +84,5 @@ class PopData {
 
 function removeblanks(_s){
     // given array s remove NaNs and zeros
-    return _s.filter(function(d){return !isNaN(d[1]) && !(d[1] === 0)});
+    return _s.filter(function(d){return !isNaN(d[1]) && (d[1] !== 0)});
 }

@@ -56,7 +56,7 @@ function getProjectionData(_firstyear, _country, _outcome, _years_to_return, _re
 
     let firstRevenueError = true;
 
-    for (y = _firstyear; y <= popdata.lastyear && ((y - _firstyear) <= years_to_project); y++) 
+    for (let y = _firstyear; y <= popdata.lastyear && ((y - _firstyear) <= years_to_project); y++) 
     {
         let historical_grpc = NaN
         let grpc = NaN
@@ -94,8 +94,7 @@ function getProjectionData(_firstyear, _country, _outcome, _years_to_return, _re
         {
             var computed = computeResult(_country, y, _outcome, grpc, revenues["historical grpc"], _governance, 1E-6);
             if (computed.error) {
-                if (ret.error === null) { ret.error = []; }
-                ret.error = ret.error.concat(computed.error);
+                ret.error = computed.error;
             }
         }
 
@@ -155,13 +154,13 @@ function getProjectionData(_firstyear, _country, _outcome, _years_to_return, _re
         // Note: slice may be shorter than length specified if projection stopped early due to error
         datacopy = ret.data.slice(0, _years_to_return + 1); 
 
-        for (i = 1; i < years_to_smooth; i++)
+        for (let i = 1; i < years_to_smooth; i++)
         {
             for (const property_index in ret.data[i].additional)
             {
-                start_value = ret.data[0].additional[property_index].value
-                end_value = ret.data[years_to_wait].additional[property_index].value
-                interpolated_value = start_value + i * (end_value - start_value) / years_to_wait 
+                const start_value = ret.data[0].additional[property_index].value
+                const end_value = ret.data[years_to_wait].additional[property_index].value
+                const interpolated_value = start_value + i * (end_value - start_value) / years_to_wait 
                 datacopy[i].additional[property_index].value = interpolated_value;
             }
         }
@@ -183,7 +182,7 @@ function getProjectionCSVData(_year, _countries, _outcomes, _years_to_project, _
     var header = `country,iso,year,"income level",region,"total population"`;
     var ret = {str : null, errors : null};
     var headerDone = false;
-    for (iCountry = 0; iCountry < _countries.length; iCountry++) 
+    for (let iCountry = 0; iCountry < _countries.length; iCountry++) 
     {
         let body = "";
         let _country = _countries[iCountry];

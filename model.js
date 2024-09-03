@@ -666,7 +666,7 @@ function computeTarget(_iso, _year, _outcome, _target, _grpcOrig)
     }
     // treat zero as "no data"
     if (original === 0 || isNaN(original)){
-        var outcome_name = (outcomesMap.get(_outcome)).name;
+        let outcome_name = (outcomesMap.get(_outcome)).name;
         return {error : [outcome_name + " not available for " + _year]};
     }  
 
@@ -744,14 +744,14 @@ function computeSpecialResults(_iso, _year, _outcome, _improved, _original, _add
 
     if (_outcome == "U5MSURV")
     {
-        var livesSaved = Math.round((_improved - _original) / 100 * popBirths)
-        var costPerLife = livesSaved > 0 ? popTotal * _additionalGrpc / livesSaved : NaN 
+        let livesSaved = Math.round((_improved - _original) / 100 * popBirths)
+        let costPerLife = livesSaved > 0 ? popTotal * _additionalGrpc / livesSaved : NaN 
         special_results.push({name : "Cost per under-5 life saved", value : costPerLife})
     }
     else if (_outcome == "MMRSURV")
     {
-        var livesSaved = Math.round((_improved - _original) / 100 * popBirths)
-        var costPerLife = livesSaved > 0 ? popTotal * _additionalGrpc / livesSaved : NaN 
+        let livesSaved = Math.round((_improved - _original) / 100 * popBirths)
+        let costPerLife = livesSaved > 0 ? popTotal * _additionalGrpc / livesSaved : NaN 
         special_results.push({name : "Cost per maternal life saved", value : costPerLife})
     }
 
@@ -791,7 +791,7 @@ function computeResult(_iso, _year, _outcome, _grpc, _grpcOrig, _govImprovement,
     var fitted = compute(_iso, _year, _outcome, _grpcOrig, {model : null})
     var bInterp = (outcomesMap.get(_outcome)).isInterpolated;
     var original = popdata.getvalue(_iso, _year, _outcome, bInterp);
-    var outcome_name = (outcomesMap.get(_outcome)).name;
+    let outcome_name = (outcomesMap.get(_outcome)).name;
     
     // treat zero as "no data"
     if (original === 0 || isNaN(original)){
@@ -799,10 +799,10 @@ function computeResult(_iso, _year, _outcome, _grpc, _grpcOrig, _govImprovement,
     }
     var improved = compute(_iso, _year, _outcome, _grpc, _govImprovement)
     if (isNaN(improved)){
-        var outcome_name = (outcomesMap.get(_outcome)).name;
+        let outcome_name = (outcomesMap.get(_outcome)).name;
         var errs = ["Unable to calculate " + outcome_name + ", " + _year];
         // temporary hack to check governance values
-        var govresults = computegovernance(_iso, _year, _govImprovement, _grpc);
+        let govresults = computegovernance(_iso, _year, _govImprovement, _grpc);
         var hasNan = false
         govresults.forEach(function(v){
             hasNan = hasNan || isNaN(v);
@@ -812,7 +812,7 @@ function computeResult(_iso, _year, _outcome, _grpc, _grpcOrig, _govImprovement,
         }
         return {error : errs};
     }
-    var govresults = computegovernance(_iso, _year, _govImprovement, _grpc)
+    let govresults = computegovernance(_iso, _year, _govImprovement, _grpc)
     var residual = original - fitted;
     var limit = (outcomesMap.get(_outcome)).target
     if (original > limit ){
@@ -946,8 +946,8 @@ function getRevenue(_iso, _year, _revenue) {
         else{
             proportion_increase_grpc = _revenue.govRevenue;
         }
-        var newAbsRev = (grpercap * (proportion_increase_grpc)) * total_population;
-        var additionalPerCapita = grpercap * proportion_increase_grpc;
+        let newAbsRev = (grpercap * (proportion_increase_grpc)) * total_population;
+        let additionalPerCapita = grpercap * proportion_increase_grpc;
         ret = {
             "percentage increase": proportion_increase_grpc,
             "new absolute revenue": newAbsRev,
@@ -968,9 +968,9 @@ function getRevenue(_iso, _year, _revenue) {
         else{
             additional_revenue_per_capita_dollars = _revenue.pcGovRev;
         }
-        var newGRPC = grpercap + additional_revenue_per_capita_dollars;
-        var newGovRev = newGRPC / grpercap - 1;
-        var newAbsRev = (grpercap * (newGovRev)) * total_population;
+        let newGRPC = grpercap + additional_revenue_per_capita_dollars;
+        let newGovRev = newGRPC / grpercap - 1;
+        let newAbsRev = (grpercap * (newGovRev)) * total_population;
         ret = {
             "percentage increase": newGovRev,
             "new absolute revenue": newAbsRev,
@@ -982,7 +982,7 @@ function getRevenue(_iso, _year, _revenue) {
     }
     else { // method "absolute"
 
-        var additional_revenue_dollars
+        let additional_revenue_dollars
         if (_revenue.method == "file"){
             additional_revenue_dollars = revdata.getvalue(_iso, _year, "REVENUE")  
             if (isNaN(additional_revenue_dollars))
@@ -993,8 +993,8 @@ function getRevenue(_iso, _year, _revenue) {
         else{
             additional_revenue_dollars = _revenue.absGovRev;
         }
-        var newGRPC = grpercap + additional_revenue_dollars / total_population;
-        var newGovRev = newGRPC / grpercap - 1;
+        let newGRPC = grpercap + additional_revenue_dollars / total_population;
+        let newGovRev = newGRPC / grpercap - 1;
         var additionalPerCapita = additional_revenue_dollars / total_population;
         ret = {
             "percentage increase": newGovRev,
