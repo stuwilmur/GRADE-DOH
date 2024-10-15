@@ -1,4 +1,4 @@
-var version = "GRADE v3.12.0"
+var version = "GRADE v3.12.1"
 var date = "2024/10/15"
 var subheight = 100;
 var legendCells = 11;
