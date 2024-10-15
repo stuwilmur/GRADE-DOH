@@ -600,6 +600,68 @@ var outcomesList = [
                 return result;
             },
          }],
+         ["Access to clean fuels and technologies for cooking (% of population)",
+        {
+            name: "Clean fuels",
+            
+            loCol: "#dee5f8",
+	    hiCol: "#e09900",            
+	    fixedExtent: [0,100],
+            desc: "Access to clean fuels and technologies for cooking (% of population)",
+            isStockVar : true,
+            isInterpolated : false,
+            isPercentage: true,
+            target:0.1,
+	    dp:4,
+            fn :    function(_grpc, _iso, _year, _gov) { 
+                g = _type => getGov(_type, _iso, _year, _gov, _grpc);
+                const result 
+		= 100.0 / (1.0 + 
+		Math.exp(-(1.55511127478+0.265790910109*g("CORRUPTION")
+		-0.315071291181*g("POLSTAB")+0.151636785162*g("REGQUALITY") 
+		-0.487315267384*g("RULELAW")+0.330790828876*g("GOVEFFECT") 
+		+0.404068972394*g("VOICE"))*(Math.log(_grpc) 
+		-(6.17253557414+0.301704182258*g("CORRUPTION") 
+		+0.194728909195*g("POLSTAB")-0.225270292475*g("REGQUALITY")
+		+0.154546022443*g("RULELAW")-0.865272888517*g("GOVEFFECT") 
+		+0.368198713935*g("VOICE") ))));
+                return result;
+            },
+            inv_fn : function(_target, _iso, _year, _gov){
+                g = _type => getGov(_type, _iso, _year, _gov);
+                return NaN;
+            },
+         }],
+         ["Access to electricity (% of population)",
+        {
+            name: "Electricity",
+            
+            loCol: "#dee5f8",
+	    hiCol: "#e09900",            
+	    fixedExtent: [0,100],
+            desc: "Access to electricity (% of population)",
+            isStockVar : true,
+            isInterpolated : false,
+            isPercentage: true,
+            target:0.1,
+	    dp:4,
+            fn :    function(_grpc, _iso, _year, _gov) { 
+                g = _type => getGov(_type, _iso, _year, _gov, _grpc);
+                const result 
+		= 100.0 / (1.0 + 
+		Math.exp(-(1.5019625456-0.2578443514823
+		+0.362341978581*g("REGQUALITY")+0.465587308283*g("GOVEFFECT"))*(Math.log(_grpc) 
+		-(5.27113495126+0.671315739474*g("CORRUPTION") 
+		+0.171880470512*g("POLSTAB")+0.348130495524*g("REGQUALITY")
+		-0.30838918822*g("RULELAW")-0.79095443295*g("GOVEFFECT") 
+		+0.136955671243*g("VOICE") ))))
+                return result;
+            },
+            inv_fn : function(_target, _iso, _year, _gov){
+                g = _type => getGov(_type, _iso, _year, _gov);
+                return NaN;
+            },
+         }],
 ];
 
 var outcomesMap = new Map(outcomesList);
@@ -696,7 +758,7 @@ function computeAdditionalResults(_iso, _year, _outcome, improved, original){
 
     var additional = [];
 
-    if (_outcome == "SANITBASIC" || _outcome == "SANITSAFE" || _outcome == "WATERBASIC" || _outcome == "WATERSAFE") {
+    if (_outcome == "SANITBASIC" || _outcome == "SANITSAFE" || _outcome == "WATERBASIC" || _outcome == "WATERSAFE" || _outcome == "Access to clean fuels and technologies for cooking (% of population)" || _outcome == "Access to electricity (% of population)") {
         additional.push({name : "People with increased access to " + outcomeName,  value : (improved - original) / 100 * popTotal, keyvariable : true});
         additional.push({name : "Children < 5 with increased access to " + outcomeName, value : (improved - original) / 100 * popU5, keyvariable : true});
         additional.push({name : "Females 15-49 with increased access to " + outcomeName, value: (improved - original) / 100 * popFemale15_49, keyvariable : true});
@@ -881,9 +943,9 @@ function typeAndSetPopulation(d) {
     e["incomelevel"]                            = d["incomelevel"]
     e["Number of children surviving to five"]   =convertNumber(d["Number of children surviving to five "])
     e["region"]                                 =d["region"]
-    e.PRIMARYSCHOOL                             = convertNumber(d["In school: Primary school"]);
-    e.LOWERSCHOOL                               = convertNumber(d["In school: Lower school"]);
-    e.UPPERSCHOOL                               = convertNumber(d["In school: Upper school"]);
+    e.PRIMARYSCHOOL                             = convertNumber(d["In school: Primary school (%)"]) * 0.01;
+    e.LOWERSCHOOL                               = convertNumber(d["In school: Lower school (%)"]) * 0.01;
+    e.UPPERSCHOOL                               = convertNumber(d["In school: Upper school (%)"]) * 0.01;
     e["School age population, primary education, both sexes (number)"]          = convertNumber(d["School age population, primary education, both sexes (number)"]          );
     e["School age population, primary education, female (number)"]              = convertNumber(d["School age population, primary education, female (number)"]);
     e["School age population, primary education, male (number)"]                = convertNumber(d["School age population, primary education, male (number)"]);
@@ -893,12 +955,14 @@ function typeAndSetPopulation(d) {
     e["School age population, upper secondary education, both sexes (number)"]  = convertNumber(d["School age population, upper secondary education, both sexes (number)"]);
     e["School age population, upper secondary education, female (number)"]      = convertNumber(d["School age population, upper secondary education, female (number)"]);
     e["School age population, upper secondary education, male (number)"]        = convertNumber(d["School age population, upper secondary education, male (number)"]);
-    e["INVPRIMARYTEACHERS"] = convertNumber(d["INVPRIMARYTEACHERS"]);
-    e["PRIMARYTEACHERS"]    = convertNumber(d["PRIMARYTEACHERS"]);
-    e["INVLOWERTEACHERS"]   = convertNumber(d["INVLOWERTEACHERS"]);
-    e["LOWERTEACHERS"]      = convertNumber(d["LOWERTEACHERS"]);
-    e["INVUPPERTEACHERS"]   = convertNumber(d["INVUPPERTEACHERS"]);
-    e["UPPERTEACHERS"]      = convertNumber(d["UPPERTEACHERS"]);
+    e["INVPRIMARYTEACHERS"] = convertNumber(d["Teacher/school age population ratio:Primary school"]);
+    e["PRIMARYTEACHERS"]    = convertNumber(d["School age population/Teacher ratio:Primary school"]);
+    e["INVLOWERTEACHERS"]   = convertNumber(d["Teacher/school age population ratio:Lower secondary school"]);
+    e["LOWERTEACHERS"]      = convertNumber(d["School age population/Teacher ratio:Lower secondary school"]);
+    e["INVUPPERTEACHERS"]   = convertNumber(d["Teacher/school age population ratio:Upper secondary school"]);
+    e["UPPERTEACHERS"]      = convertNumber(d["School age population/Teacher ratio:Upper secondary school"]);
+    e["Access to electricity (% of population)"] = convertNumber(d["Access to electricity (% of population)"]);
+    e["Access to clean fuels and technologies for cooking (% of population)"] = convertNumber(d["Access to clean fuels and technologies for cooking (% of population)"]);
 
     return e;
 }
