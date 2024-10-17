@@ -649,7 +649,7 @@ var outcomesList = [
                 g = _type => getGov(_type, _iso, _year, _gov, _grpc);
                 const result 
 		= 100.0 / (1.0 + 
-		Math.exp(-(1.5019625456-0.2578443514823
+		Math.exp(-(1.5019625456-0.2578443514823 * g("CORRUPTION")
 		+0.362341978581*g("REGQUALITY")+0.465587308283*g("GOVEFFECT"))*(Math.log(_grpc) 
 		-(5.27113495126+0.671315739474*g("CORRUPTION") 
 		+0.171880470512*g("POLSTAB")+0.348130495524*g("REGQUALITY")
