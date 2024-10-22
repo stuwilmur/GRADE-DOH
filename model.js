@@ -611,7 +611,7 @@ var outcomesList = [
             isStockVar : true,
             isInterpolated : false,
             isPercentage: true,
-            target:0.1,
+            target:100,
 	    dp:4,
             fn :    function(_grpc, _iso, _year, _gov) { 
                 g = _type => getGov(_type, _iso, _year, _gov, _grpc);
@@ -643,7 +643,7 @@ var outcomesList = [
             isStockVar : true,
             isInterpolated : false,
             isPercentage: true,
-            target:0.1,
+            target:100,
 	    dp:4,
             fn :    function(_grpc, _iso, _year, _gov) { 
                 g = _type => getGov(_type, _iso, _year, _gov, _grpc);
@@ -661,6 +661,43 @@ var outcomesList = [
                 g = _type => getGov(_type, _iso, _year, _gov);
                 return NaN;
             },
+         }],
+         ["Stunting prevalence (% of population)",
+        {
+            name: "Stunting",
+            
+            loCol: "#e09900",
+	    hiCol: "#dee5f8",            
+	    fixedExtent: [0,100],
+            desc: "Prevalence of stunting, height for age (% of children under 5)",
+            isStockVar : true,
+            isInterpolated : false,
+            isPercentage: true,
+            target:0,
+	    dp:4,
+            fn :    function(_grpc, _iso, _year, _gov) { 
+                g = _type => getGov(_type, _iso, _year, _gov, _grpc);
+                const result 
+		= 100.0 / (1.0 +
+ 		Math.exp(-(0.615767523243-0.136403617704*g("CORRUPTION")
+		-0.0690187386714*g("POLSTAB")+0.362786997335*g("GOVEFFECT") 
+		+0.0626787851051*g("VOICE"))*(Math.log(_grpc)  
+		-(5.14643417028-0.272350860329*g("POLSTAB")
+		-0.266201741521*g("REGQUALITY")-0.621311114237*g("RULELAW")
+		+0.852663964988*g("GOVEFFECT")+0.221598174524*g("VOICE") ))))
+                return result;
+            },
+            inv_fn : function(_target, _iso, _year, _gov){
+                g = _type => getGov(_type, _iso, _year, _gov);
+                return NaN;
+            },
+	    // stunting should reduce with grpc, hence we transform the working variable
+	    transform : function(_value) {
+			return 100.0 - 100.0 / 65.0 * _value;
+	    },
+	    untransform : function(_value) {
+			return (100.0 - _value) * 65. / 100.;
+ 	    },
          }],
 ];
 
@@ -792,6 +829,8 @@ function computeAdditionalResults(_iso, _year, _outcome, improved, original){
 	additional.push({name : "Additional lower-school teachers (number)", value: (improved - original) * popdata.getvalue(_iso, _year, "School age population, lower secondary education, both sexes (number)"), keyvariable:true})
     } else if (_outcome == "INVUPPERTEACHERS"){
 	additional.push({name : "Additional upper-school teachers (number)", value: (improved - original) * popdata.getvalue(_iso, _year, "School age population, upper secondary education, both sexes (number)"), keyvariable:true})
+    } else if (_outcome == "Stunting prevalence (% of population)") {
+        additional.push ({name : "Children < 5 who no longer experience stunting", value : (improved - original) / 100 * popU5, keyvariable : true});
     }
 
     return additional;
@@ -853,6 +892,13 @@ function computeResult(_iso, _year, _outcome, _grpc, _grpcOrig, _govImprovement,
     var fitted = compute(_iso, _year, _outcome, _grpcOrig, {model : null})
     var bInterp = (outcomesMap.get(_outcome)).isInterpolated;
     var original = popdata.getvalue(_iso, _year, _outcome, bInterp);
+    
+    // some outcomes require transformation to a different working quantity, e.g. their inverse:
+    // apply this transformation for the original quantity
+    if (_outcome.hasOwnProperty("transform"))
+    {
+        original = _outcome.transform(original);
+    }
     let outcome_name = (outcomesMap.get(_outcome)).name;
     
     // treat zero as "no data"
@@ -883,6 +929,15 @@ function computeResult(_iso, _year, _outcome, _grpc, _grpcOrig, _govImprovement,
     improved = Math.min(Math.max(improved + residual, 0), limit);
     if (Math.abs(improved - original) < _epsilon){
         improved = original;
+    }
+
+    // For outcomes modelled using transformed quantities, we need
+    // to convert back to the original quantity for the computed
+    // results
+    if (_outcome.hasOwnProperty("untrasform"))
+    {
+        fitted = _outcome.untransform(fitted);
+        improved = _outcome.untransform(improved);
     }
 
     var ret = {
@@ -963,6 +1018,7 @@ function typeAndSetPopulation(d) {
     e["UPPERTEACHERS"]      = convertNumber(d["School age population/Teacher ratio:Upper secondary school"]);
     e["Access to electricity (% of population)"] = convertNumber(d["Access to electricity (% of population)"]);
     e["Access to clean fuels and technologies for cooking (% of population)"] = convertNumber(d["Access to clean fuels and technologies for cooking (% of population)"]);
+    e["Stunting prevalence (% of population)"] = convertNumber(d["Prevalence of stunting, height for age (modeled estimate, % of children under 5)"]);
 
     return e;
 }
