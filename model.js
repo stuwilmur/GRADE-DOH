@@ -830,7 +830,7 @@ function computeAdditionalResults(_iso, _year, _outcome, improved, original){
     } else if (_outcome == "INVUPPERTEACHERS"){
 	additional.push({name : "Additional upper-school teachers (number)", value: (improved - original) * popdata.getvalue(_iso, _year, "School age population, upper secondary education, both sexes (number)"), keyvariable:true})
     } else if (_outcome == "Stunting prevalence (% of population)") {
-        additional.push ({name : "Children < 5 who no longer experience stunting", value : (improved - original) / 100 * popU5, keyvariable : true});
+        additional.push ({name : "Children < 5 who no longer experience stunting", value : -(improved - original) / 100 * popU5, keyvariable : true}); // stunting goes the other way, i.e. improvement means a lower prevalence, so reverse the sign
     }
 
     return additional;
@@ -895,9 +895,10 @@ function computeResult(_iso, _year, _outcome, _grpc, _grpcOrig, _govImprovement,
     
     // some outcomes require transformation to a different working quantity, e.g. their inverse:
     // apply this transformation for the original quantity
-    if (_outcome.hasOwnProperty("transform"))
+    let outcomeObj = outcomesMap.get(_outcome);
+    if (outcomeObj.hasOwnProperty("transform"))
     {
-        original = _outcome.transform(original);
+        original = outcomeObj.transform(original);
     }
     let outcome_name = (outcomesMap.get(_outcome)).name;
     
@@ -934,10 +935,11 @@ function computeResult(_iso, _year, _outcome, _grpc, _grpcOrig, _govImprovement,
     // For outcomes modelled using transformed quantities, we need
     // to convert back to the original quantity for the computed
     // results
-    if (_outcome.hasOwnProperty("untrasform"))
+    if (outcomeObj.hasOwnProperty("untransform"))
     {
-        fitted = _outcome.untransform(fitted);
-        improved = _outcome.untransform(improved);
+        fitted = outcomeObj.untransform(fitted);
+        improved = outcomeObj.untransform(improved);
+        original = outcomeObj.untransform(original);
     }
 
     var ret = {
