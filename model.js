@@ -975,6 +975,11 @@ function typeAndSetPopulation(d) {
     e.Country 	    =d["countryname"]                                      
     e.GOVEFFECT 	=convertNumber(d["Government Effectiveness: Estimate"])
     e.GRPERCAP 	    =convertNumber(d["Government revenue per capita (constant 2015 USD)"])
+    if (e.GRPERCAP < 0.0001)
+    {
+	// zero GRPC indicates no data, so mark clearly by setting to NaN
+        e.GRPERCAP = NaN;
+    }
     e.IMUNISATION	=convertNumber(d["Immunization, DPT (% of children ages 12-23 months)"])
     e.ISO 	        =d["countrycode"]
     e.POLSTAB 	    =convertNumber(d["Political Stability and Absence of Violence/Terrorism: Estimate"])
