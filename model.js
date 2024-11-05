@@ -694,7 +694,7 @@ var outcomesList = [
             isStockVar : true,
             isInterpolated : false,
             isPercentage: true,
-            target:0,
+            target:100,
 	    dp:4,
             fn :    function(_grpc, _iso, _year, _gov) { 
                 g = _type => getGov(_type, _iso, _year, _gov, _grpc);
@@ -718,7 +718,7 @@ var outcomesList = [
 		const B = 5.14643417028-0.272350860329*g("POLSTAB")
 		-0.266201741521*g("REGQUALITY")-0.621311114237*g("RULELAW")
 		+0.852663964988*g("GOVEFFECT")+0.221598174524*g("VOICE");
-		const result = NaN;
+		const result = Math.exp(Math.log(100.0 / _target - 1.0) / A + B);;
                 return result;
             },
 	    // stunting should reduce with grpc, hence we transform the working variable
@@ -777,9 +777,20 @@ function computeTarget(_iso, _year, _outcome, _target, _grpcOrig)
 {
     // n.b. this calculation ignores changes in governance
 
+    const constTarget = _target;
+
+    const outcomeObject = (outcomesMap.get(_outcome))
+    const isTransformedVariable = outcomeObject.hasOwnProperty("transform");
+
     var fitted = compute(_iso, _year, _outcome, _grpcOrig, {model: null})
     var bInterp = (outcomesMap.get(_outcome)).isInterpolated;
     var original = popdata.getvalue(_iso, _year, _outcome, bInterp);
+    const constOriginal = original
+    if (isTransformedVariable)
+    {
+	original = outcomeObject.transform(original);
+	_target = outcomeObject.transform(_target);
+    }
     var residual = original - fitted;
     var limit = (outcomesMap.get(_outcome)).target
     var dp = (outcomesMap.get(_outcome)).dp
@@ -788,10 +799,10 @@ function computeTarget(_iso, _year, _outcome, _target, _grpcOrig)
     }
 
     if (original > _target){
-        return {error : ["Target value (" + _target + "%) is less than original (" + original.toFixed(dp) + "%)",]};
+        return {error : ["Target value (" + constTarget + "%) is worse than original (" + constOriginal.toFixed(dp) + "%)",]};
     }
     if (_target < 0 || _target > limit){
-        return {error : ["Target value (" + _target + "%) is outside limits",]};
+        return {error : ["Target value (" + constTarget + "%) is outside limits",]};
     }
     // treat zero as "no data"
     if (original === 0 || isNaN(original)){
@@ -806,11 +817,20 @@ function computeTarget(_iso, _year, _outcome, _target, _grpcOrig)
         var errs = ["Unable to calculate " + outcome_name + ": target may be out of achievable range"];
         return {error : errs};
     }
+
+    // For outcomes modelled using transformed quantities, we need
+    // to convert back to the original quantity for the computed
+    // results
+    if (outcomeObject.hasOwnProperty("untransform"))
+    {
+        fitted = outcomeObject.untransform(fitted);
+    }    	
+
     return {
         error : null,
         grpc : target_grpc,
-        additional : computeAdditionalResults(_iso, _year, _outcome, target, original),
-        special : computeSpecialResults(_iso, _year, _outcome, target, original, (target_grpc - _grpcOrig))
+        additional : computeAdditionalResults(_iso, _year, _outcome, constTarget, constOriginal),
+        special : computeSpecialResults(_iso, _year, _outcome, constTarget, constOriginal, (target_grpc - _grpcOrig))
     };
 }
 
