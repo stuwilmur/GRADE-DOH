@@ -818,14 +818,6 @@ function computeTarget(_iso, _year, _outcome, _target, _grpcOrig)
         return {error : errs};
     }
 
-    // For outcomes modelled using transformed quantities, we need
-    // to convert back to the original quantity for the computed
-    // results
-    if (outcomeObject.hasOwnProperty("untransform"))
-    {
-        fitted = outcomeObject.untransform(fitted);
-    }    	
-
     return {
         error : null,
         grpc : target_grpc,
