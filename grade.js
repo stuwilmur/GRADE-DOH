@@ -635,7 +635,6 @@ function setupMenus(_countries, _outcomes) {
     // associated controls and the target feature
     document.getElementById("gov controls").style.display =  "none"
     document.getElementById("gov quality").style.display = "none"
-    document.getElementById("target sdg").style.display = "none"
 
     function convertPropsToUpperCase(d) {
         Object.keys(d).forEach(function(origProp) {

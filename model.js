@@ -617,19 +617,31 @@ var outcomesList = [
                 g = _type => getGov(_type, _iso, _year, _gov, _grpc);
                 const result 
 		= 100.0 / (1.0 + 
-		Math.exp(-(1.55511127478+0.265790910109*g("CORRUPTION")
+		Math.exp(
+		-(1.55511127478+0.265790910109*g("CORRUPTION")
 		-0.315071291181*g("POLSTAB")+0.151636785162*g("REGQUALITY") 
 		-0.487315267384*g("RULELAW")+0.330790828876*g("GOVEFFECT") 
-		+0.404068972394*g("VOICE"))*(Math.log(_grpc) 
-		-(6.17253557414+0.301704182258*g("CORRUPTION") 
+		+0.404068972394*g("VOICE"))*
+		(Math.log(_grpc) -
+		(6.17253557414+0.301704182258*g("CORRUPTION") 
 		+0.194728909195*g("POLSTAB")-0.225270292475*g("REGQUALITY")
 		+0.154546022443*g("RULELAW")-0.865272888517*g("GOVEFFECT") 
-		+0.368198713935*g("VOICE") ))));
+		+0.368198713935*g("VOICE")))));
                 return result;
             },
             inv_fn : function(_target, _iso, _year, _gov){
                 g = _type => getGov(_type, _iso, _year, _gov);
-                return NaN;
+                const A = -(1.55511127478+0.265790910109*g("CORRUPTION")
+		-0.315071291181*g("POLSTAB")+0.151636785162*g("REGQUALITY") 
+		-0.487315267384*g("RULELAW")+0.330790828876*g("GOVEFFECT") 
+		+0.404068972394*g("VOICE"));
+		const B = 6.17253557414+0.301704182258*g("CORRUPTION") 
+		+0.194728909195*g("POLSTAB")-0.225270292475*g("REGQUALITY")
+		+0.154546022443*g("RULELAW")-0.865272888517*g("GOVEFFECT") 
+		+0.368198713935*g("VOICE");
+		
+		const result = Math.exp(Math.log(100.0 / _target - 1.0) / A + B);
+                return result;
             },
          }],
          ["Access to electricity (% of population)",
@@ -649,17 +661,26 @@ var outcomesList = [
                 g = _type => getGov(_type, _iso, _year, _gov, _grpc);
                 const result 
 		= 100.0 / (1.0 + 
-		Math.exp(-(1.5019625456-0.2578443514823 * g("CORRUPTION")
-		+0.362341978581*g("REGQUALITY")+0.465587308283*g("GOVEFFECT"))*(Math.log(_grpc) 
-		-(5.27113495126+0.671315739474*g("CORRUPTION") 
+		Math.exp(
+		-(1.5019625456-0.2578443514823 * g("CORRUPTION")
+		+0.362341978581*g("REGQUALITY")+0.465587308283*g("GOVEFFECT"))*
+		(Math.log(_grpc) - 
+		(5.27113495126+0.671315739474*g("CORRUPTION") 
 		+0.171880470512*g("POLSTAB")+0.348130495524*g("REGQUALITY")
 		-0.30838918822*g("RULELAW")-0.79095443295*g("GOVEFFECT") 
-		+0.136955671243*g("VOICE") ))))
+		+0.136955671243*g("VOICE")))))
                 return result;
             },
             inv_fn : function(_target, _iso, _year, _gov){
                 g = _type => getGov(_type, _iso, _year, _gov);
-                return NaN;
+                const A = -(1.5019625456-0.2578443514823 * g("CORRUPTION")
+		+0.362341978581*g("REGQUALITY")+0.465587308283*g("GOVEFFECT"));
+ 		const B = 5.27113495126+0.671315739474*g("CORRUPTION") 
+		+0.171880470512*g("POLSTAB")+0.348130495524*g("REGQUALITY")
+		-0.30838918822*g("RULELAW")-0.79095443295*g("GOVEFFECT") 
+		+0.136955671243*g("VOICE");
+		const result = Math.exp(Math.log(100.0 / _target - 1.0) / A + B);
+                return result;
             },
          }],
          ["Stunting prevalence (% of population)",
@@ -679,9 +700,11 @@ var outcomesList = [
                 g = _type => getGov(_type, _iso, _year, _gov, _grpc);
                 const result 
 		= 100.0 / (1.0 +
- 		Math.exp(-(0.615767523243-0.136403617704*g("CORRUPTION")
+ 		Math.exp(
+		-(0.615767523243-0.136403617704*g("CORRUPTION")
 		-0.0690187386714*g("POLSTAB")+0.362786997335*g("GOVEFFECT") 
-		+0.0626787851051*g("VOICE"))*(Math.log(_grpc)  
+		+0.0626787851051*g("VOICE"))*
+		(Math.log(_grpc)  
 		-(5.14643417028-0.272350860329*g("POLSTAB")
 		-0.266201741521*g("REGQUALITY")-0.621311114237*g("RULELAW")
 		+0.852663964988*g("GOVEFFECT")+0.221598174524*g("VOICE") ))))
@@ -689,7 +712,14 @@ var outcomesList = [
             },
             inv_fn : function(_target, _iso, _year, _gov){
                 g = _type => getGov(_type, _iso, _year, _gov);
-                return NaN;
+                const A = -(0.615767523243-0.136403617704*g("CORRUPTION")
+		-0.0690187386714*g("POLSTAB")+0.362786997335*g("GOVEFFECT") 
+		+0.0626787851051*g("VOICE"));
+		const B = 5.14643417028-0.272350860329*g("POLSTAB")
+		-0.266201741521*g("REGQUALITY")-0.621311114237*g("RULELAW")
+		+0.852663964988*g("GOVEFFECT")+0.221598174524*g("VOICE");
+		const result = NaN;
+                return result;
             },
 	    // stunting should reduce with grpc, hence we transform the working variable
 	    transform : function(_value) {
