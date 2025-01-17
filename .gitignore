@@ -15,3 +15,5 @@ revenue.csv
 doh/*
 *~
 *.html#
+.#index.html
+*.js#

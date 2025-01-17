@@ -260,10 +260,10 @@
                         Click to download <em>base data</em> used to drive the GRADE model, in Excel or CSV format.
                     </p>
                     <ul>
-                        <li><a download href="GRADE_BASE_2024_UPDATE.xlsx" class="button"><i
+                        <li><a download href="MASTER_2050_extensions_V3.xlsx" class="button"><i
                                     class="fa fa-download"></i>&nbsp;Excel (including notes on data)</a>
                         </li>
-                        <li><a download href="BASE%20data%202024%20interpolated.csv" class="button"><i
+                        <li><a download href="MASTER_2050_extensions_V3.csv" class="button"><i
                                     class="fa fa-download"></i>&nbsp;CSV</a></li>
                         <li>Map data from <a href="https://www.naturalearthdata.com/">Natural Earth&nbsp;<i
                                     class="fa fa-external-link"></i>&nbsp;</a></li>
@@ -557,7 +557,7 @@
 
         queue()
             .defer(d3.json, "countries.json")
-            .defer(d3.csv, "BASE data 2024 interpolated.csv", typeAndSetPopulation)
+            .defer(d3.csv, "MASTER_2050_extensions_V3.csv", typeAndSetPopulation)
             .defer(d3.csv, "GDPDEF.csv", typeAndSetDeflator)
             .await(loaded);
 
@@ -567,7 +567,7 @@
             $("#slider-range").slider({
                 range: true,
                 min: 1980,
-                max: 2022,
+                max: 2050,
                 values: [year, 2012],
                 slide: function (event, ui) {
                     $("#yearrange").val("Projection period: " + ui.values[0] + " - " + ui.values[1]);

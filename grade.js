@@ -30,6 +30,7 @@ var multiplecountries = ["$-ALL"];
 var multioutcome = "THIS";
 var smooth = true;
 var limitgovernance = false;
+var startingYearOfExtensions = 2024;
 
 var selections = new Map([
     [
@@ -711,6 +712,31 @@ function updateYears(_firstyear, _lastyear){
     mainUpdate();
 }
 
+function buildOutcomeDataSeries(data, resultToPlot, property, i, linetype)
+{
+
+    var spaces = "          ";
+    var outcomedata = {
+        x: data.map(a => a.year),
+        y: data.map(a => a[resultToPlot][i].value),
+        text: data.map(function(a){
+            var s = "";
+            a.gov.forEach(function(gov_result,k){
+                s += gov_result.desc + " " 
+                  + gov_result.value.toFixed(2) + "<br>";
+             })
+             return s;
+         }),
+         type: "scatter",
+	 line: {dash : linetype},
+         name: property.name + spaces, // hack to fix cutoff legend text in Plotly
+         meta: property.name, // make visible to hovertemplate
+         visible : property.keyvariable ? true : "legendonly",
+         hovertemplate : "%{meta}<br>%{x}:<b> %{y}</b><br>%{text}<extra></extra>",
+         };
+    return outcomedata;
+}
+
 function updateplot() {
     if (country.slice(0, 2) == "$-") {
         d3.select("#plotwrapper").style("display", "none");
@@ -723,33 +749,19 @@ function updateplot() {
         }
         
         var data = plotdata.data;
+        var dataFromObservation = data.filter(x => x.year <= startingYearOfExtensions)
+        var dataExtended = data.filter(x => x.year >= startingYearOfExtensions)
         var x_annotation = plotdata.start_of_effect;
 
         d3.select("#plotwrapper").style("display", "inline-block");
        
         plotdata = [];
-        var spaces = "          ";
         const resultToPlot = plottype == "population" ? 'additional' : 'coverage';
         
         (data[0])[resultToPlot].forEach(function(property,i){
-            var outcomedata = {
-                x: data.map(a => a.year),
-                y: data.map(a => a[resultToPlot][i].value),
-                text: data.map(function(a){
-                                var s = "";
-                                a.gov.forEach(function(gov_result,k){
-                                    s += gov_result.desc + " " 
-                                        + gov_result.value.toFixed(2) + "<br>";
-                                })
-                                return s;
-                               }),
-                type: "scatter",
-                name: property.name + spaces, // hack to fix cutoff legend text in Plotly
-                meta: property.name, // make visible to hovertemplate
-                visible : property.keyvariable ? true : "legendonly",
-                hovertemplate : "%{meta}<br>%{x}:<b> %{y}</b><br>%{text}<extra></extra>",
-            };
-            plotdata.push(outcomedata);
+	    plotdata.push(buildOutcomeDataSeries(dataFromObservation, resultToPlot, property, i, "line"));
+	    plotdata.push(buildOutcomeDataSeries(dataExtended, resultToPlot, property, i, "dash"));
+            
         })
         
         var y_var_max = d3.max(plotdata.map(d => d3.max(d.y)));

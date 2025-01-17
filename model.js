@@ -1016,7 +1016,7 @@ function typeAndSetPopulation(d) {
     e.CORRUPTION    =convertNumber(d["Control of Corruption: Estimate"])
     e.Country 	    =d["countryname"]                                      
     e.GOVEFFECT 	=convertNumber(d["Government Effectiveness: Estimate"])
-    e.GRPERCAP 	    =convertNumber(d["Government revenue per capita (constant 2015 USD)"])
+    e.GRPERCAP 	    =convertNumber(d["GRpc_2050 (using GRpc2023)_SH"])
     if (e.GRPERCAP < 0.0001)
     {
 	// zero GRPC indicates no data, so mark clearly by setting to NaN
@@ -1092,7 +1092,7 @@ function getRevenue(_iso, _year, _revenue) {
     var ret;    
     var grpercap = popdata.getvalue(_iso, _year, "GRPERCAP", true);
     var total_population = popdata.getvalue(_iso, _year, "Population, total");
-    
+
     if (isNaN(grpercap) || grpercap == 0) {
         return undefined;
     }
