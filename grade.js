@@ -1,5 +1,5 @@
-var version = "GRADE v3.15.2"
-var date = "2025/01/21"
+var version = "GRADE v3.15.3"
+var date = "2025/01/22"
 var subheight = 100;
 var legendCells = 11;
 var transitionTime = 500;
@@ -757,10 +757,12 @@ function updateplot() {
        
         plotdata = [];
         const resultToPlot = plottype == "population" ? 'additional' : 'coverage';
-        
+
         (data[0])[resultToPlot].forEach(function(property,i){
 	    plotdata.push(buildOutcomeDataSeries(dataFromObservation, resultToPlot, property, i, "line"));
-	    plotdata.push(buildOutcomeDataSeries(dataExtended, resultToPlot, property, i, "dash"));
+            var propertyExtended = {...property};
+            propertyExtended.name += ": using extended data";
+	    plotdata.push(buildOutcomeDataSeries(dataExtended, resultToPlot, propertyExtended, i, "dash"));
             
         })
         
