@@ -1,4 +1,4 @@
-var version = "GRADE v3.15.3"
+var version = "GRADE v3.15.4"
 var date = "2025/01/22"
 var subheight = 100;
 var legendCells = 11;
@@ -761,7 +761,7 @@ function updateplot() {
         (data[0])[resultToPlot].forEach(function(property,i){
 	    plotdata.push(buildOutcomeDataSeries(dataFromObservation, resultToPlot, property, i, "line"));
             var propertyExtended = {...property};
-            propertyExtended.name += ": using extended data";
+            propertyExtended.name += ": Extended data";
 	    plotdata.push(buildOutcomeDataSeries(dataExtended, resultToPlot, propertyExtended, i, "dash"));
             
         })
