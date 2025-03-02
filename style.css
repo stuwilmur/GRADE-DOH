@@ -61,6 +61,10 @@ p {
     pointer-events: all;
 }
 
+#pictogram-wrapper {
+    width: 50%;
+}
+
 #ploterror {
     display: none;
     margin-top: 10px;

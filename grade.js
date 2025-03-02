@@ -693,7 +693,7 @@ function updateCountries() {
     var d = {
         "id": country
     };
-    if (true){ // set true to show instantaneous box
+    if (false){ // set true to show instantaneous box //!!
         var text = getText(d, true, getRevenueInputs(), +year, getGovernanceInputs(), smooth);
         d3.select("#countrytext").
         html(text);
@@ -702,6 +702,7 @@ function updateCountries() {
     }
     colourCountries();
     updateplot();
+    updatePictogram();
     updatetarget();
 }
 
@@ -737,7 +738,19 @@ function buildOutcomeDataSeries(data, resultToPlot, property, i, linetype)
     return outcomedata;
 }
 
+function updatePictogram(){
+    if (country.slice(0, 2) == "$-") {
+            d3.select("#pictogram-wrapper").style("display", "none");
+        return;
+    }
+    d3.select("#pictogram-wrapper").style("display", "inline-block");
+}
+
 function updateplot() {
+
+    //!!
+    return;
+
     if (country.slice(0, 2) == "$-") {
         d3.select("#plotwrapper").style("display", "none");
     } else {
