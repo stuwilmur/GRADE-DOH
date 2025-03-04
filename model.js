@@ -1,5 +1,18 @@
 // **** add or update outcomes here ****
 var outcomesList = [
+	["$-ALL",
+        {
+            name: "All indicators",
+	    loCol: "#dee5f8",
+            hiCol: "#e09900",
+            fixedExtent: [0, 10000],
+            desc: "Government revenue per capita (improved)",
+            isStockVar : true,
+            isInterpolated : false,
+            isPercentage: true,
+            target: 100,
+            dp:2,
+            }],
         ["WATERBASIC",
         {
             name: "Basic water (SDG 6)",

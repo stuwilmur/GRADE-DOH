@@ -27,7 +27,6 @@ var plottype = "population";
 var outcome = "SANITBASIC";
 var govtype = "GOVEFFECT";
 var multiplecountries = ["$-ALL"];
-var multioutcome = "THIS";
 var smooth = true;
 var limitgovernance = false;
 var startingYearOfExtensions = 2024;
@@ -170,10 +169,18 @@ function getGovernanceInputs(){
 }
 
 function getColor(_cid, _year, _revenue, _governance) {
+    if (allIndicatorsSelected()){
+        // When all indicators are selected, get the colour corresponding to GRPC
+        let revenues = getRevenue(_cid, _year, _revenue);
+        if (revenues === undefined){
+            return NaN;
+        }
+        return colorScale(revenues["new grpc"]);
+    }
     var value = getResult(_cid, _year, _revenue, _governance);
         
     if (!isNaN(value)) {
-        if (country.slice(0,1) == "$")
+        if (multipleCountriesSelected())
         {
             // use selector
             var selection = selections.get(country);
@@ -250,20 +257,32 @@ function makeText(_iso, _year, _revenue, _governance) {
     {
         return "<strong>" + countrycodes.get(_iso) + "<\/strong>" + ": No GRPC data available";
     }
-    var result = computeResult(_iso, _year, outcome, revenues["new grpc"], revenues["historical grpc"], _governance);
-    if (result.error)
-    {
-        return "<strong>" + countrycodes.get(_iso) + "<\/strong>" + ": " + result.error.join("<br>");
+    var result;
+    var coverageDescriptor;
+    var dp;
+
+    // Only compute the results if an indicator is selected
+    if (!allIndicatorsSelected()){
+        result = computeResult(_iso, _year, outcome, revenues["new grpc"], revenues["historical grpc"], _governance);
+        if (result.error)
+        {
+            return "<strong>" + countrycodes.get(_iso) + "<\/strong>" + ": " + result.error.join("<br>");
+	    coverageDescriptor = outcomesMap.get(outcome).isPercentage ? "% coverage" : "c\
+overage ratio";
+	    dp = outcomesMap.get(outcome).dp;
+        }
     }
     var text = "";
-    var coverageDescriptor = outcomesMap.get(outcome).isPercentage ? "% coverage" : "coverage ratio";
-    var dp = outcomesMap.get(outcome).dp;
     text = text + "<h1 class='tooltip'> " +  countrycodes.get(_iso) + "</h1>" +
     "<br/><strong>" + _year + "</strong>" +
     "<br/>Current Gov. rev. per capita: <span class = 'ar'>$" + d3.format(",")(revenues["historical grpc"].toFixed(2)) + "</span>" +
     "<br/>New Gov. rev. per capita: <span class = 'ar'>$" + d3.format(",")(revenues["new grpc"].toFixed(2)) + "</span>" +
-    "<br/>Increase in Gov. rev. per capita: <span class = 'ar'>" + (revenues["percentage increase"] * 100).toFixed(2) + "%</span>" 
-    +
+	"<br/>Increase in Gov. rev. per capita: <span class = 'ar'>" + (revenues["percentage increase"] * 100).toFixed(2) + "%</span>";
+    if (allIndicatorsSelected()){
+        // No single indicator selected - text is complete
+        return text;
+    }
+    text +=
     "<br/><br/><strong>" + outcomesMap.get(outcome).name + "</strong>" 
     +
     "<br/>(instantaneous effect)"
@@ -286,7 +305,11 @@ function makeText(_iso, _year, _revenue, _governance) {
 }
 
 function makeTextTarget(_year, _iso, _outcome, _target, _revenue){
-    if (_iso.slice(0,1) == "$")
+    if (allIndicatorsSelected())
+    {
+        return "No outcome selected";
+    }
+    if (isCountrySpecialSelection(_iso))
     {
         return "No country selected";
     }
@@ -344,7 +367,7 @@ function getPrefixValue(p) {
 }
 
 function getText(_d, _bProjection, _revenue, _year, _governance, _smooth) {
-    if (_d.id.slice(0, 2) == "$-") {
+    if (isCountrySpecialSelection(_d.id)) {
         return "";
     }
 
@@ -619,10 +642,6 @@ function setupMenus(_countries, _outcomes) {
         mainUpdate();
     });
 
-    d3.selectAll("input[name='multi csv outcome']").on("change", function(){
-        multioutcome = this.value;
-    });
-
     d3.selectAll("input[name='Plot type']").on("change", function(){
         plottype = this.value;
         mainUpdate();
@@ -693,12 +712,16 @@ function updateCountries() {
     var d = {
         "id": country
     };
-    if (false){ // set true to show instantaneous box //!!
+    if (!allIndicatorsSelected()){
+	// Indicator selected - display the country-specific results
         var text = getText(d, true, getRevenueInputs(), +year, getGovernanceInputs(), smooth);
         d3.select("#countrytext").
         html(text);
         d3.select("#countrydata")
             .style("display", text.length > 0 ? "inline-block" : "none");
+    } else {
+        // Hide the country-specific results
+        d3.select("#countrydata").style("display", "none");
     }
     colourCountries();
     updateplot();
@@ -739,21 +762,28 @@ function buildOutcomeDataSeries(data, resultToPlot, property, i, linetype)
 }
 
 function updatePictogram(){
-    if (country.slice(0, 2) == "$-") {
+    // Hide the pictogram if no country is selected, or if an outcome is selected
+    if (multipleCountriesSelected() || !allIndicatorsSelected()) {
             d3.select("#pictogram-wrapper").style("display", "none");
-        return;
     }
-    d3.select("#pictogram-wrapper").style("display", "inline-block");
+    else {
+        // Show the pictogram
+        d3.select("#pictogram-wrapper").style("display", "inline-block");
+    }
 }
 
 function updateplot() {
+    // Hide the plot if all indicators are selected
+    if (allIndicatorsSelected()){
+        d3.select("#plotwrapper").style("display", "none");
+        return;
+    }
 
-    //!!
-    return;
-
-    if (country.slice(0, 2) == "$-") {
+    // Hide the plot if no country is selected
+    if (multipleCountriesSelected()) {
         d3.select("#plotwrapper").style("display", "none");
     } else {
+        // Show the plot
         let plotdata = getProjectionData(+year, country, outcome, +years_to_project, getRevenueInputs(), getGovernanceInputs(), smooth);
         
         if (plotdata.error){
@@ -824,9 +854,11 @@ function updatetarget(){
     var text = makeTextTarget(+year, country, outcome, target, getRevenueInputs());
     d3.select("#targetText")
     .html(text);
+    set_outcome_target();
 }
 
 function download_csv(_year, _years_to_project, _countries, _outcomes, _revenue, _governance, _smooth) {
+    
     if (_countries.length < 1)
     {
         return ["No countries selected",];
@@ -850,6 +882,7 @@ function download_csv(_year, _years_to_project, _countries, _outcomes, _revenue,
     }
 
     var csvdata = getProjectionCSVData(_year, countries, _outcomes, _years_to_project, _revenue, _governance, _smooth);
+    
     var button_title =  _year + "-" + final_year + ".csv";
     if (countries.length == 1)
     {
@@ -878,8 +911,11 @@ function download_csv_plot(){
 
 function download_csv_multi(){
     // handle special selections
-    var countries_to_export = multiplecountries.filter(d => d.slice(0,1) != "$");
-    var special_selections = multiplecountries.filter(d => d.slice(0,2) == "$-")
+    var countries_to_export = multiplecountries.filter(d => !isCountrySpecialSelection(d));
+    var special_selections = multiplecountries.filter(d => isCountrySpecialSelection(d));
+
+    console.log(countries_to_export);
+    console.log(special_selections);
 
     special_selections.forEach(function(_selection){
         var selection = selections.get(_selection);
@@ -895,14 +931,17 @@ function download_csv_multi(){
 
     // handle selected or all outcomes
     let outcomes = []
-    if (multioutcome == "THIS")
+    if (!allIndicatorsSelected())
     {
         outcomes.push(outcome)
     }
     else
     {
+	// Build a list of all outcomes from the list - excepting the "All indicators" entry
         outcomesList.forEach(function (o){
-            outcomes.push(o[0])
+		if (o[0] != "$-ALL"){
+                    outcomes.push(o[0])
+		}
         })
     }
 
@@ -1043,6 +1082,13 @@ function set_outcome_target(){
     // default for the current outcome, 
     // e.g. to be called whenever the outcome changes
 
+    // If all indicators are selected or no country is selected, disable the target input
+    if (allIndicatorsSelected() || multipleCountriesSelected()){
+        d3.select("#targetInput").property("value", 100)
+            .property("disabled", true);
+        return;
+    }
+
     var target_value = popdata.getvalue(country, +year, outcome);
     if (isNaN(target_value)){
         target_value = outcomesMap.get(outcome).target;
@@ -1050,8 +1096,9 @@ function set_outcome_target(){
 
     var dp = outcomesMap.get(outcome).dp;
     d3.select("#targetInput").property("value", target_value.toFixed(dp))
-    .style('box-shadow', '0 0 5px #ffdb8d')
-    .style('background-color', '#ffdb8d');
+	.property('disabled', false)
+        .style('box-shadow', '0 0 5px #ffdb8d')
+        .style('background-color', '#ffdb8d');
     target = target_value;
     d3.select("#targetLabel").text(outcomesMap.get(outcome).isPercentage ? '%' : '');
 }
@@ -1059,4 +1106,16 @@ function set_outcome_target(){
 function str2Num(str){
     str = str.replace(/[^\d\.\-\+E]/g, ""); // You might also include + if you want them to be able to type it
     return parseFloat(str);
+}
+
+function allIndicatorsSelected(){
+    return outcome == "$-ALL";
+}
+
+function multipleCountriesSelected(){
+    return isCountrySpecialSelection(country);
+}
+
+function isCountrySpecialSelection(_country){
+    return _country.slice(0,2) == "$-";
 }
