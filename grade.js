@@ -761,8 +761,35 @@ function buildOutcomeDataSeries(data, resultToPlot, property, i, linetype)
     return outcomedata;
 }
 
+function convertPictogramDataToCsvString(data){
+    var str = "";
+    data.forEach(function(item){
+	    str += item.name + ","
+	});
+    str = str.slice(0, str.length - 1) + "\n";
+    data.forEach(function(item){
+	    str += item.value + ","
+	})
+    str = str.slice(0, str.length - 1);
+
+    return str;
+}
+
 function download_csv_pictogram(){
-    console.log("hi");
+    let data = getPictogramDataForCsvDownload();
+    let csvdata = convertPictogramDataToCsvString(data);
+    let finalYear = +year + years_to_project;
+
+    var button_title =  +year + "-" + finalYear + "_" + country + ".csv";
+    console.log(csvdata);
+    if (csvdata)
+	{
+	    var hiddenElement = document.createElement('a');
+	    hiddenElement.href = 'data:text/csv;charset=utf-8,' + encodeURI(csvdata);
+	    hiddenElement.target = '_blank';
+	    hiddenElement.download = button_title;
+	    hiddenElement.click();
+	}
 }
 
 function updatePictogram(){
@@ -783,15 +810,26 @@ function updatePictogram(){
 }
 
 function getPictogramDataToPlot(){
+    var pictogramReadyData = getPictogramReadyData();
+    return pictogramReadyData.plotData;
+ }
 
+function getPictogramDataForCsvDownload(){
+    var pictogramReadyData = getPictogramReadyData();
+    return pictogramReadyData.csvData;
+}
+
+function getPictogramReadyData()
+{
     var projectionData = getProjectionDataForAllStandardPopulationOutcomes();
     return convertProjectionDataToPictogramData(projectionData);
- }
+    }
 
 function convertProjectionDataToPictogramData(data){
 
     var plotObjectList = [];
     var numberOfAdditionalResults = 3;
+    var csvData = [];
 
     for (var i = 0; i < numberOfAdditionalResults; i++){
         var categories = [];
@@ -802,13 +840,17 @@ function convertProjectionDataToPictogramData(data){
 	    categories.push(outcomeData.outcome.name);
             var thisOutcomeDataSeries = outcomeData.data.data;
             var finalResultThisOutcomeDataSeries = thisOutcomeDataSeries[thisOutcomeDataSeries.length - 1];
-            finalResults.push(finalResultThisOutcomeDataSeries.additional[i].value);
-            name = finalResultThisOutcomeDataSeries.additional[i].populationName;
+            const value = finalResultThisOutcomeDataSeries.additional[i].value.toFixed(0);
+            finalResults.push(value);
+            populationName = finalResultThisOutcomeDataSeries.additional[i].populationName;
+            csvData.push({
+       	                value : value,
+			name : finalResultThisOutcomeDataSeries.additional[i].name,
+			});
         });
 
-
         var plotObject = {
-	    name: name, 
+	    name: populationName, 
 	    y: categories, 
 	    x: finalResults, 
 	    type: 'bar', 
@@ -818,7 +860,7 @@ function convertProjectionDataToPictogramData(data){
         plotObjectList.push(plotObject);
     }
 
-  return plotObjectList;
+    return {plotData: plotObjectList, csvData: csvData};
 }
 
 function getProjectionDataForAllStandardPopulationOutcomes()
