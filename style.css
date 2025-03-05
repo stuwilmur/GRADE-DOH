@@ -62,7 +62,8 @@ p {
 }
 
 #pictogram-wrapper {
-    width: 50%;
+    width: 90%;
+    pointer-events: all;
 }
 
 #ploterror {
@@ -111,7 +112,7 @@ vis {
 
 #countrydata,
 #countrydata2,
-#plotwrapper {
+#plotwrapper, #pictogram-wrapper {
     margin-top: 10px;
     margin-left: 10px;
     vertical-align: top;

@@ -289,9 +289,16 @@
                 </div>
                 -->
             <div id="pictogram-wrapper" class="plotwrapper">
-	    <p>Pictogram placeholder</p>
+	      <h2>People with increased access</h2>
+	      <div id="pictogram" class="plot">
+	      </div>
+
+                    <button onclick="download_csv_pictogram()"><i class="fa fa-download"></i>&nbsp;Download plot data</button>
+                    <button onclick="reset(event)"><i class="fa fa-close"></i>&nbsp;Close</button>
+
             </div>
             <div class="plotwrapper" id="plotwrapper">
+	        <h2>Projection results</h2>
                 <div class="plot" id="plot">
                     <!---
                     Result to show <select id="countrylist" name="country">

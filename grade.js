@@ -761,6 +761,10 @@ function buildOutcomeDataSeries(data, resultToPlot, property, i, linetype)
     return outcomedata;
 }
 
+function download_csv_pictogram(){
+    console.log("hi");
+}
+
 function updatePictogram(){
     // Hide the pictogram if no country is selected, or if an outcome is selected
     if (multipleCountriesSelected() || !allIndicatorsSelected()) {
@@ -770,6 +774,64 @@ function updatePictogram(){
         // Show the pictogram
         d3.select("#pictogram-wrapper").style("display", "inline-block");
     }
+
+    var dataToPlot = getPictogramDataToPlot();
+    var layout = {yaxis:{automargin:true}};
+
+    Plotly.newPlot('pictogram', dataToPlot, layout);
+    
+}
+
+function getPictogramDataToPlot(){
+
+    var projectionData = getProjectionDataForAllStandardPopulationOutcomes();
+    return convertProjectionDataToPictogramData(projectionData);
+ }
+
+function convertProjectionDataToPictogramData(data){
+
+    var plotObjectList = [];
+    var numberOfAdditionalResults = 3;
+
+    for (var i = 0; i < numberOfAdditionalResults; i++){
+        var categories = [];
+        var finalResults = [];
+        var name;
+
+        data.forEach(function(outcomeData, outcomeIndex){
+	    categories.push(outcomeData.outcome.name);
+            var thisOutcomeDataSeries = outcomeData.data.data;
+            var finalResultThisOutcomeDataSeries = thisOutcomeDataSeries[thisOutcomeDataSeries.length - 1];
+            finalResults.push(finalResultThisOutcomeDataSeries.additional[i].value);
+            name = finalResultThisOutcomeDataSeries.additional[i].populationName;
+        });
+
+
+        var plotObject = {
+	    name: name, 
+	    y: categories, 
+	    x: finalResults, 
+	    type: 'bar', 
+	    orientation:'h',
+	    hoverlabel: {namelength :-1},
+	};
+        plotObjectList.push(plotObject);
+    }
+
+  return plotObjectList;
+}
+
+function getProjectionDataForAllStandardPopulationOutcomes()
+{
+    var projectionData = [];
+    outcomesList.forEach(function (o){
+        const [outcomeName, outcomeObject] = o;
+        if (outcomeName != "$-ALL" && outcomeObject.isStandardPopulationIndicator){
+            var thisOutcomeProjectionData = getProjectionData(+year, country, outcomeName, +years_to_project, getRevenueInputs(), getGovernanceInputs(), smooth);
+	    projectionData.push({outcome:outcomeObject, data:thisOutcomeProjectionData});
+	}});
+
+    return projectionData;
 }
 
 function updateplot() {
@@ -914,9 +976,6 @@ function download_csv_multi(){
     var countries_to_export = multiplecountries.filter(d => !isCountrySpecialSelection(d));
     var special_selections = multiplecountries.filter(d => isCountrySpecialSelection(d));
 
-    console.log(countries_to_export);
-    console.log(special_selections);
-
     special_selections.forEach(function(_selection){
         var selection = selections.get(_selection);
         if (selection)
@@ -939,8 +998,9 @@ function download_csv_multi(){
     {
 	// Build a list of all outcomes from the list - excepting the "All indicators" entry
         outcomesList.forEach(function (o){
-		if (o[0] != "$-ALL"){
-                    outcomes.push(o[0])
+                var outcomeName = o[0];
+		if (outcomeName != "$-ALL"){
+                    outcomes.push(outcomeName)
 		}
         })
     }
