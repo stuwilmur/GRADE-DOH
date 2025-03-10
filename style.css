@@ -25,6 +25,10 @@ p {
     margin-block-end: 0px;
 }
 
+#pictogram-errors{
+    font-size: 100%;
+}
+
 .output {
     font-size: 100%;
     white-space: normal;

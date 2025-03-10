@@ -776,12 +776,12 @@ function convertPictogramDataToCsvString(data){
 }
 
 function download_csv_pictogram(){
-    let data = getPictogramDataForCsvDownload();
+    let dataObject = getPictogramReadyData();
+    let data = dataObject.csvData;
     let csvdata = convertPictogramDataToCsvString(data);
     let finalYear = +year + years_to_project;
 
     var button_title =  country + "_" + year + "-" + finalYear + ".csv";
-    console.log(csvdata);
     if (csvdata)
 	{
 	    var hiddenElement = document.createElement('a');
@@ -802,21 +802,21 @@ function updatePictogram(){
         d3.select("#pictogram-wrapper").style("display", "inline-block");
     }
 
-    var dataToPlot = getPictogramDataToPlot();
+    var data = getPictogramReadyData();
     var layout = {yaxis:{automargin:true}};
 
-    Plotly.newPlot('pictogram', dataToPlot, layout);
-    
+    Plotly.newPlot('pictogram', data.plotData, layout);    
+
+    var errorText = getErrorTextFromPictogramData(data.error);
+    var text = countrycodes.get(country);
+    if (errorText.length > 0){
+	text += ": " + errorText;
+    }
+    d3.select("#pictogram-errors").html(text);
 }
 
-function getPictogramDataToPlot(){
-    var pictogramReadyData = getPictogramReadyData();
-    return pictogramReadyData.plotData;
- }
-
-function getPictogramDataForCsvDownload(){
-    var pictogramReadyData = getPictogramReadyData();
-    return pictogramReadyData.csvData;
+function getErrorTextFromPictogramData(errors){
+    return errors.filter(e => e !== null && e.length > 0).length > 0 ? "Unable to calculate some results (e.g. due to missing data)" : "";
 }
 
 function getPictogramReadyData()
@@ -830,6 +830,11 @@ function convertProjectionDataToPictogramData(data){
     var plotObjectList = [];
     var numberOfAdditionalResults = 3;
     var csvData = [];
+    var errorList = [];
+
+    data.forEach(outcomeData => { 
+	    errorList.push(outcomeData.data.error);
+	});
 
     for (var i = 0; i < numberOfAdditionalResults; i++){
         var categories = [];
@@ -860,7 +865,11 @@ function convertProjectionDataToPictogramData(data){
         plotObjectList.push(plotObject);
     }
 
-    return {plotData: plotObjectList, csvData: csvData};
+    return {
+	plotData: plotObjectList,
+	csvData: csvData, 
+        error: errorList,
+	    };
 }
 
 function getProjectionDataForAllStandardPopulationOutcomes()
