@@ -1,3 +1,4 @@
+
 var version = "GRADE v3.15.6"
 var date = "2025/02/19"
 var subheight = 100;
@@ -780,7 +781,7 @@ function download_csv_pictogram(){
     let csvdata = convertPictogramDataToCsvString(data);
     let finalYear = +year + years_to_project;
 
-    var button_title =  +year + "-" + finalYear + "_" + country + ".csv";
+    var button_title =  country + "_" + year + "-" + finalYear + ".csv";
     console.log(csvdata);
     if (csvdata)
 	{
