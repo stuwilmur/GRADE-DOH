@@ -169,15 +169,15 @@ function getGovernanceInputs(){
 }
 
 function getColor(_cid, _year, _revenue, _governance) {
+
+    var value;
     if (allIndicatorsSelected()){
-        // When all indicators are selected, get the colour corresponding to GRPC
-        let revenues = getRevenue(_cid, _year, _revenue);
-        if (revenues === undefined){
-            return NaN;
-        }
-        return colorScale(revenues["new grpc"]);
+	var revenues = getRevenue(_cid, _year, _revenue);
+        value = revenues === undefined ? NaN : revenues["new grpc"];
     }
-    var value = getResult(_cid, _year, _revenue, _governance);
+    else {
+	value = getResult(_cid, _year, _revenue, _governance);
+    }
         
     if (!isNaN(value)) {
         if (multipleCountriesSelected())
@@ -199,7 +199,7 @@ function getColor(_cid, _year, _revenue, _governance) {
             return colorScale(value);
         }
     }
-        else {
+    else {
         return "rgba(0, 0, 0, 0.6)";
     }
 }
