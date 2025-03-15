@@ -821,7 +821,7 @@ function getErrorTextFromPictogramData(errors){
 
 function getPictogramReadyData()
 {
-    var projectionData = getProjectionDataForAllStandardPopulationOutcomes();
+    var projectionData = getPictogramProjectionData();
     return convertProjectionDataToPictogramData(projectionData);
     }
 
@@ -836,34 +836,38 @@ function convertProjectionDataToPictogramData(data){
 	    errorList.push(outcomeData.data.error);
 	});
 
-    for (var i = 0; i < numberOfAdditionalResults; i++){
-        var categories = [];
-        var finalResults = [];
-        var name;
+    var categories = [];
+    var finalResults = [];
+    var name;
+
+    var barColour = d3.scale.linear().
+        domain([0, 1E5]).
+	range(["#dee5f8", "#e09900"]).
+	interpolate(d3.interpolateLab);
 
         data.forEach(function(outcomeData, outcomeIndex){
-	    categories.push(outcomeData.outcome.name);
             var thisOutcomeDataSeries = outcomeData.data.data;
             var finalResultThisOutcomeDataSeries = thisOutcomeDataSeries[thisOutcomeDataSeries.length - 1];
-            const value = finalResultThisOutcomeDataSeries.additional[i].value.toFixed(0);
+            const value = finalResultThisOutcomeDataSeries.additional[0].value.toFixed(0);
             finalResults.push(value);
-            populationName = finalResultThisOutcomeDataSeries.additional[i].populationName;
+            populationName = finalResultThisOutcomeDataSeries.additional[0].populationName;
+	    categories.push(finalResultThisOutcomeDataSeries.additional[0].name);
             csvData.push({
        	                value : value,
-			name : finalResultThisOutcomeDataSeries.additional[i].name,
+			name : finalResultThisOutcomeDataSeries.additional[0].name,
 			});
         });
 
         var plotObject = {
 	    name: populationName, 
 	    y: categories, 
-	    x: finalResults, 
+	    x: finalResults,
+	    marker:{color:finalResults.map(barColour)},
 	    type: 'bar', 
 	    orientation:'h',
 	    hoverlabel: {namelength :-1},
 	};
         plotObjectList.push(plotObject);
-    }
 
     return {
 	plotData: plotObjectList,
@@ -872,15 +876,29 @@ function convertProjectionDataToPictogramData(data){
 	    };
 }
 
-function getProjectionDataForAllStandardPopulationOutcomes()
+
+
+function getPictogramProjectionData()
 {
     var projectionData = [];
-    outcomesList.forEach(function (o){
-        const [outcomeName, outcomeObject] = o;
-        if (outcomeName != "$-ALL" && outcomeObject.isStandardPopulationIndicator){
+
+    keysOfOutcomesToShow = [
+			    "U5MSURV",
+			    "PRIMARYSCHOOL",
+			    "LOWERSCHOOL",
+			    "UPPERSCHOOL",
+			    "Stunting prevalence (% of population)",
+			    "Access to electricity (% of population)",
+			    "WATERBASIC",
+			    "SANITBASIC",
+			    "Access to clean fuels and technologies for cooking (% of population)"
+			    ];
+
+    keysOfOutcomesToShow.reverse().forEach(function (outcomeName){
+            var outcomeObject = outcomesMap.get(outcomeName);
             var thisOutcomeProjectionData = getProjectionData(+year, country, outcomeName, +years_to_project, getRevenueInputs(), getGovernanceInputs(), smooth);
 	    projectionData.push({outcome:outcomeObject, data:thisOutcomeProjectionData});
-	}});
+	});
 
     return projectionData;
 }
