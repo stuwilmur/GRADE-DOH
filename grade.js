@@ -845,7 +845,7 @@ function convertProjectionDataToPictogramData(data){
 	range(["#dee5f8", "#e09900"]).
 	interpolate(d3.interpolateLab);
 
-        data.forEach(function(outcomeData, outcomeIndex){
+    data.forEach(function(outcomeData, outcomeIndex){
             var thisOutcomeDataSeries = outcomeData.data.data;
             var finalResultThisOutcomeDataSeries = thisOutcomeDataSeries[thisOutcomeDataSeries.length - 1];
             const value = finalResultThisOutcomeDataSeries.additional[0].value.toFixed(0);
@@ -857,6 +857,9 @@ function convertProjectionDataToPictogramData(data){
 			name : finalResultThisOutcomeDataSeries.additional[0].name,
 			});
         });
+
+    categories = categories.reverse();
+    finalResults = finalResults.reverse();
 
         var plotObject = {
 	    name: populationName, 
@@ -894,7 +897,7 @@ function getPictogramProjectionData()
 			    "Access to clean fuels and technologies for cooking (% of population)"
 			    ];
 
-    keysOfOutcomesToShow.reverse().forEach(function (outcomeName){
+    keysOfOutcomesToShow.forEach(function (outcomeName){
             var outcomeObject = outcomesMap.get(outcomeName);
             var thisOutcomeProjectionData = getProjectionData(+year, country, outcomeName, +years_to_project, getRevenueInputs(), getGovernanceInputs(), smooth);
 	    projectionData.push({outcome:outcomeObject, data:thisOutcomeProjectionData});
