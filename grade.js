@@ -808,7 +808,8 @@ function updatePictogram(){
     Plotly.newPlot('pictogram', data.plotData, layout);    
 
     var errorText = getErrorTextFromPictogramData(data.error);
-    var text = countrycodes.get(country);
+    let finalYear = +year + years_to_project;
+    var text = countrycodes.get(country) + `: final effects in ${finalYear}`;
     if (errorText.length > 0){
 	text += ": " + errorText;
     }
