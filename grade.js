@@ -258,18 +258,17 @@ function makeText(_iso, _year, _revenue, _governance) {
         return "<strong>" + countrycodes.get(_iso) + "<\/strong>" + ": No GRPC data available";
     }
     var result;
-    var coverageDescriptor;
-    var dp;
+    var coverageDescriptor="";
+    var dp=0;
 
     // Only compute the results if an indicator is selected
     if (!allIndicatorsSelected()){
         result = computeResult(_iso, _year, outcome, revenues["new grpc"], revenues["historical grpc"], _governance);
+	coverageDescriptor = outcomesMap.get(outcome).isPercentage ? "% coverage" : "coverage ratio";
+	dp = outcomesMap.get(outcome).dp;
         if (result.error)
         {
             return "<strong>" + countrycodes.get(_iso) + "<\/strong>" + ": " + result.error.join("<br>");
-	    coverageDescriptor = outcomesMap.get(outcome).isPercentage ? "% coverage" : "c\
-overage ratio";
-	    dp = outcomesMap.get(outcome).dp;
         }
     }
     var text = "";
@@ -829,7 +828,6 @@ function getPictogramReadyData()
 function convertProjectionDataToPictogramData(data){
 
     var plotObjectList = [];
-    var numberOfAdditionalResults = 3;
     var csvData = [];
     var errorList = [];
 
@@ -839,8 +837,6 @@ function convertProjectionDataToPictogramData(data){
 
     var categories = [];
     var finalResults = [];
-    var name;
-
     var barColour = d3.scale.linear().
         domain([0, 1E5]).
 	range(["#dee5f8", "#e09900"]).
