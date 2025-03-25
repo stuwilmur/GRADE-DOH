@@ -1,5 +1,18 @@
 // **** add or update outcomes here ****
 var outcomesList = [
+	["$-ALL",
+        {
+            name: "Multiple indicators",
+	    loCol: "#dee5f8",
+            hiCol: "#e09900",
+            fixedExtent: [0, 10000],
+            desc: "Government revenue per capita (improved)",
+            isStockVar : true,
+            isInterpolated : false,
+            isPercentage: true,
+            target: 100,
+            dp:2,
+            }],
         ["WATERBASIC",
         {
             name: "Basic water (SDG 6)",
@@ -10,6 +23,7 @@ var outcomesList = [
             isStockVar : true,
             isInterpolated : false,
             isPercentage: true,
+	    isStandardPopulationIndicator: true,
             target: 100,
 	    dp:2,
             coeffs : new Map(
@@ -52,6 +66,7 @@ var outcomesList = [
             isStockVar : true,
             isInterpolated : false,
             isPercentage: true,
+	    isStandardPopulationIndicator: true,
             target: 100,
 	    dp:2,
             coeffs : new Map(
@@ -99,6 +114,7 @@ var outcomesList = [
             isStockVar : true,
             isInterpolated : false,
             isPercentage: true,
+	    isStandardPopulationIndicator: true,
             target: 100,
 	    dp:2,
             coeffs : new Map(
@@ -151,6 +167,7 @@ var outcomesList = [
             isStockVar : true,
             isInterpolated : false,
             isPercentage: true,
+	    isStandardPopulationIndicator: true,
             target: 100,
 	    dp:2,
             coeffs : new Map(
@@ -196,6 +213,7 @@ var outcomesList = [
             isStockVar : false,
             isInterpolated : false,
             isPercentage: true,
+	    isStandardPopulationIndicator: false,
             target: 99.9, // upper limit of mortality of 1 in 1000
 	    dp:2,
             coeffs : new Map(
@@ -242,6 +260,7 @@ var outcomesList = [
             isStockVar : false,
             isInterpolated : false,
             isPercentage: true,
+	    isStandardPopulationIndicator: false,
             target: 100,
 	    dp:2,
             coeffs : new Map(
@@ -291,6 +310,7 @@ var outcomesList = [
             isStockVar : true,
             isInterpolated : false,
             isPercentage: false,
+	    isStandardPopulationIndicator: false,
             target: 1,
 	    dp:4,
             fn :    function(_grpc, _iso, _year, _gov) { 
@@ -348,6 +368,7 @@ var outcomesList = [
             isStockVar : true,
             isInterpolated : false,
             isPercentage: false,
+	    isStandardPopulationIndicator: false,
             target: 1,
 	    dp:4,
             fn :    function(_grpc, _iso, _year, _gov) { 
@@ -405,6 +426,7 @@ var outcomesList = [
             isStockVar : true,
             isInterpolated : false,
             isPercentage: false,
+	    isStandardPopulationIndicator: false,
             target: 1,
 	    dp:4,
             fn :    function(_grpc, _iso, _year, _gov) { 
@@ -453,6 +475,7 @@ var outcomesList = [
             isStockVar : true,
             isInterpolated : false,
             isPercentage: false,
+	    isStandardPopulationIndicator: false,
             target:0.1,
 	    dp:4,
             fn :    function(_grpc, _iso, _year, _gov) { 
@@ -505,6 +528,7 @@ var outcomesList = [
             isStockVar : true,
             isInterpolated : false,
             isPercentage: false,
+	    isStandardPopulationIndicator: false,
             target: 0.1,
 	    dp:4,
             fn :    function(_grpc, _iso, _year, _gov) { 
@@ -558,6 +582,7 @@ var outcomesList = [
             isStockVar : true,
             isInterpolated : false,
             isPercentage: false,
+	    isStandardPopulationIndicator: false,
             target:0.1,
 	    dp:4,
             fn :    function(_grpc, _iso, _year, _gov) { 
@@ -611,6 +636,7 @@ var outcomesList = [
             isStockVar : true,
             isInterpolated : false,
             isPercentage: true,
+	    isStandardPopulationIndicator: true,
             target:100,
 	    dp:4,
             fn :    function(_grpc, _iso, _year, _gov) { 
@@ -655,6 +681,7 @@ var outcomesList = [
             isStockVar : true,
             isInterpolated : false,
             isPercentage: true,
+	    isStandardPopulationIndicator: true,
             target:100,
 	    dp:4,
             fn :    function(_grpc, _iso, _year, _gov) { 
@@ -694,6 +721,7 @@ var outcomesList = [
             isStockVar : true,
             isInterpolated : false,
             isPercentage: true,
+	    isStandardPopulationIndicator: false,
             target:100,
 	    dp:4,
             fn :    function(_grpc, _iso, _year, _gov) { 
@@ -833,14 +861,19 @@ function computeAdditionalResults(_iso, _year, _outcome, improved, original){
     var popChildrenSurvive1 = popdata.getvalue(_iso, _year, "Children survive to 1 year");
     var popBirths = popdata.getvalue(_iso, _year, "Number of births")
     var popChildrenSurvive5 = popdata.getvalue(_iso, _year, "Number of children surviving to five");
-    let outcomeName = outcomesMap.get(_outcome).name
+    const outcomeObject = outcomesMap.get(_outcome);
+    const outcomeName = outcomeObject.name;
+    const peopleText = "People";
+    const childrenText = "Children < 5";
+    const femalesText = "Females 15-49";
+    const withIncreasedAccessTo = " with increased access to ";
 
     var additional = [];
 
-    if (_outcome == "SANITBASIC" || _outcome == "SANITSAFE" || _outcome == "WATERBASIC" || _outcome == "WATERSAFE" || _outcome == "Access to clean fuels and technologies for cooking (% of population)" || _outcome == "Access to electricity (% of population)") {
-        additional.push({name : "People with increased access to " + outcomeName,  value : (improved - original) / 100 * popTotal, keyvariable : true});
-        additional.push({name : "Children < 5 with increased access to " + outcomeName, value : (improved - original) / 100 * popU5, keyvariable : true});
-        additional.push({name : "Females 15-49 with increased access to " + outcomeName, value: (improved - original) / 100 * popFemale15_49, keyvariable : true});
+    if (outcomeObject.isStandardPopulationIndicator) {
+        additional.push({name : peopleText + withIncreasedAccessTo + outcomeName,  value : (improved - original) / 100 * popTotal, keyvariable : true, populationName : peopleText});
+        additional.push({name : childrenText + withIncreasedAccessTo + outcomeName, value : (improved - original) / 100 * popU5, keyvariable : true, populationName : childrenText});
+        additional.push({name : femalesText + withIncreasedAccessTo + outcomeName, value: (improved - original) / 100 * popFemale15_49, keyvariable : true, populationName : femalesText});
     } else if (_outcome == "IMUNISATION") {
         additional.push({name : "Number of infants immunised", value : (improved - original) / 100 * popChildrenSurvive1, keyvariable : true})
     } else if (_outcome == "SCHOOLPERC") {
