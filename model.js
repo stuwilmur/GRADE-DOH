@@ -917,6 +917,7 @@ function computeSpecialResults(_iso, _year, _outcome, _improved, _original, _add
 
     var popBirths = popdata.getvalue(_iso, _year, "Number of births")
     var popTotal = popdata.getvalue(_iso, _year, "Population, total");
+    const outcomeObject = outcomesMap.get(_outcome);
 
     if (_outcome == "U5MSURV")
     {
@@ -929,6 +930,14 @@ function computeSpecialResults(_iso, _year, _outcome, _improved, _original, _add
         let livesSaved = Math.round((_improved - _original) / 100 * popBirths)
         let costPerLife = livesSaved > 0 ? popTotal * _additionalGrpc / livesSaved : NaN 
         special_results.push({name : "Cost per maternal life saved", value : costPerLife})
+    }
+    else if (outcomeObject.isStandardPopulationIndicator && outcomeObject.isPercentage){
+	const percentageOfThoseWhoDoNotHaveAccess = 100 * (_improved - _original) / (100.0 - _original);
+        const result = {
+		name : `Percentage of those who do not have access to ${outcomeObject.name}`, 
+		value : percentageOfThoseWhoDoNotHaveAccess
+		}
+	special_results.push(result);
     }
 
     return special_results;
