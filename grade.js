@@ -925,6 +925,14 @@ function updateplot() {
         }
         
         var data = plotdata.data;
+
+	// call out if base coverage reaches 100%
+	let outcomeObject = outcomesMap.get(outcome);
+	d3.select("#plot-errors").html("");
+	if (data.some(d => hasCoverageValueReachedSaturation(d.coverage[0].value, outcomeObject))){
+	    d3.select("#plot-errors").html(getCoverageSaturationWarningText(outcomeObject))
+	}
+
         var dataFromObservation = data.filter(x => x.year <= startingYearOfExtensions)
         var dataExtended = data.filter(x => x.year >= startingYearOfExtensions)
         var x_annotation = plotdata.start_of_effect;

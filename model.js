@@ -475,6 +475,7 @@ var outcomesList = [
             isStockVar : true,
             isInterpolated : false,
             isPercentage: false,
+	    isNonSaturating: true,
 	    isStandardPopulationIndicator: false,
             target:0.1,
 	    dp:4,
@@ -528,6 +529,7 @@ var outcomesList = [
             isStockVar : true,
             isInterpolated : false,
             isPercentage: false,
+	    isNonSaturating: true,
 	    isStandardPopulationIndicator: false,
             target: 0.1,
 	    dp:4,
@@ -582,6 +584,7 @@ var outcomesList = [
             isStockVar : true,
             isInterpolated : false,
             isPercentage: false,
+	    isNonSaturating: true,
 	    isStandardPopulationIndicator: false,
             target:0.1,
 	    dp:4,
@@ -721,8 +724,9 @@ var outcomesList = [
             isStockVar : true,
             isInterpolated : false,
             isPercentage: true,
+            target:0,
+	    isNegativeDeltaImprovement: true,
 	    isStandardPopulationIndicator: false,
-            target:100,
 	    dp:4,
             fn :    function(_grpc, _iso, _year, _gov) { 
                 g = _type => getGov(_type, _iso, _year, _gov, _grpc);
@@ -1218,4 +1222,41 @@ function getRevenue(_iso, _year, _revenue) {
     }
 
     return ret;
+}
+
+function hasCoverageValueReachedSaturation(value, outcomeObject)
+{
+    if (outcomeObject.hasOwnProperty("isNonSaturating") && outcomeObject.isNonSaturing){
+	return false;
+    }
+    if (outcomeObject.hasOwnProperty("isNegativeDeltaImprovement") && outcomeObject.isNegativeDeltaImprovement){
+	return  value <= outcomeObject.target;
+    }
+    else{
+	return value >= outcomeObject.target;
+    }
+}
+
+function getCoverageSaturationWarningText(outcomeObject)
+{
+    var text = "";
+
+    if (outcomeObject.hasOwnProperty("isNonSaturating") && outcomeObject.isNonSaturing){
+        return text;
+    }
+
+    var maxOrMin = "";
+    var hasWarning = false;
+
+    if (outcomeObject.hasOwnProperty("isNegativeDeltaImprovement") && outcomeObject.isNegativeDeltaImprovement){
+        maxOrMin = "minimum";
+    }
+    else{
+        maxOrMin = "maximum";
+    }
+
+    var targetText = `${outcomeObject.target}${outcomeObject.isPercentage ? "%" : ""}`;
+    text = `Warning: indicator base value achieves ${maxOrMin} coverage (${targetText}) within projection period: population results may fall to zero` ;
+
+    return text;
 }
