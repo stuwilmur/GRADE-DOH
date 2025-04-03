@@ -866,6 +866,8 @@ function convertProjectionDataToPictogramData(data){
 	    type: 'bar', 
 	    orientation:'h',
 	    hoverlabel: {namelength :-1},
+  	    text: finalResults.map(String),
+            textposition: 'auto',
 	};
         plotObjectList.push(plotObject);
 
@@ -884,9 +886,9 @@ function getPictogramProjectionData()
 
     keysOfOutcomesToShow = [
 			    "U5MSURV",
-			    "PRIMARYSCHOOL",
-			    "LOWERSCHOOL",
 			    "UPPERSCHOOL",
+			    "LOWERSCHOOL",
+			    "PRIMARYSCHOOL",
 			    "Stunting prevalence (% of population)",
 			    "Access to electricity (% of population)",
 			    "WATERBASIC",
