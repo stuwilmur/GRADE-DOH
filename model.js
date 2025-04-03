@@ -1207,10 +1207,10 @@ function getCoverageSaturationWarningText(outcomeObject)
     var hasWarning = false;
 
     if (outcomeObject.hasOwnProperty("isNegativeDeltaImprovement") && outcomeObject.isNegativeDeltaImprovement){
-	    var maxOrMin = "minimum";
+        maxOrMin = "minimum";
     }
     else{
-	    var maxOrMin = "maximum";
+        maxOrMin = "maximum";
     }
 
     var targetText = `${outcomeObject.target}${outcomeObject.isPercentage ? "%" : ""}`;
