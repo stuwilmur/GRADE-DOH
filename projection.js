@@ -19,6 +19,7 @@ function getProjectionData(_firstyear, _country, _outcome, _years_to_return, _re
     let datarowPrototype = {
         "year": null,
         "additional": null,
+        "special": null,
         "coverage" : null,
         "grpc": Object.create(grpcPrototype),
         "govObserved" : null,
@@ -112,6 +113,7 @@ function getProjectionData(_firstyear, _country, _outcome, _years_to_return, _re
         if (ret.error === null)
         {
             datarow.additional = computed.additional
+            datarow.special = computed.special
             datarow.coverage = computed.coverage
             datarow.gov = computed.gov
             datarow.incomelevel = computed.incomelevel
@@ -121,8 +123,9 @@ function getProjectionData(_firstyear, _country, _outcome, _years_to_return, _re
         }
         else
         {
-            // Get a blank set of additional results (set to NaN)
-            datarow.additional = computeAdditionalResults(_country, y, _outcome, NaN, NaN)
+            // Get a blank set of additional/special results (set to NaN)
+            datarow.additional = computeAdditionalResults(_country, y, _outcome, NaN, NaN, NaN)
+            datarow.special = computeSpecialResults(_country, y, _outcome, NaN, NaN, NaN)
             if (computed == undefined || computed.coverage == undefined)
             {
                 // Just create a blank coverage entry
@@ -208,6 +211,7 @@ function getProjectionCSVData(_year, _countries, _outcomes, _years_to_project, _
                 projectionData.data.forEach(function(row, index)
                 {
                     data[index].additional.push(...row.additional)
+                    data[index].special.push(...row.special)
                     data[index].coverage = data[index].coverage.concat(row.coverage);
                 })
             }
@@ -229,6 +233,10 @@ function getProjectionCSVData(_year, _countries, _outcomes, _years_to_project, _
             });
 
             data[0].additional.forEach(function (property) {
+                header += "," + quote(property.name);
+            });
+
+            data[0].special.forEach(function (property) {
                 header += "," + quote(property.name);
             });
 
@@ -261,6 +269,10 @@ function getProjectionCSVData(_year, _countries, _outcomes, _years_to_project, _
             });
 
             datarow.additional.forEach(function (property) {
+                body += property.value + ",";
+            });
+
+            datarow.special.forEach(function (property) {
                 body += property.value + ",";
             });
 
