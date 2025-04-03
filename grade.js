@@ -27,7 +27,6 @@ var plottype = "population";
 var outcome = "SANITBASIC";
 var govtype = "GOVEFFECT";
 var multiplecountries = ["$-ALL"];
-var multioutcome = "THIS";
 var smooth = true;
 var limitgovernance = false;
 var startingYearOfExtensions = 2024;
@@ -170,10 +169,18 @@ function getGovernanceInputs(){
 }
 
 function getColor(_cid, _year, _revenue, _governance) {
-    var value = getResult(_cid, _year, _revenue, _governance);
+
+    var value;
+    if (allIndicatorsSelected()){
+	var revenues = getRevenue(_cid, _year, _revenue);
+        value = revenues === undefined ? NaN : revenues["new grpc"];
+    }
+    else {
+	value = getResult(_cid, _year, _revenue, _governance);
+    }
         
     if (!isNaN(value)) {
-        if (country.slice(0,1) == "$")
+        if (multipleCountriesSelected())
         {
             // use selector
             var selection = selections.get(country);
@@ -192,7 +199,7 @@ function getColor(_cid, _year, _revenue, _governance) {
             return colorScale(value);
         }
     }
-        else {
+    else {
         return "rgba(0, 0, 0, 0.6)";
     }
 }
@@ -250,20 +257,31 @@ function makeText(_iso, _year, _revenue, _governance) {
     {
         return "<strong>" + countrycodes.get(_iso) + "<\/strong>" + ": No GRPC data available";
     }
-    var result = computeResult(_iso, _year, outcome, revenues["new grpc"], revenues["historical grpc"], _governance);
-    if (result.error)
-    {
-        return "<strong>" + countrycodes.get(_iso) + "<\/strong>" + ": " + result.error.join("<br>");
+    var result;
+    var coverageDescriptor="";
+    var dp=0;
+
+    // Only compute the results if an indicator is selected
+    if (!allIndicatorsSelected()){
+        result = computeResult(_iso, _year, outcome, revenues["new grpc"], revenues["historical grpc"], _governance);
+	coverageDescriptor = outcomesMap.get(outcome).isPercentage ? "% coverage" : "coverage ratio";
+	dp = outcomesMap.get(outcome).dp;
+        if (result.error)
+        {
+            return "<strong>" + countrycodes.get(_iso) + "<\/strong>" + ": " + result.error.join("<br>");
+        }
     }
     var text = "";
-    var coverageDescriptor = outcomesMap.get(outcome).isPercentage ? "% coverage" : "coverage ratio";
-    var dp = outcomesMap.get(outcome).dp;
     text = text + "<h1 class='tooltip'> " +  countrycodes.get(_iso) + "</h1>" +
     "<br/><strong>" + _year + "</strong>" +
     "<br/>Current Gov. rev. per capita: <span class = 'ar'>$" + d3.format(",")(revenues["historical grpc"].toFixed(2)) + "</span>" +
     "<br/>New Gov. rev. per capita: <span class = 'ar'>$" + d3.format(",")(revenues["new grpc"].toFixed(2)) + "</span>" +
-    "<br/>Increase in Gov. rev. per capita: <span class = 'ar'>" + (revenues["percentage increase"] * 100).toFixed(2) + "%</span>" 
-    +
+	"<br/>Increase in Gov. rev. per capita: <span class = 'ar'>" + (revenues["percentage increase"] * 100).toFixed(2) + "%</span>";
+    if (allIndicatorsSelected()){
+        // No single indicator selected - text is complete
+        return text;
+    }
+    text +=
     "<br/><br/><strong>" + outcomesMap.get(outcome).name + "</strong>" 
     +
     "<br/>(instantaneous effect)"
@@ -286,7 +304,11 @@ function makeText(_iso, _year, _revenue, _governance) {
 }
 
 function makeTextTarget(_year, _iso, _outcome, _target, _revenue){
-    if (_iso.slice(0,1) == "$")
+    if (allIndicatorsSelected())
+    {
+        return "No outcome selected";
+    }
+    if (isCountrySpecialSelection(_iso))
     {
         return "No country selected";
     }
@@ -344,7 +366,7 @@ function getPrefixValue(p) {
 }
 
 function getText(_d, _bProjection, _revenue, _year, _governance, _smooth) {
-    if (_d.id.slice(0, 2) == "$-") {
+    if (isCountrySpecialSelection(_d.id)) {
         return "";
     }
 
@@ -619,10 +641,6 @@ function setupMenus(_countries, _outcomes) {
         mainUpdate();
     });
 
-    d3.selectAll("input[name='multi csv outcome']").on("change", function(){
-        multioutcome = this.value;
-    });
-
     d3.selectAll("input[name='Plot type']").on("change", function(){
         plottype = this.value;
         mainUpdate();
@@ -693,15 +711,20 @@ function updateCountries() {
     var d = {
         "id": country
     };
-    if (true){ // set true to show instantaneous box
+    if (!allIndicatorsSelected()){
+	// Indicator selected - display the country-specific results
         var text = getText(d, true, getRevenueInputs(), +year, getGovernanceInputs(), smooth);
         d3.select("#countrytext").
         html(text);
         d3.select("#countrydata")
             .style("display", text.length > 0 ? "inline-block" : "none");
+    } else {
+        // Hide the country-specific results
+        d3.select("#countrydata").style("display", "none");
     }
     colourCountries();
     updateplot();
+    updatePictogram();
     updatetarget();
 }
 
@@ -737,10 +760,163 @@ function buildOutcomeDataSeries(data, resultToPlot, property, i, linetype)
     return outcomedata;
 }
 
+function convertPictogramDataToCsvString(data){
+    var str = "";
+    data.forEach(function(item){
+	    str += item.name + ","
+	});
+    str = str.slice(0, str.length - 1) + "\n";
+    data.forEach(function(item){
+	    str += item.value + ","
+	})
+    str = str.slice(0, str.length - 1);
+
+    return str;
+}
+
+function download_csv_pictogram(){
+    let dataObject = getPictogramReadyData();
+    let data = dataObject.csvData;
+    let csvdata = convertPictogramDataToCsvString(data);
+    let finalYear = +year + years_to_project;
+
+    var button_title =  country + "_" + year + "-" + finalYear + ".csv";
+    if (csvdata)
+	{
+	    var hiddenElement = document.createElement('a');
+	    hiddenElement.href = 'data:text/csv;charset=utf-8,' + encodeURI(csvdata);
+	    hiddenElement.target = '_blank';
+	    hiddenElement.download = button_title;
+	    hiddenElement.click();
+	}
+}
+
+function updatePictogram(){
+    // Hide the pictogram if no country is selected, or if an outcome is selected
+    if (multipleCountriesSelected() || !allIndicatorsSelected()) {
+            d3.select("#pictogram-wrapper").style("display", "none");
+    }
+    else {
+        // Show the pictogram
+        d3.select("#pictogram-wrapper").style("display", "inline-block");
+    }
+
+    var data = getPictogramReadyData();
+    var layout = {yaxis:{automargin:true}};
+
+    Plotly.newPlot('pictogram', data.plotData, layout);    
+
+    var errorText = getErrorTextFromPictogramData(data.error);
+    let finalYear = +year + years_to_project;
+    var text = countrycodes.get(country) + `: final effects in ${finalYear}`;
+    if (errorText.length > 0){
+	text += ": " + errorText;
+    }
+    d3.select("#pictogram-errors").html(text);
+}
+
+function getErrorTextFromPictogramData(errors){
+    return errors.filter(e => e !== null && e.length > 0).length > 0 ? "Unable to calculate some results (e.g. due to missing data)" : "";
+}
+
+function getPictogramReadyData()
+{
+    var projectionData = getPictogramProjectionData();
+    return convertProjectionDataToPictogramData(projectionData);
+    }
+
+function convertProjectionDataToPictogramData(data){
+
+    var plotObjectList = [];
+    var csvData = [];
+    var errorList = [];
+
+    data.forEach(outcomeData => { 
+	    errorList.push(outcomeData.data.error);
+	});
+
+    var categories = [];
+    var finalResults = [];
+    var barColour = d3.scale.linear().
+        domain([0, 1E5]).
+	range(["#dee5f8", "#e09900"]).
+	interpolate(d3.interpolateLab);
+
+    data.forEach(function(outcomeData, outcomeIndex){
+            var thisOutcomeDataSeries = outcomeData.data.data;
+            var finalResultThisOutcomeDataSeries = thisOutcomeDataSeries[thisOutcomeDataSeries.length - 1];
+            const value = finalResultThisOutcomeDataSeries.additional[0].value.toFixed(0);
+            finalResults.push(value);
+            populationName = finalResultThisOutcomeDataSeries.additional[0].populationName;
+	    categories.push(finalResultThisOutcomeDataSeries.additional[0].name);
+            csvData.push({
+       	                value : value,
+			name : finalResultThisOutcomeDataSeries.additional[0].name,
+			});
+        });
+
+    categories = categories.reverse();
+    finalResults = finalResults.reverse();
+
+        var plotObject = {
+	    name: populationName, 
+	    y: categories, 
+	    x: finalResults,
+	    marker:{color:finalResults.map(barColour)},
+	    type: 'bar', 
+	    orientation:'h',
+	    hoverlabel: {namelength :-1},
+  	    text: finalResults.map(String),
+            textposition: 'auto',
+	};
+        plotObjectList.push(plotObject);
+
+    return {
+	plotData: plotObjectList,
+	csvData: csvData, 
+        error: errorList,
+	    };
+}
+
+
+
+function getPictogramProjectionData()
+{
+    var projectionData = [];
+
+    keysOfOutcomesToShow = [
+			    "U5MSURV",
+			    "UPPERSCHOOL",
+			    "LOWERSCHOOL",
+			    "PRIMARYSCHOOL",
+			    "Stunting prevalence (% of population)",
+			    "Access to electricity (% of population)",
+			    "WATERBASIC",
+			    "SANITBASIC",
+			    "Access to clean fuels and technologies for cooking (% of population)"
+			    ];
+
+    keysOfOutcomesToShow.forEach(function (outcomeName){
+            var outcomeObject = outcomesMap.get(outcomeName);
+            var thisOutcomeProjectionData = getProjectionData(+year, country, outcomeName, +years_to_project, getRevenueInputs(), getGovernanceInputs(), smooth);
+	    projectionData.push({outcome:outcomeObject, data:thisOutcomeProjectionData});
+	});
+
+    return projectionData;
+}
+
 function updateplot() {
-    if (country.slice(0, 2) == "$-") {
+    // Hide the plot if all indicators are selected
+    if (allIndicatorsSelected()){
+        d3.select("#plotwrapper").style("display", "none");
+        return;
+    }
+
+    // Hide the plot if no country is selected
+    if (multipleCountriesSelected()) {
         d3.select("#plotwrapper").style("display", "none");
     } else {
+        // Show the plot
         let plotdata = getProjectionData(+year, country, outcome, +years_to_project, getRevenueInputs(), getGovernanceInputs(), smooth);
         
         if (plotdata.error){
@@ -819,9 +995,11 @@ function updatetarget(){
     var text = makeTextTarget(+year, country, outcome, target, getRevenueInputs());
     d3.select("#targetText")
     .html(text);
+    set_outcome_target();
 }
 
 function download_csv(_year, _years_to_project, _countries, _outcomes, _revenue, _governance, _smooth) {
+    
     if (_countries.length < 1)
     {
         return ["No countries selected",];
@@ -845,6 +1023,7 @@ function download_csv(_year, _years_to_project, _countries, _outcomes, _revenue,
     }
 
     var csvdata = getProjectionCSVData(_year, countries, _outcomes, _years_to_project, _revenue, _governance, _smooth);
+    
     var button_title =  _year + "-" + final_year + ".csv";
     if (countries.length == 1)
     {
@@ -873,8 +1052,8 @@ function download_csv_plot(){
 
 function download_csv_multi(){
     // handle special selections
-    var countries_to_export = multiplecountries.filter(d => d.slice(0,1) != "$");
-    var special_selections = multiplecountries.filter(d => d.slice(0,2) == "$-")
+    var countries_to_export = multiplecountries.filter(d => !isCountrySpecialSelection(d));
+    var special_selections = multiplecountries.filter(d => isCountrySpecialSelection(d));
 
     special_selections.forEach(function(_selection){
         var selection = selections.get(_selection);
@@ -890,14 +1069,18 @@ function download_csv_multi(){
 
     // handle selected or all outcomes
     let outcomes = []
-    if (multioutcome == "THIS")
+    if (!allIndicatorsSelected())
     {
         outcomes.push(outcome)
     }
     else
     {
+	// Build a list of all outcomes from the list - excepting the "All indicators" entry
         outcomesList.forEach(function (o){
-            outcomes.push(o[0])
+                var outcomeName = o[0];
+		if (outcomeName != "$-ALL"){
+                    outcomes.push(outcomeName)
+		}
         })
     }
 
@@ -1038,6 +1221,13 @@ function set_outcome_target(){
     // default for the current outcome, 
     // e.g. to be called whenever the outcome changes
 
+    // If all indicators are selected or no country is selected, disable the target input
+    if (allIndicatorsSelected() || multipleCountriesSelected()){
+        d3.select("#targetInput").property("value", 100)
+            .property("disabled", true);
+        return;
+    }
+
     var target_value = popdata.getvalue(country, +year, outcome);
     if (isNaN(target_value)){
         target_value = outcomesMap.get(outcome).target;
@@ -1045,8 +1235,9 @@ function set_outcome_target(){
 
     var dp = outcomesMap.get(outcome).dp;
     d3.select("#targetInput").property("value", target_value.toFixed(dp))
-    .style('box-shadow', '0 0 5px #ffdb8d')
-    .style('background-color', '#ffdb8d');
+	.property('disabled', false)
+        .style('box-shadow', '0 0 5px #ffdb8d')
+        .style('background-color', '#ffdb8d');
     target = target_value;
     d3.select("#targetLabel").text(outcomesMap.get(outcome).isPercentage ? '%' : '');
 }
@@ -1054,4 +1245,16 @@ function set_outcome_target(){
 function str2Num(str){
     str = str.replace(/[^\d\.\-\+E]/g, ""); // You might also include + if you want them to be able to type it
     return parseFloat(str);
+}
+
+function allIndicatorsSelected(){
+    return outcome == "$-ALL";
+}
+
+function multipleCountriesSelected(){
+    return isCountrySpecialSelection(country);
+}
+
+function isCountrySpecialSelection(_country){
+    return _country.slice(0,2) == "$-";
 }

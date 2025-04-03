@@ -16,7 +16,7 @@
     <script src="https://d3js.org/d3.v3.min.js"></script>
     <script src="https://d3js.org/queue.v1.min.js"></script>
     <script src="https://d3js.org/topojson.v1.min.js"></script>
-    <script src='https://cdn.plot.ly/plotly-latest.min.js'></script>
+    <script src="https://cdn.plot.ly/plotly-3.0.1.min.js" charset="utf-8"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/spin.js/2.3.2/spin.js"></script>
     <script src="tooltip.js"></script>
     <script src="d3-legend.min.js"></script>
@@ -205,16 +205,6 @@
                             </select>
                             <div class="filteroptions" id="countryfilter">
                             </div>
-                            <label class="container">
-                                Selected outcome
-                                <input type="radio" id="multioutcomethis" name="multi csv outcome" value="THIS" checked>
-                                <span class="checkmark"></span>
-                            </label>
-                            <label class="container">
-                                All outcomes
-                                <input type="radio" id="multioutcomeall" name="multi csv outcome" value="ALL">
-                                <span class="checkmark"></span>
-                            </label>
                             <button id="multibutton" onclick="download_csv_multi()"><i
                                     class="fa fa-download"></i>&nbsp;Download projection data</button>
                             <button id="clearmultibutton" onclick="clear_multi()"><i class="fa fa-trash"></i>&nbsp;Clear
@@ -247,7 +237,7 @@
                     <div class="uiouter">
                         <p>Set target <span id="targetVal"></span></p>
                         <div class="uicontainer">
-                            <input type="text" name="targetInput" id="targetInput" class="numeric" value="100">
+                            <input disabled type="text" name="targetInput" id="targetInput" class="numeric" value="100">
                             <label id="targetLabel" for="targetInput">%</label>
                             <div id="targetText">No country selected</div>
                         </div>
@@ -298,14 +288,27 @@
                     </p>
                 </div>
                 -->
+            <div id="pictogram-wrapper" class="plotwrapper">
+	      <h2>Effects for multiple indicators</h2>
+              <p id="pictogram-errors"></p>
+	      <div id="pictogram" class="plot">
+	      </div>
+
+                    <button onclick="download_csv_pictogram()"><i class="fa fa-download"></i>&nbsp;Download plot data</button>
+                    <button onclick="reset(event)"><i class="fa fa-close"></i>&nbsp;Close</button>
+
+            </div>
             <div class="plotwrapper" id="plotwrapper">
 	        <p id="plot-errors"></p>
+	        <h2>Projection results</h2>
+
                 <div class="plot" id="plot">
                     <!---
                     Result to show <select id="countrylist" name="country">
                         </select>
                     -->
                 </div>
+		
                 <div class="plottools">
                     <label class="container">
                         Plot population result
@@ -319,7 +322,7 @@
                     </label>
                     <button onclick="download_csv_plot()"><i class="fa fa-download"></i>&nbsp;Download plot
                         data</button>
-                    <button onclick="reset()"><i class="fa fa-close"></i>&nbsp;Close</button>
+                    <button onclick="reset(event)"><i class="fa fa-close"></i>&nbsp;Close</button>
                     <!---
                         <select name="plottype" id="plottype">
                             <option value="u5m">Under-5 deaths averted</option>
@@ -456,7 +459,7 @@
             }
         }
 
-        function reset() {
+        function reset(e) {
             //active.classed("active", false);
             //active = d3.select(null);
 
@@ -466,7 +469,12 @@
             d3.select('#countrylist').property('value', "$-ALL");
             mainUpdate();
 
-            d3.event.stopPropagation();
+	    if (typeof e !== 'undefined'){
+                e.stopPropagation();
+            }
+            else{
+                d3.event.stopPropagation();
+            }
         }
 
         function resetview() {
