@@ -1,4 +1,5 @@
 ![GRADE project logo](https://github.com/stuwilmur/GRADE-DOH/blob/main/grade-logo.png?raw=true)
+
 [![DeepScan grade](https://deepscan.io/api/teams/24725/projects/27877/branches/892753/badge/grade.svg)](https://deepscan.io/dashboard#view=project&tid=24725&pid=27877&bid=892753)
 # GRADE-DOH
 Governement Revenue And Development Estimators Determinants Of Health interactive visualisation.
