@@ -995,7 +995,6 @@ function updatetarget(){
     var text = makeTextTarget(+year, country, outcome, target, getRevenueInputs());
     d3.select("#targetText")
     .html(text);
-    set_outcome_target();
 }
 
 function download_csv(_year, _years_to_project, _countries, _outcomes, _revenue, _governance, _smooth) {
