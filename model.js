@@ -891,17 +891,17 @@ function computeAdditionalResults(_iso, _year, _outcome, improved, original){
         additional.push({name : "Maternal deaths", value : (1 - original / 100) * popBirths, keyvariable : false})
         additional.push({name : "Maternal deaths with additional revenue", value : (1 - improved / 100) * popBirths, keyvariable : false})
     } else if (_outcome == "PRIMARYSCHOOL"){
-        additional.push({name : "Additional children in primary education, both sexes (number)", value: (improved - original) * popdata.getvalue(_iso, _year, "School age population, primary education, both sexes (number)"), keyvariable:true})
-        additional.push({name : "Additional children in primary education, female (number)", value: (improved - original) * popdata.getvalue(_iso, _year, "School age population, primary education, female (number)"), keyvariable:true})
-        additional.push({name : "Additional children in primary education, male (number)", value: (improved - original) * popdata.getvalue(_iso, _year, "School age population, primary education, male (number)"), keyvariable:true})
+        additional.push({name : "Additional children in primary education", value: (improved - original) * popdata.getvalue(_iso, _year, "School age population, primary education, both sexes (number)"), keyvariable:true})
+        additional.push({name : "Additional female children in primary education", value: (improved - original) * popdata.getvalue(_iso, _year, "School age population, primary education, female (number)"), keyvariable:true})
+        additional.push({name : "Additional male children in primary education", value: (improved - original) * popdata.getvalue(_iso, _year, "School age population, primary education, male (number)"), keyvariable:true})
     } else if (_outcome == "LOWERSCHOOL"){
-        additional.push({name : "Additional children in lower secondary education, both sexes (number)", value: (improved - original) * popdata.getvalue(_iso, _year, "School age population, lower secondary education, both sexes (number)"), keyvariable:true})
-        additional.push({name : "Additional children in lower secondary education, female (number)", value: (improved - original) * popdata.getvalue(_iso, _year, "School age population, lower secondary education, female (number)"), keyvariable:true})
-        additional.push({name : "Additional children in lower secondary education, male (number)", value: (improved - original) * popdata.getvalue(_iso, _year, "School age population, lower secondary education, male (number)"), keyvariable:true})
+        additional.push({name : "Additional children in lower secondary education", value: (improved - original) * popdata.getvalue(_iso, _year, "School age population, lower secondary education, both sexes (number)"), keyvariable:true})
+        additional.push({name : "Additional female children in lower secondary education", value: (improved - original) * popdata.getvalue(_iso, _year, "School age population, lower secondary education, female (number)"), keyvariable:true})
+        additional.push({name : "Additional male children in lower secondary education", value: (improved - original) * popdata.getvalue(_iso, _year, "School age population, lower secondary education, male (number)"), keyvariable:true})
     } else if (_outcome == "UPPERSCHOOL"){
-        additional.push({name : "Additional children in upper secondary education, both sexes (number)", value: (improved - original) * popdata.getvalue(_iso, _year, "School age population, upper secondary education, both sexes (number)"), keyvariable:true})
-        additional.push({name : "Additional children in upper secondary education, female (number)", value: (improved - original) * popdata.getvalue(_iso, _year, "School age population, upper secondary education, female (number)"), keyvariable:true})
-        additional.push({name : "Additional children in upper secondary education, male (number)", value: (improved - original) * popdata.getvalue(_iso, _year, "School age population, upper secondary education, male (number)"), keyvariable:true})
+        additional.push({name : "Additional children in upper secondary education", value: (improved - original) * popdata.getvalue(_iso, _year, "School age population, upper secondary education, both sexes (number)"), keyvariable:true})
+        additional.push({name : "Additional female children in upper secondary education", value: (improved - original) * popdata.getvalue(_iso, _year, "School age population, upper secondary education, female (number)"), keyvariable:true})
+        additional.push({name : "Additional male children in upper secondary education", value: (improved - original) * popdata.getvalue(_iso, _year, "School age population, upper secondary education, male (number)"), keyvariable:true})
     } else if (_outcome == "INVPRIMARYTEACHERS"){
 	additional.push({name : "Additional primary-school teachers (number)", value: (improved - original) * popdata.getvalue(_iso, _year, "School age population, primary education, both sexes (number)"), keyvariable:true})
     } else if (_outcome == "INVLOWERTEACHERS"){
