@@ -123,6 +123,13 @@ var plotlayout = {
     showlegend: true,
 	legend: {"orientation": "h"},
     xaxis: {tickformat: 'd'},
+    margin: {
+	l: 50,
+	r: 20,
+	t: 0,
+	b: 50,
+	pad: 0
+    },
 };
 
 var config = {
@@ -802,7 +809,16 @@ function updatePictogram(){
     }
 
     var data = getPictogramReadyData();
-    var layout = {yaxis:{automargin:true}};
+    var layout = {
+	yaxis: {automargin:true},
+	margin: {
+	    l: 50,
+	    r: 20,
+	    t: 20,
+	    b: 50,
+	    pad: 0
+	},
+    };
 
     Plotly.newPlot('pictogram', data.plotData, layout);    
 
@@ -863,7 +879,7 @@ function convertProjectionDataToPictogramData(data){
 	    y: categories, 
 	    x: finalResults,
 	    marker:{color:finalResults.map(barColour)},
-	    type: 'bar', 
+	    type: 'bar',
 	    orientation:'h',
 	    hoverlabel: {namelength :-1},
   	    text: finalResults.map(String),
