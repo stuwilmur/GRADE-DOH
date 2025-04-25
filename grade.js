@@ -744,7 +744,6 @@ function updateYears(_firstyear, _lastyear){
 
 function buildOutcomeDataSeries(data, resultToPlot, property, i, linetype)
 {
-
     var spaces = "          ";
     var outcomedata = {
         x: data.map(a => a.year),
@@ -866,9 +865,16 @@ function convertProjectionDataToPictogramData(data){
             populationName = finalResultThisOutcomeDataSeries.additional[0].populationName;
 	    categories.push(finalResultThisOutcomeDataSeries.additional[0].name);
             csvData.push({
-       	                value : value,
-			name : finalResultThisOutcomeDataSeries.additional[0].name,
+       	            value : value,
+		    name : finalResultThisOutcomeDataSeries.additional[0].name,
 			});
+	    if (finalResultThisOutcomeDataSeries.hasOwnProperty("special") 
+		&& finalResultThisOutcomeDataSeries.special.length > 0){
+		csvData.push({
+		    value : finalResultThisOutcomeDataSeries.special[0].value,
+                    name : finalResultThisOutcomeDataSeries.special[0].name,
+                    });
+		}
         });
 
     categories = categories.reverse();
