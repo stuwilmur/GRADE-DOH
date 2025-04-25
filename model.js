@@ -935,15 +935,17 @@ function computeSpecialResults(_iso, _year, _outcome, _improved, _original, _add
         let costPerLife = livesSaved > 0 ? popTotal * _additionalGrpc / livesSaved : NaN 
         special_results.push({name : "Cost per maternal life saved", value : costPerLife})
     }
-    else if (outcomeObject.isStandardPopulationIndicator && outcomeObject.isPercentage){
-	const percentageOfThoseWhoDoNotHaveAccess = 100 * (_improved - _original) / (100.0 - _original);
+    else if (outcomeObject.isStandardPopulationIndicator 
+	     || _outcome == "PRIMARYSCHOOL" 
+	     || _outcome == "LOWERSCHOOL" 
+	     || _outcome == "UPPERSCHOOL"){
+	const proportionOfThoseWhoDoNotHaveAccess = 100 * (_improved - _original) / (100.0 - _original);
         const result = {
-		name : `Percentage of those who do not have access to ${outcomeObject.name}`, 
-		value : percentageOfThoseWhoDoNotHaveAccess
+		name : `Proportion of those who do not have access to ${outcomeObject.name}`, 
+		value : proportionOfThoseWhoDoNotHaveAccess
 		}
 	special_results.push(result);
     }
-
     return special_results;
 }
 
