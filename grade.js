@@ -763,7 +763,7 @@ function buildOutcomeDataSeries(data, resultToPlot, property, i, linetype)
 function convertPictogramDataToCsvString(data){
     var str = "";
     data.forEach(function(item){
-	    str += item.name + ","
+	    str += quote(item.name) + ","
 	});
     str = str.slice(0, str.length - 1) + "\n";
     data.forEach(function(item){
