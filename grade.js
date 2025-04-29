@@ -978,7 +978,6 @@ function updateplot() {
 
         var dataFromObservation = data.filter(x => x.year <= startingYearOfExtensions)
         var dataExtended = data.filter(x => x.year >= startingYearOfExtensions)
-        var x_annotation = plotdata.start_of_effect;
 
         d3.select("#plotwrapper").style("display", "inline-block");
        
