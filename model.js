@@ -927,22 +927,23 @@ function computeSpecialResults(_iso, _year, _outcome, _improved, _original, _add
     {
         let livesSaved = Math.round((_improved - _original) / 100 * popBirths)
         let costPerLife = livesSaved > 0 ? popTotal * _additionalGrpc / livesSaved : NaN 
-        special_results.push({name : "Cost per under-5 life saved", value : costPerLife})
+        special_results.push({name : "Cost per under-5 life saved", value : costPerLife, dp : 0})
     }
     else if (_outcome == "MMRSURV")
     {
         let livesSaved = Math.round((_improved - _original) / 100 * popBirths)
         let costPerLife = livesSaved > 0 ? popTotal * _additionalGrpc / livesSaved : NaN 
-        special_results.push({name : "Cost per maternal life saved", value : costPerLife})
+        special_results.push({name : "Cost per maternal life saved", value : costPerLife, dp : 0})
     }
     else if (outcomeObject.isStandardPopulationIndicator 
 	     || _outcome == "PRIMARYSCHOOL" 
 	     || _outcome == "LOWERSCHOOL" 
 	     || _outcome == "UPPERSCHOOL"){
-	const proportionOfThoseWhoDoNotHaveAccess = 100 * (_improved - _original) / (100.0 - _original);
+	const proportionOfThoseWhoDoNotHaveAccess = (_improved - _original) / (100.0 - _original);
         const result = {
 		name : `Proportion of those who do not have access to ${outcomeObject.name}`, 
-		value : proportionOfThoseWhoDoNotHaveAccess
+		value : proportionOfThoseWhoDoNotHaveAccess,
+		dp : 3
 		}
 	special_results.push(result);
     }

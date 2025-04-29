@@ -124,7 +124,7 @@ var plotlayout = {
 	legend: {"orientation": "h"},
     xaxis: {tickformat: 'd'},
     margin: {
-	l: 50,
+	l: 70,
 	r: 20,
 	t: 0,
 	b: 50,
@@ -303,7 +303,8 @@ function makeText(_iso, _year, _revenue, _governance) {
 
     if (result.hasOwnProperty("special")) {
         result.special.forEach(function(property) {
-            text = text + "<br/>" + property.name + ":&nbsp&nbsp<span class = 'arb'>" + d3.format(",")(property.value.toFixed(0)) + "</span>";
+	    let formatter = `,.${property.dp}f`;
+            text = text + "<br/>" + property.name + ":&nbsp&nbsp<span class = 'arb'>" + d3.format(formatter)(property.value) + "</span>";
         })
     }
 
