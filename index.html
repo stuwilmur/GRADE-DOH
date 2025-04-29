@@ -34,13 +34,16 @@
     <div class="all">
         <div class="menu" id="menu">
             <div class="inline-div">
+                <div class="item" id="logo-item">
+                    <img src="grade-logo.png">
+		    <h2>Determinants of Health/Fundamental economic and social rights</h2>
+                </div>
                 <div class="item">
                     <a href="http://med.st-andrews.ac.uk/grade">
                         <h2 class="label success new-label"><span class="align">GRADE Homepage</span></h2>
                     </a>
                 </div>
             </div>
-            <h2>GRADE Determinants of Health/Fundamental economic and social rights</h2>
             <div class="uiouter">
                 <p>Country</p>
                 <div class="uicontainer">
@@ -289,7 +292,7 @@
                 </div>
                 -->
             <div id="pictogram-wrapper" class="plotwrapper">
-	      <h2>Effects for multiple indicators</h2>
+	      <h1 class="plot-title" id="pictogram-title"></h1>
               <p id="pictogram-errors"></p>
 	      <div id="pictogram" class="plot">
 	      </div>
@@ -299,9 +302,8 @@
 
             </div>
             <div class="plotwrapper" id="plotwrapper">
-	        <p id="plot-errors"></p>
-	        <h2>Projection results</h2>
-
+	        <h1 class="plot-title">Projection results</h1>
+		<p id="plot-errors"></p>
                 <div class="plot" id="plot">
                     <!---
                     Result to show <select id="countrylist" name="country">

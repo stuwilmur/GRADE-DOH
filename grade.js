@@ -123,6 +123,13 @@ var plotlayout = {
     showlegend: true,
 	legend: {"orientation": "h"},
     xaxis: {tickformat: 'd'},
+    margin: {
+	l: 70,
+	r: 20,
+	t: 0,
+	b: 50,
+	pad: 0
+    },
 };
 
 var config = {
@@ -296,7 +303,8 @@ function makeText(_iso, _year, _revenue, _governance) {
 
     if (result.hasOwnProperty("special")) {
         result.special.forEach(function(property) {
-            text = text + "<br/>" + property.name + ":&nbsp&nbsp<span class = 'arb'>" + d3.format(",")(property.value.toFixed(0)) + "</span>";
+	    let formatter = `,.${property.dp}f`;
+            text = text + "<br/>" + property.name + ":&nbsp&nbsp<span class = 'arb'>" + d3.format(formatter)(property.value) + "</span>";
         })
     }
 
@@ -737,7 +745,6 @@ function updateYears(_firstyear, _lastyear){
 
 function buildOutcomeDataSeries(data, resultToPlot, property, i, linetype)
 {
-
     var spaces = "          ";
     var outcomedata = {
         x: data.map(a => a.year),
@@ -763,7 +770,7 @@ function buildOutcomeDataSeries(data, resultToPlot, property, i, linetype)
 function convertPictogramDataToCsvString(data){
     var str = "";
     data.forEach(function(item){
-	    str += item.name + ","
+	    str += quote(item.name) + ","
 	});
     str = str.slice(0, str.length - 1) + "\n";
     data.forEach(function(item){
@@ -802,17 +809,34 @@ function updatePictogram(){
     }
 
     var data = getPictogramReadyData();
-    var layout = {yaxis:{automargin:true}};
+    var layout = {
+	yaxis: {automargin:true},
+	margin: {
+	    l: 50,
+	    r: 20,
+	    t: 20,
+	    b: 50,
+	    pad: 0
+	},
+    };
 
     Plotly.newPlot('pictogram', data.plotData, layout);    
 
     var errorText = getErrorTextFromPictogramData(data.error);
     let finalYear = +year + years_to_project;
-    var text = countrycodes.get(country) + `: final effects in ${finalYear}`;
-    if (errorText.length > 0){
-	text += ": " + errorText;
+    let titleText = `${countrycodes.get(country)}: Final effects in ${finalYear}`;
+    d3.select("#pictogram-title").html(titleText);
+
+
+    let warningText = data.warnings.join("<br/ >");
+    let totalErrorText = "";
+
+    if (errorText.length > 0 || warningText.length > 0)
+    {
+        totalErrorText = "Warning: " + errorText + (errorText.length > 0 ? "<br/ >" : "") + warningText;
     }
-    d3.select("#pictogram-errors").html(text);
+
+    d3.select("#pictogram-errors").html(totalErrorText);
 }
 
 function getErrorTextFromPictogramData(errors){
@@ -830,6 +854,7 @@ function convertProjectionDataToPictogramData(data){
     var plotObjectList = [];
     var csvData = [];
     var errorList = [];
+    let warnings = [];
 
     data.forEach(outcomeData => { 
 	    errorList.push(outcomeData.data.error);
@@ -842,6 +867,8 @@ function convertProjectionDataToPictogramData(data){
 	range(["#dee5f8", "#e09900"]).
 	interpolate(d3.interpolateLab);
 
+    let saturationWarning = false;
+
     data.forEach(function(outcomeData, outcomeIndex){
             var thisOutcomeDataSeries = outcomeData.data.data;
             var finalResultThisOutcomeDataSeries = thisOutcomeDataSeries[thisOutcomeDataSeries.length - 1];
@@ -850,10 +877,26 @@ function convertProjectionDataToPictogramData(data){
             populationName = finalResultThisOutcomeDataSeries.additional[0].populationName;
 	    categories.push(finalResultThisOutcomeDataSeries.additional[0].name);
             csvData.push({
-       	                value : value,
-			name : finalResultThisOutcomeDataSeries.additional[0].name,
+       	            value : value,
+		    name : finalResultThisOutcomeDataSeries.additional[0].name,
 			});
+	    if (finalResultThisOutcomeDataSeries.hasOwnProperty("special") 
+		&& finalResultThisOutcomeDataSeries.special.length > 0){
+		csvData.push({
+		    value : finalResultThisOutcomeDataSeries.special[0].value,
+                    name : finalResultThisOutcomeDataSeries.special[0].name,
+                    });
+		}
+
+	    if (hasCoverageValueReachedSaturation(finalResultThisOutcomeDataSeries.coverage[0].value, outcomeData.outcome)){
+		saturationWarning = true;
+	    	
+	    }
         });
+
+	if (saturationWarning){
+		warnings.push("The base value for at least one indicator saturates by the end of the projection period: population results may fall to zero");
+	}
 
     categories = categories.reverse();
     finalResults = finalResults.reverse();
@@ -863,7 +906,7 @@ function convertProjectionDataToPictogramData(data){
 	    y: categories, 
 	    x: finalResults,
 	    marker:{color:finalResults.map(barColour)},
-	    type: 'bar', 
+	    type: 'bar',
 	    orientation:'h',
 	    hoverlabel: {namelength :-1},
   	    text: finalResults.map(String),
@@ -875,10 +918,10 @@ function convertProjectionDataToPictogramData(data){
 	plotData: plotObjectList,
 	csvData: csvData, 
         error: errorList,
+	warnings: warnings,
 	    };
+	
 }
-
-
 
 function getPictogramProjectionData()
 {
@@ -935,7 +978,6 @@ function updateplot() {
 
         var dataFromObservation = data.filter(x => x.year <= startingYearOfExtensions)
         var dataExtended = data.filter(x => x.year >= startingYearOfExtensions)
-        var x_annotation = plotdata.start_of_effect;
 
         d3.select("#plotwrapper").style("display", "inline-block");
        
@@ -956,18 +998,6 @@ function updateplot() {
 	var dp = theOutcome.dp;
         plotlayout.title = "Projection for " + countrycodes.get(country) + ": " + theOutcome.name;
         plotlayout.hovermode = "closest"
-        plotlayout.annotations = [{
-                x: x_annotation,
-                y: 0,
-                xref: 'x',
-                yref: 'y',
-                text: 'Start of effect',
-                showarrow: true,
-                arrowhead: 20,
-                ax: 0,
-                ay: +50
-            }
-          ]
 
         if (plottype == 'coverage')
         {

@@ -891,17 +891,17 @@ function computeAdditionalResults(_iso, _year, _outcome, improved, original){
         additional.push({name : "Maternal deaths", value : (1 - original / 100) * popBirths, keyvariable : false})
         additional.push({name : "Maternal deaths with additional revenue", value : (1 - improved / 100) * popBirths, keyvariable : false})
     } else if (_outcome == "PRIMARYSCHOOL"){
-        additional.push({name : "Additional children in primary education, both sexes (number)", value: (improved - original) * popdata.getvalue(_iso, _year, "School age population, primary education, both sexes (number)"), keyvariable:true})
-        additional.push({name : "Additional children in primary education, female (number)", value: (improved - original) * popdata.getvalue(_iso, _year, "School age population, primary education, female (number)"), keyvariable:true})
-        additional.push({name : "Additional children in primary education, male (number)", value: (improved - original) * popdata.getvalue(_iso, _year, "School age population, primary education, male (number)"), keyvariable:true})
+        additional.push({name : "Additional children in primary education", value: (improved - original) * popdata.getvalue(_iso, _year, "School age population, primary education, both sexes (number)"), keyvariable:true})
+        additional.push({name : "Additional female children in primary education", value: (improved - original) * popdata.getvalue(_iso, _year, "School age population, primary education, female (number)"), keyvariable:true})
+        additional.push({name : "Additional male children in primary education", value: (improved - original) * popdata.getvalue(_iso, _year, "School age population, primary education, male (number)"), keyvariable:true})
     } else if (_outcome == "LOWERSCHOOL"){
-        additional.push({name : "Additional children in lower secondary education, both sexes (number)", value: (improved - original) * popdata.getvalue(_iso, _year, "School age population, lower secondary education, both sexes (number)"), keyvariable:true})
-        additional.push({name : "Additional children in lower secondary education, female (number)", value: (improved - original) * popdata.getvalue(_iso, _year, "School age population, lower secondary education, female (number)"), keyvariable:true})
-        additional.push({name : "Additional children in lower secondary education, male (number)", value: (improved - original) * popdata.getvalue(_iso, _year, "School age population, lower secondary education, male (number)"), keyvariable:true})
+        additional.push({name : "Additional children in lower secondary education", value: (improved - original) * popdata.getvalue(_iso, _year, "School age population, lower secondary education, both sexes (number)"), keyvariable:true})
+        additional.push({name : "Additional female children in lower secondary education", value: (improved - original) * popdata.getvalue(_iso, _year, "School age population, lower secondary education, female (number)"), keyvariable:true})
+        additional.push({name : "Additional male children in lower secondary education", value: (improved - original) * popdata.getvalue(_iso, _year, "School age population, lower secondary education, male (number)"), keyvariable:true})
     } else if (_outcome == "UPPERSCHOOL"){
-        additional.push({name : "Additional children in upper secondary education, both sexes (number)", value: (improved - original) * popdata.getvalue(_iso, _year, "School age population, upper secondary education, both sexes (number)"), keyvariable:true})
-        additional.push({name : "Additional children in upper secondary education, female (number)", value: (improved - original) * popdata.getvalue(_iso, _year, "School age population, upper secondary education, female (number)"), keyvariable:true})
-        additional.push({name : "Additional children in upper secondary education, male (number)", value: (improved - original) * popdata.getvalue(_iso, _year, "School age population, upper secondary education, male (number)"), keyvariable:true})
+        additional.push({name : "Additional children in upper secondary education", value: (improved - original) * popdata.getvalue(_iso, _year, "School age population, upper secondary education, both sexes (number)"), keyvariable:true})
+        additional.push({name : "Additional female children in upper secondary education", value: (improved - original) * popdata.getvalue(_iso, _year, "School age population, upper secondary education, female (number)"), keyvariable:true})
+        additional.push({name : "Additional male children in upper secondary education", value: (improved - original) * popdata.getvalue(_iso, _year, "School age population, upper secondary education, male (number)"), keyvariable:true})
     } else if (_outcome == "INVPRIMARYTEACHERS"){
 	additional.push({name : "Additional primary-school teachers (number)", value: (improved - original) * popdata.getvalue(_iso, _year, "School age population, primary education, both sexes (number)"), keyvariable:true})
     } else if (_outcome == "INVLOWERTEACHERS"){
@@ -927,23 +927,26 @@ function computeSpecialResults(_iso, _year, _outcome, _improved, _original, _add
     {
         let livesSaved = Math.round((_improved - _original) / 100 * popBirths)
         let costPerLife = livesSaved > 0 ? popTotal * _additionalGrpc / livesSaved : NaN 
-        special_results.push({name : "Cost per under-5 life saved", value : costPerLife})
+        special_results.push({name : "Cost per under-5 life saved", value : costPerLife, dp : 0})
     }
     else if (_outcome == "MMRSURV")
     {
         let livesSaved = Math.round((_improved - _original) / 100 * popBirths)
         let costPerLife = livesSaved > 0 ? popTotal * _additionalGrpc / livesSaved : NaN 
-        special_results.push({name : "Cost per maternal life saved", value : costPerLife})
+        special_results.push({name : "Cost per maternal life saved", value : costPerLife, dp : 0})
     }
-    else if (outcomeObject.isStandardPopulationIndicator && outcomeObject.isPercentage){
-	const percentageOfThoseWhoDoNotHaveAccess = 100 * (_improved - _original) / (100.0 - _original);
+    else if (outcomeObject.isStandardPopulationIndicator 
+	     || _outcome == "PRIMARYSCHOOL" 
+	     || _outcome == "LOWERSCHOOL" 
+	     || _outcome == "UPPERSCHOOL"){
+	const proportionOfThoseWhoDoNotHaveAccess = (_improved - _original) / (100.0 - _original);
         const result = {
-		name : `Percentage of those who do not have access to ${outcomeObject.name}`, 
-		value : percentageOfThoseWhoDoNotHaveAccess
+		name : `Proportion of those who do not have access to ${outcomeObject.name}`, 
+		value : proportionOfThoseWhoDoNotHaveAccess,
+		dp : 3
 		}
 	special_results.push(result);
     }
-
     return special_results;
 }
 
@@ -1256,7 +1259,7 @@ function getCoverageSaturationWarningText(outcomeObject)
     }
 
     var targetText = `${outcomeObject.target}${outcomeObject.isPercentage ? "%" : ""}`;
-    text = `Warning: indicator base value achieves ${maxOrMin} coverage (${targetText}) within projection period: population results may fall to zero` ;
+    text = `Warning: indicator base value saturates i.e. achieves ${maxOrMin} coverage (${targetText}) within projection period: population results may fall to zero` ;
 
     return text;
 }
