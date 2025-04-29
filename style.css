@@ -322,9 +322,11 @@ div.uicontainer p {
 h2 {
     display: inline-block;
     /*
-    margin-top: 5px;
+    margin-block-start: 0px;
     margin-bottom: 5px;
     */
+    font-size: 90%;
+    margin-left: 10px;
 }
 
 h3 {
@@ -710,4 +712,8 @@ input[type="file"] {
 
 #logo-item {
     background-color: lightgray;
+}
+
+.plot-title {
+    font-size: 140%;
 }

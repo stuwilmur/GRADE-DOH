@@ -1258,7 +1258,7 @@ function getCoverageSaturationWarningText(outcomeObject)
     }
 
     var targetText = `${outcomeObject.target}${outcomeObject.isPercentage ? "%" : ""}`;
-    text = `Warning: indicator base value achieves ${maxOrMin} coverage (${targetText}) within projection period: population results may fall to zero` ;
+    text = `Warning: indicator base value saturates i.e. achieves ${maxOrMin} coverage (${targetText}) within projection period: population results may fall to zero` ;
 
     return text;
 }

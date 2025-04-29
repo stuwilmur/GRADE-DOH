@@ -823,11 +823,19 @@ function updatePictogram(){
 
     var errorText = getErrorTextFromPictogramData(data.error);
     let finalYear = +year + years_to_project;
-    var text = countrycodes.get(country) + `: final effects in ${finalYear}`;
-    if (errorText.length > 0){
-	text += ": " + errorText;
+    let titleText = `${countrycodes.get(country)}: Final effects in ${finalYear}`;
+    d3.select("#pictogram-title").html(titleText);
+
+
+    let warningText = data.warnings.join("<br/ >");
+    let totalErrorText = "";
+
+    if (errorText.length > 0 || warningText.length > 0)
+    {
+        totalErrorText = "Warning: " + errorText + (errorText.length > 0 ? "<br/ >" : "") + warningText;
     }
-    d3.select("#pictogram-errors").html(text);
+
+    d3.select("#pictogram-errors").html(totalErrorText);
 }
 
 function getErrorTextFromPictogramData(errors){
@@ -845,6 +853,7 @@ function convertProjectionDataToPictogramData(data){
     var plotObjectList = [];
     var csvData = [];
     var errorList = [];
+    let warnings = [];
 
     data.forEach(outcomeData => { 
 	    errorList.push(outcomeData.data.error);
@@ -856,6 +865,8 @@ function convertProjectionDataToPictogramData(data){
         domain([0, 1E5]).
 	range(["#dee5f8", "#e09900"]).
 	interpolate(d3.interpolateLab);
+
+    let saturationWarning = false;
 
     data.forEach(function(outcomeData, outcomeIndex){
             var thisOutcomeDataSeries = outcomeData.data.data;
@@ -875,7 +886,16 @@ function convertProjectionDataToPictogramData(data){
                     name : finalResultThisOutcomeDataSeries.special[0].name,
                     });
 		}
+
+	    if (hasCoverageValueReachedSaturation(finalResultThisOutcomeDataSeries.coverage[0].value, outcomeData.outcome)){
+		saturationWarning = true;
+	    	
+	    }
         });
+
+	if (saturationWarning){
+		warnings.push("The base value for at least one indicator saturates by the end of the projection period: population results may fall to zero");
+	}
 
     categories = categories.reverse();
     finalResults = finalResults.reverse();
@@ -897,10 +917,10 @@ function convertProjectionDataToPictogramData(data){
 	plotData: plotObjectList,
 	csvData: csvData, 
         error: errorList,
+	warnings: warnings,
 	    };
+	
 }
-
-
 
 function getPictogramProjectionData()
 {
@@ -978,18 +998,6 @@ function updateplot() {
 	var dp = theOutcome.dp;
         plotlayout.title = "Projection for " + countrycodes.get(country) + ": " + theOutcome.name;
         plotlayout.hovermode = "closest"
-        plotlayout.annotations = [{
-                x: x_annotation,
-                y: 0,
-                xref: 'x',
-                yref: 'y',
-                text: 'Start of effect',
-                showarrow: true,
-                arrowhead: 20,
-                ax: 0,
-                ay: +50
-            }
-          ]
 
         if (plottype == 'coverage')
         {
