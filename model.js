@@ -929,20 +929,35 @@ function computeSpecialResults(_iso, _year, _outcome, _improved, _original, _add
         let costPerLife = livesSaved > 0 ? popTotal * _additionalGrpc / livesSaved : NaN 
         special_results.push({name : "Cost per under-5 life saved", value : costPerLife, dp : 0})
     }
-    else if (_outcome == "MMRSURV")
+    if (_outcome == "MMRSURV")
     {
         let livesSaved = Math.round((_improved - _original) / 100 * popBirths)
         let costPerLife = livesSaved > 0 ? popTotal * _additionalGrpc / livesSaved : NaN 
         special_results.push({name : "Cost per maternal life saved", value : costPerLife, dp : 0})
     }
-    else if (outcomeObject.isStandardPopulationIndicator 
+    if (outcomeObject.isStandardPopulationIndicator 
 	     || _outcome == "PRIMARYSCHOOL" 
 	     || _outcome == "LOWERSCHOOL" 
-	     || _outcome == "UPPERSCHOOL"){
-	const proportionOfThoseWhoDoNotHaveAccess = (_improved - _original) / (100.0 - _original);
+	     || _outcome == "UPPERSCHOOL"
+	     || _outcome == "U5MSURV"
+	     || _outcome == "Stunting prevalence (% of population)"){
+	const maximum = outcomeObject.fixedExtent[1];
+	let proportion = (_improved - _original) / (maximum - _original);
+	let name;
+	if (_outcome == "Stunting prevalence (% of population)"){
+	    name = "Reduction in stunting as a proportion of those who are stunted";
+	    proportion = (_improved - _original) / (_original);
+	}
+	else if (_outcome == "U5MSURV"){
+	    name = "Proportion of under-5 children who do not survive";
+	}
+	else {
+	    name = `Proportion of those who do not have access to ${outcomeObject.name}`;
+	}
+
         const result = {
-		name : `Proportion of those who do not have access to ${outcomeObject.name}`, 
-		value : proportionOfThoseWhoDoNotHaveAccess,
+		name : name, 
+		value : proportion,
 		dp : 3
 		}
 	special_results.push(result);

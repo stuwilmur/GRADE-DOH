@@ -882,10 +882,12 @@ function convertProjectionDataToPictogramData(data){
 			});
 	    if (finalResultThisOutcomeDataSeries.hasOwnProperty("special") 
 		&& finalResultThisOutcomeDataSeries.special.length > 0){
-		csvData.push({
-		    value : finalResultThisOutcomeDataSeries.special[0].value,
-                    name : finalResultThisOutcomeDataSeries.special[0].name,
-                    });
+		finalResultThisOutcomeDataSeries.special.forEach((result) =>{
+		    csvData.push({
+			value : result.value,
+			name : result.name,
+                        });
+		    });
 		}
 
 	    if (hasCoverageValueReachedSaturation(finalResultThisOutcomeDataSeries.coverage[0].value, outcomeData.outcome)){

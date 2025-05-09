@@ -711,9 +711,14 @@ input[type="file"] {
 }
 
 #logo-item {
-    background-color: lightgray;
+    display: flex;
+    justify-content: center;
 }
 
 .plot-title {
     font-size: 140%;
+}
+
+.js-plotly-plot .plotly .modebar svg {
+		display: inline;
 }
