@@ -1174,7 +1174,7 @@ function loaded(error, _countries, _popdata, _gdpdef) {
         .call(d3.helper.tooltip(
             function (d, i) {
                 return getText(d, false, getRevenueInputs(), +year, getGovernanceInputs(), false);
-            })); // tooltip based on an example from Roger Veciana: http://bl.ocks.org/rveciana/5181105    
+            }, multipleCountriesSelected)); // tooltip based on an example from Roger Veciana: http://bl.ocks.org/rveciana/5181105    
 
     svg2.append("g")
         .attr("class", "legendLinear")
