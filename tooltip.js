@@ -2,7 +2,7 @@
 
 d3.helper = {};
 
-d3.helper.tooltip = function(accessor){
+d3.helper.tooltip = function(accessor, enabler){
     return function(selection){
         var tooltipDiv;
         var bodyNode = d3.select('body').node();
@@ -12,23 +12,13 @@ d3.helper.tooltip = function(accessor){
             // Append tooltip
             tooltipDiv = d3.select('body').append('div').attr('class', 'tooltip');
             var absoluteMousePos = d3.mouse(bodyNode);
+	    const displayStyle = enabler() ? 'block' : 'none';
             tooltipDiv.style('left', (absoluteMousePos[0] + 10)+'px')
                 .style('top', (absoluteMousePos[1] - 15)+'px')
                 .style('position', 'absolute')
                 .style('z-index', 1001)
-                //.style('border-radius', '0px')
-                //.style('color', '#000000')
-                //.style('padding', '10px 15px')
-                //.style('background', 'rgba(255, 255, 255, 0.95)')
-				//.style('border-style', 'solid')
-				//.style('border-color', '#040404')
-				//.style('border-width', '1px')
-				.style('pointer-events', 'none');
-            // Add text using the accessor function
-            // var tooltipText = accessor(d, i) || '';
-            // Crop text arbitrarily
-            //tooltipDiv.style('width', function(d, i){return (tooltipText.length > 80) ? '300px' : null;})
-            //    .html(tooltipText);
+		.style('pointer-events', 'none')
+		.style('display', displayStyle);
         })
         .on('mousemove', function(d, i) {
             // Move tooltip
