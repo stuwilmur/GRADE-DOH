@@ -252,10 +252,10 @@
                         Click to download <em>base data</em> used to drive the GRADE model, in Excel or CSV format.
                     </p>
                     <ul>
-                        <li><a download href="MASTER_2050_extensions_V3.xlsx" class="button"><i
+                        <li><a download href="MASTER_2050_V4.xlsx" class="button"><i
                                     class="fa fa-download"></i>&nbsp;Excel (including notes on data)</a>
                         </li>
-                        <li><a download href="MASTER_2050_extensions_V3.csv" class="button"><i
+                        <li><a download href="MASTER_2050_V4.csv" class="button"><i
                                     class="fa fa-download"></i>&nbsp;CSV</a></li>
                         <li>Map data from <a href="https://www.naturalearthdata.com/">Natural Earth&nbsp;<i
                                     class="fa fa-external-link"></i>&nbsp;</a></li>
@@ -567,7 +567,7 @@
 
         queue()
             .defer(d3.json, "countries.json")
-            .defer(d3.csv, "MASTER_2050_extensions_V3.csv", typeAndSetPopulation)
+            .defer(d3.csv, "MASTER_2050_V4.csv", typeAndSetPopulation)
             .defer(d3.csv, "GDPDEF.csv", typeAndSetDeflator)
             .await(loaded);
 
