@@ -1080,7 +1080,7 @@ function typeAndSetPopulation(d) {
     e.CORRUPTION    =convertNumber(d["Control of Corruption: Estimate"])
     e.Country 	    =d["countryname"]                                      
     e.GOVEFFECT 	=convertNumber(d["Government Effectiveness: Estimate"])
-    e.GRPERCAP 	    =convertNumber(d["GRpc_2050 (using GRpc2023)_SH"])
+    e.GRPERCAP 	    =convertNumber(d["GRpc (2015USD)using GRpcDL2025_EXT"])
     if (e.GRPERCAP < 0.0001)
     {
 	// zero GRPC indicates no data, so mark clearly by setting to NaN
@@ -1093,12 +1093,12 @@ function typeAndSetPopulation(d) {
     e.RULELAW 	    =convertNumber(d["Rule of Law: Estimate"])
     e.SANITBASIC 	=convertNumber(d["People using at least basic sanitation services (% of population)"])
     e.SANITSAFE 	=convertNumber(d["People using safely managed sanitation services (% of population)"])
-    e.SCHOOLPERC 	=convertNumber(d["School percent"])
+    e.SCHOOLPERC 	= NaN
     e.VOICE 	    =convertNumber(d["Voice and Accountability: Estimate"])
     e.WATERBASIC 	=convertNumber(d["People using at least basic drinking water services (% of population)"])
     e.WATERSAFE 	=convertNumber(d["People using safely managed drinking water services (% of population)"])
     e.U5MSURV 	    =convertNumber(d["U5 survival %"])
-    e.MMRSURV 	    =convertNumber(d["Maternal survival rate %"])
+    e.MMRSURV 	    =convertNumber(d["Maternal survival rate %(2025)_EXT"])
     
     e["Population, total"]                      =convertNumber(d["Pop total"])
     e["Pop < 5"]                                =convertNumber(d["Pop<5"])
@@ -1109,25 +1109,40 @@ function typeAndSetPopulation(d) {
     e["countryname"]                            = d["countryname"]
     e["year"]                                   =convertNumber(d["year"])
     e["incomelevel"]                            = d["incomelevel"]
-    e["Number of children surviving to five"]   =convertNumber(d["Number of children surviving to five "])
+    e["Number of children surviving to five"]   =convertNumber(d["Number of children surviving to five"])
     e["region"]                                 =d["region"]
-    e.PRIMARYSCHOOL                             = convertNumber(d["In school: Primary school (%)"]) * 0.01;
-    e.LOWERSCHOOL                               = convertNumber(d["In school: Lower school (%)"]) * 0.01;
-    e.UPPERSCHOOL                               = convertNumber(d["In school: Upper school (%)"]) * 0.01;
-    e["School age population, primary education, both sexes (number)"]          = convertNumber(d["School age population, primary education, both sexes (number)"]          );
-    e["School age population, primary education, female (number)"]              = convertNumber(d["School age population, primary education, female (number)"]);
-    e["School age population, primary education, male (number)"]                = convertNumber(d["School age population, primary education, male (number)"]);
-    e["School age population, lower secondary education, both sexes (number)"]  = convertNumber(d["School age population, lower secondary education, both sexes (number)"]);
-    e["School age population, lower secondary education, female (number)"]      = convertNumber(d["School age population, lower secondary education, female (number)"]);
-    e["School age population, lower secondary education, male (number)"]        = convertNumber(d["School age population, lower secondary education, male (number)"]);
-    e["School age population, upper secondary education, both sexes (number)"]  = convertNumber(d["School age population, upper secondary education, both sexes (number)"]);
-    e["School age population, upper secondary education, female (number)"]      = convertNumber(d["School age population, upper secondary education, female (number)"]);
-    e["School age population, upper secondary education, male (number)"]        = convertNumber(d["School age population, upper secondary education, male (number)"]);
+    e.PRIMARYSCHOOL                             = convertNumber(d["In school: Primary school (proportion)(2025)_EXT"]);
+    e.LOWERSCHOOL                               = convertNumber(d["In school: Lower school (proportion)(2025)EXT"]);
+    e.UPPERSCHOOL                               = convertNumber(d["In school: Upper school (proportion)(2025)EXT"]);
+    e["School age population, primary education, both sexes (number)"]          = convertNumber(d["School age population, primary education, both sexes (number)June 2025EXT"]);
+    e["School age population, primary education, female (number)"]              = convertNumber(d["School age population, primary education, female (number)June 2025EXT"]);
+    e["School age population, primary education, male (number)"]                = convertNumber(d["School age population, primary education, male (number)June 2025EXT"]);
+    e["School age population, lower secondary education, both sexes (number)"]  = convertNumber(d["School age population, lower  secondary  education, both sexes (number)June 2025EXT"]);
+    e["School age population, lower secondary education, female (number)"]      = convertNumber(d["School age population, lower secondary education, female (number) June 2025EXT"]);
+    e["School age population, lower secondary education, male (number)"]        = convertNumber(d["School age population, lower secondary education, male (number)June 2025EXT"]);
+    e["School age population, upper secondary education, both sexes (number)"]  = convertNumber(d["School age population, upper secondary education, both sexes (number)June 2025EXT"]);
+    e["School age population, upper secondary education, female (number)"]      = convertNumber(d["School age population, upper secondary education, female (number) June 2025EXT"]);
+    e["School age population, upper secondary education, male (number)"]        = convertNumber(d["School age population, upper secondary education, male (number) June 2025EXT"]);
     e["INVPRIMARYTEACHERS"] = convertNumber(d["Teacher/school age population ratio:Primary school"]);
+    if (e.INVPRIMARYTEACHERS < 0.0001)
+    {
+	// zero INVPRIMARYTEACHERS indicates no data, so mark clearly by setting to NaN
+        e.INVPRIMARYTEACHERS = NaN;
+    }
     e["PRIMARYTEACHERS"]    = convertNumber(d["School age population/Teacher ratio:Primary school"]);
     e["INVLOWERTEACHERS"]   = convertNumber(d["Teacher/school age population ratio:Lower secondary school"]);
+    if (e.INVLOWERTEACHERS < 0.0001)
+    {
+	// zero INVLOWERTEACHERS indicates no data, so mark clearly by setting to NaN
+        e.INVLOWERTEACHERS = NaN;
+    }
     e["LOWERTEACHERS"]      = convertNumber(d["School age population/Teacher ratio:Lower secondary school"]);
     e["INVUPPERTEACHERS"]   = convertNumber(d["Teacher/school age population ratio:Upper secondary school"]);
+    if (e.INVUPPERTEACHERS < 0.0001)
+    {
+	// zero INVUPPERTEACHERS indicates no data, so mark clearly by setting to NaN
+        e.INVUPPERTEACHERS = NaN;
+    }
     e["UPPERTEACHERS"]      = convertNumber(d["School age population/Teacher ratio:Upper secondary school"]);
     e["Access to electricity (% of population)"] = convertNumber(d["Access to electricity (% of population)"]);
     e["Access to clean fuels and technologies for cooking (% of population)"] = convertNumber(d["Access to clean fuels and technologies for cooking (% of population)"]);
