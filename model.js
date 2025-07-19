@@ -761,6 +761,56 @@ var outcomesList = [
 			return (100.0 - _value) * 65. / 100.;
  	    },
          }],
+         ["Hospital beds (per 1,000 people)",
+        {
+            name: "Hospital beds",
+            
+            loCol: "#dee5f8",
+	    hiCol: "#e09900",            
+	    fixedExtent: [0,16],
+            desc: "Hospital beds (per 1,000 people)",
+            isStockVar : true,
+            isInterpolated : false,
+            isPercentage: false,
+	    isStandardPopulationIndicator: false,
+            Target:16,
+	    dp:4,
+            fn :    function(_grpc, _iso, _year, _gov) { 
+                g = _type => getGov(_type, _iso, _year, _gov, _grpc);
+                const result 
+		= 8.0 / (1.0 + Math.exp( 
+		-(0.197193860745 - 0.0244300078342 * g("CORRUPTION") 
+		- 0.103694236387 * g("RULELAW") 
+		+ 0.0362146804208 * g("GOVEFFECT") 
+		+ 0.0942335582254 * g("VOICE")) * (Math.log(_grpc) 
+		- (4.65656784328 
+		+ 0.958363387674 * g("CORRUPTION") 
+		- 0.808120140928 * g("POLSTAB") 
+		- 1.62279877246 * g("RULELAW") 
+		+ 1.65628078968 * g("VOICE")))))
+                return result;
+            },
+            inv_fn : function(_target, _iso, _year, _gov){
+                g = _type => getGov(_type, _iso, _year, _gov);
+                const A = -(0.197193860745 - 0.0244300078342 * g("CORRUPTION") 
+		- 0.103694236387 * g("RULELAW") 
+		+ 0.0362146804208 * g("GOVEFFECT") 
+		+ 0.0942335582254 * g("VOICE"));
+ 		const B = 4.65656784328 
+		+ 0.958363387674 * g("CORRUPTION") 
+		- 0.808120140928 * g("POLSTAB") 
+		- 1.62279877246 * g("RULELAW") 
+		+ 1.65628078968 * g("VOICE")
+		const result = Math.exp(Math.log(8 / _target - 1.0) / A + B);
+                return result;
+            },
+	    transform : function(_value) {
+			return Math.log(_value) + 4;
+	    },
+	    untransform : function(_value) {
+			return Math.exp(_value - 4.0);
+ 	    },
+         }]
 ];
 
 var outcomesMap = new Map(outcomesList);
@@ -910,6 +960,8 @@ function computeAdditionalResults(_iso, _year, _outcome, improved, original){
 	additional.push({name : "Additional upper-school teachers (number)", value: (improved - original) * popdata.getvalue(_iso, _year, "School age population, upper secondary education, both sexes (number)"), keyvariable:true})
     } else if (_outcome == "Stunting prevalence (% of population)") {
         additional.push ({name : "Children < 5 who no longer experience stunting", value : -(improved - original) / 100 * popU5, keyvariable : true}); // stunting goes the other way, i.e. improvement means a lower prevalence, so reverse the sign
+    } else if (_outcome == "Hospital beds (per 1,000 people)") {
+        additional.push ({name : "Additional hospital beds", value : (improved - original) / 1000 * popTotal, keyvariable : true});
     }
 
     return additional;
@@ -935,6 +987,12 @@ function computeSpecialResults(_iso, _year, _outcome, _improved, _original, _add
         let costPerLife = livesSaved > 0 ? popTotal * _additionalGrpc / livesSaved : NaN 
         special_results.push({name : "Cost per maternal life saved", value : costPerLife, dp : 0})
     }
+    if (_outcome == "Hospital beds (per 1,000 people)")
+    {
+        let additionalHospitalBeds = Math.round((_improved - _original) / 1000 * popTotal)
+        let costPerBed = additionalHospitalBeds > 0 ? popTotal * _additionalGrpc / additionalHospitalBeds : NaN 
+        special_results.push({name : "Cost per additional hospital bed", value : costPerBed, dp : 0})
+    }    
     if (outcomeObject.isStandardPopulationIndicator 
 	     || _outcome == "PRIMARYSCHOOL" 
 	     || _outcome == "LOWERSCHOOL" 
