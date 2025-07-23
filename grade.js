@@ -931,14 +931,19 @@ function getPictogramProjectionData()
 
     keysOfOutcomesToShow = [
 			    "U5MSURV",
+		            "MMRSURV",
 			    "UPPERSCHOOL",
 			    "LOWERSCHOOL",
 			    "PRIMARYSCHOOL",
+			    "INVUPPERTEACHERS",
+			    "INVLOWERTEACHERS",
+			    "INVPRIMARYTEACHERS",
 			    "Stunting prevalence (% of population)",
 			    "Access to electricity (% of population)",
 			    "WATERBASIC",
 			    "SANITBASIC",
-			    "Access to clean fuels and technologies for cooking (% of population)"
+			    "Access to clean fuels and technologies for cooking (% of population)",
+			    "Hospital beds (per 1,000 people)"
 			    ];
 
     keysOfOutcomesToShow.forEach(function (outcomeName){
