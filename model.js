@@ -2,7 +2,7 @@
 var outcomesList = [
 	["$-ALL",
         {
-            name: "Multiple indicators",
+            name: "All indicators",
 	    loCol: "#dee5f8",
             hiCol: "#e09900",
             fixedExtent: [0, 20000],

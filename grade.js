@@ -30,6 +30,7 @@ var multiplecountries = ["$-ALL"];
 var smooth = true;
 var limitgovernance = false;
 var startingYearOfExtensions = 2024;
+var pictogramSelectedOutcomes;
 
 var selections = new Map([
     [
@@ -558,6 +559,59 @@ function setupMenus(_countries, _outcomes) {
             file_method = this.options[this.selectedIndex].value;
             mainUpdate();
         })
+ 
+        let pictogramSelectOutcomes = outcomes.slice();
+	let clearOption = ["$-CLEAR", {name:"Clear all"}]
+	pictogramSelectOutcomes.splice(1,0, clearOption);
+
+        d3.select('#pictogram-outcome')
+            .on('change', function (d) {
+		let selected = this.options[this.selectedIndex].value;
+		if (selected == "$-ALL"){
+		    resetPictogramSelectedOutcomes();
+		}
+		else if (selected == "$-CLEAR"){
+		    pictogramSelectedOutcomes.clear();
+		}
+		else if (pictogramSelectedOutcomes.has(selected)){
+		    pictogramSelectedOutcomes.delete(selected);
+		}
+		else{
+		    pictogramSelectedOutcomes.add(selected);
+		}
+		updatePictogram();
+            })
+            .selectAll('option')
+            .data(pictogramSelectOutcomes)
+            .enter()
+            .append('option')
+            .attr('value', function (d) {
+                return d[0];
+            })
+            .text(function (d) {
+                return d[1].name;
+            });
+
+            resetPictogramSelectedOutcomes();
+    }
+
+    function resetPictogramSelectedOutcomes(){
+		pictogramSelectedOutcomes = new Set([
+			    "U5MSURV",
+		            "MMRSURV",
+			    "UPPERSCHOOL",
+			    "LOWERSCHOOL",
+			    "PRIMARYSCHOOL",
+			    "INVUPPERTEACHERS",
+			    "INVLOWERTEACHERS",
+			    "INVPRIMARYTEACHERS",
+			    "Stunting prevalence (% of population)",
+			    "Access to electricity (% of population)",
+			    "WATERBASIC",
+			    "SANITBASIC",
+			    "Access to clean fuels and technologies for cooking (% of population)",
+			    "Hospital beds (per 1,000 people)"
+			    ]);
     }
 
     initMenus(_countries, _outcomes);
@@ -929,24 +983,9 @@ function getPictogramProjectionData()
 {
     var projectionData = [];
 
-    keysOfOutcomesToShow = [
-			    "U5MSURV",
-		            "MMRSURV",
-			    "UPPERSCHOOL",
-			    "LOWERSCHOOL",
-			    "PRIMARYSCHOOL",
-			    "INVUPPERTEACHERS",
-			    "INVLOWERTEACHERS",
-			    "INVPRIMARYTEACHERS",
-			    "Stunting prevalence (% of population)",
-			    "Access to electricity (% of population)",
-			    "WATERBASIC",
-			    "SANITBASIC",
-			    "Access to clean fuels and technologies for cooking (% of population)",
-			    "Hospital beds (per 1,000 people)"
-			    ];
+    let selectedOutcomesList = Array.from(pictogramSelectedOutcomes);
 
-    keysOfOutcomesToShow.forEach(function (outcomeName){
+    selectedOutcomesList.forEach(function (outcomeName){
             var outcomeObject = outcomesMap.get(outcomeName);
             var thisOutcomeProjectionData = getProjectionData(+year, country, outcomeName, +years_to_project, getRevenueInputs(), getGovernanceInputs(), smooth);
 	    projectionData.push({outcome:outcomeObject, data:thisOutcomeProjectionData});
