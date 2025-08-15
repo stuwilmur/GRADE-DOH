@@ -1,5 +1,5 @@
-var version = "GRADE v3.18.1"
-var date = "2025/07/08"
+var version = "GRADE v3.19.0"
+var date = "2025/08/15"
 var subheight = 100;
 var legendCells = 11;
 var transitionTime = 500;
