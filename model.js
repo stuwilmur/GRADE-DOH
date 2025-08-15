@@ -2,10 +2,10 @@
 var outcomesList = [
 	["$-ALL",
         {
-            name: "Multiple indicators",
+            name: "All indicators",
 	    loCol: "#dee5f8",
             hiCol: "#e09900",
-            fixedExtent: [0, 10000],
+            fixedExtent: [0, 20000],
             desc: "Government revenue per capita (improved)",
             isStockVar : true,
             isInterpolated : false,
@@ -466,7 +466,7 @@ var outcomesList = [
          }],
          ["INVPRIMARYTEACHERS",
         {
-            name: "Primary school teacher ratio",
+            name: "Primary school teachers",
             
             loCol: "#dee5f8",
 	    hiCol: "#e09900",            
@@ -520,7 +520,7 @@ var outcomesList = [
          }],
          ["INVLOWERTEACHERS",
         {
-            name: "Lower school teacher ratio",
+            name: "Lower secondary-school teachers",
             
             loCol: "#dee5f8",
 	    hiCol: "#e09900",            
@@ -575,7 +575,7 @@ var outcomesList = [
          }],
          ["INVUPPERTEACHERS",
         {
-            name: "Upper school teacher ratio",
+            name: "Upper secondary-school teachers",
             
             loCol: "#dee5f8",
 	    hiCol: "#e09900",            
@@ -761,6 +761,56 @@ var outcomesList = [
 			return (100.0 - _value) * 65. / 100.;
  	    },
          }],
+         ["Hospital beds (per 1,000 people)",
+        {
+            name: "Hospital beds",
+            
+            loCol: "#dee5f8",
+	    hiCol: "#e09900",            
+	    fixedExtent: [0,16],
+            desc: "Hospital beds (per 1,000 people)",
+            isStockVar : true,
+            isInterpolated : false,
+            isPercentage: false,
+	    isStandardPopulationIndicator: false,
+            target:16,
+	    dp:4,
+            fn :    function(_grpc, _iso, _year, _gov) { 
+                g = _type => getGov(_type, _iso, _year, _gov, _grpc);
+                const result 
+		= 8.0 / (1.0 + Math.exp( 
+		-(0.197193860745 - 0.0244300078342 * g("CORRUPTION") 
+		- 0.103694236387 * g("RULELAW") 
+		+ 0.0362146804208 * g("GOVEFFECT") 
+		+ 0.0942335582254 * g("VOICE")) * (Math.log(_grpc) 
+		- (4.65656784328 
+		+ 0.958363387674 * g("CORRUPTION") 
+		- 0.808120140928 * g("POLSTAB") 
+		- 1.62279877246 * g("RULELAW") 
+		+ 1.65628078968 * g("VOICE")))))
+                return result;
+            },
+            inv_fn : function(_target, _iso, _year, _gov){
+                g = _type => getGov(_type, _iso, _year, _gov);
+                const A = -(0.197193860745 - 0.0244300078342 * g("CORRUPTION") 
+		- 0.103694236387 * g("RULELAW") 
+		+ 0.0362146804208 * g("GOVEFFECT") 
+		+ 0.0942335582254 * g("VOICE"));
+ 		const B = 4.65656784328 
+		+ 0.958363387674 * g("CORRUPTION") 
+		- 0.808120140928 * g("POLSTAB") 
+		- 1.62279877246 * g("RULELAW") 
+		+ 1.65628078968 * g("VOICE")
+		const result = Math.exp(Math.log(8 / _target - 1.0) / A + B);
+                return result;
+            },
+	    transform : function(_value) {
+			return Math.log(_value) + 4;
+	    },
+	    untransform : function(_value) {
+			return Math.exp(_value - 4.0);
+ 	    },
+         }]
 ];
 
 var outcomesMap = new Map(outcomesList);
@@ -910,6 +960,8 @@ function computeAdditionalResults(_iso, _year, _outcome, improved, original){
 	additional.push({name : "Additional upper-school teachers (number)", value: (improved - original) * popdata.getvalue(_iso, _year, "School age population, upper secondary education, both sexes (number)"), keyvariable:true})
     } else if (_outcome == "Stunting prevalence (% of population)") {
         additional.push ({name : "Children < 5 who no longer experience stunting", value : -(improved - original) / 100 * popU5, keyvariable : true}); // stunting goes the other way, i.e. improvement means a lower prevalence, so reverse the sign
+    } else if (_outcome == "Hospital beds (per 1,000 people)") {
+        additional.push ({name : "Additional hospital beds", value : (improved - original) / 1000 * popTotal, keyvariable : true});
     }
 
     return additional;
@@ -935,6 +987,12 @@ function computeSpecialResults(_iso, _year, _outcome, _improved, _original, _add
         let costPerLife = livesSaved > 0 ? popTotal * _additionalGrpc / livesSaved : NaN 
         special_results.push({name : "Cost per maternal life saved", value : costPerLife, dp : 0})
     }
+    if (_outcome == "Hospital beds (per 1,000 people)")
+    {
+        let additionalHospitalBeds = Math.round((_improved - _original) / 1000 * popTotal)
+        let costPerBed = additionalHospitalBeds > 0 ? popTotal * _additionalGrpc / additionalHospitalBeds : NaN 
+        special_results.push({name : "Cost per additional hospital bed", value : costPerBed, dp : 0})
+    }    
     if (outcomeObject.isStandardPopulationIndicator 
 	     || _outcome == "PRIMARYSCHOOL" 
 	     || _outcome == "LOWERSCHOOL" 
@@ -1061,6 +1119,7 @@ function computeResult(_iso, _year, _outcome, _grpc, _grpcOrig, _govImprovement,
         "region": popdata.getstring(_iso, _year, 'region'),
         "coverage" : coverageObject(_outcome, original, improved),
     };
+
     return ret;
 }
 
@@ -1080,7 +1139,7 @@ function typeAndSetPopulation(d) {
     e.CORRUPTION    =convertNumber(d["Control of Corruption: Estimate"])
     e.Country 	    =d["countryname"]                                      
     e.GOVEFFECT 	=convertNumber(d["Government Effectiveness: Estimate"])
-    e.GRPERCAP 	    =convertNumber(d["GRpc (2015USD)using GRpcDL2025_EXT"])
+    e.GRPERCAP 	    =convertNumber(d["Government revenue per capita (constant 2015 USD)"])
     if (e.GRPERCAP < 0.0001)
     {
 	// zero GRPC indicates no data, so mark clearly by setting to NaN
@@ -1093,12 +1152,12 @@ function typeAndSetPopulation(d) {
     e.RULELAW 	    =convertNumber(d["Rule of Law: Estimate"])
     e.SANITBASIC 	=convertNumber(d["People using at least basic sanitation services (% of population)"])
     e.SANITSAFE 	=convertNumber(d["People using safely managed sanitation services (% of population)"])
-    e.SCHOOLPERC 	= NaN
+    e.SCHOOLPERC 	= convertNumber(d["School percent"])
     e.VOICE 	    =convertNumber(d["Voice and Accountability: Estimate"])
     e.WATERBASIC 	=convertNumber(d["People using at least basic drinking water services (% of population)"])
     e.WATERSAFE 	=convertNumber(d["People using safely managed drinking water services (% of population)"])
     e.U5MSURV 	    =convertNumber(d["U5 survival %"])
-    e.MMRSURV 	    =convertNumber(d["Maternal survival rate %(2025)_EXT"])
+    e.MMRSURV 	    =convertNumber(d["Maternal survival rate %"])
     
     e["Population, total"]                      =convertNumber(d["Pop total"])
     e["Pop < 5"]                                =convertNumber(d["Pop<5"])
@@ -1111,58 +1170,43 @@ function typeAndSetPopulation(d) {
     e["incomelevel"]                            = d["incomelevel"]
     e["Number of children surviving to five"]   =convertNumber(d["Number of children surviving to five"])
     e["region"]                                 =d["region"]
-    e.PRIMARYSCHOOL                             = convertNumber(d["In school: Primary school (proportion)(2025)_EXT"]);
-    e.LOWERSCHOOL                               = convertNumber(d["In school: Lower school (proportion)(2025)EXT"]);
-    e.UPPERSCHOOL                               = convertNumber(d["In school: Upper school (proportion)(2025)EXT"]);
-    e["School age population, primary education, both sexes (number)"]          = convertNumber(d["School age population, primary education, both sexes (number)June 2025EXT"]);
-    e["School age population, primary education, female (number)"]              = convertNumber(d["School age population, primary education, female (number)June 2025EXT"]);
-    e["School age population, primary education, male (number)"]                = convertNumber(d["School age population, primary education, male (number)June 2025EXT"]);
-    e["School age population, lower secondary education, both sexes (number)"]  = convertNumber(d["School age population, lower  secondary  education, both sexes (number)June 2025EXT"]);
-    e["School age population, lower secondary education, female (number)"]      = convertNumber(d["School age population, lower secondary education, female (number) June 2025EXT"]);
-    e["School age population, lower secondary education, male (number)"]        = convertNumber(d["School age population, lower secondary education, male (number)June 2025EXT"]);
-    e["School age population, upper secondary education, both sexes (number)"]  = convertNumber(d["School age population, upper secondary education, both sexes (number)June 2025EXT"]);
-    e["School age population, upper secondary education, female (number)"]      = convertNumber(d["School age population, upper secondary education, female (number) June 2025EXT"]);
-    e["School age population, upper secondary education, male (number)"]        = convertNumber(d["School age population, upper secondary education, male (number) June 2025EXT"]);
-    e["INVPRIMARYTEACHERS"] = convertNumber(d["Teacher/school age population ratio:Primary school"]);
+    e.PRIMARYSCHOOL                             = convertNumber(d["In school: Primary school"]);
+    e.LOWERSCHOOL                               = convertNumber(d["In school: Lower school"]);
+    e.UPPERSCHOOL                               = convertNumber(d["In school: Upper school"]);
+    e["School age population, primary education, both sexes (number)"]          = convertNumber(d["School age population, primary education, both sexes (number)"]);
+    e["School age population, primary education, female (number)"]              = convertNumber(d["School age population, primary education, female (number)"]);
+    e["School age population, primary education, male (number)"]                = convertNumber(d["School age population, primary education, male (number)"]);
+    e["School age population, lower secondary education, both sexes (number)"]  = convertNumber(d["School age population, lower secondary education, both sexes (number)"]);
+    e["School age population, lower secondary education, female (number)"]      = convertNumber(d["School age population, lower secondary education, female (number)"]);
+    e["School age population, lower secondary education, male (number)"]        = convertNumber(d["School age population, lower secondary education, male (number)"]);
+    e["School age population, upper secondary education, both sexes (number)"]  = convertNumber(d["School age population, upper secondary education, both sexes (number)"]);
+    e["School age population, upper secondary education, female (number)"]      = convertNumber(d["School age population, upper secondary education, female (number)"]);
+    e["School age population, upper secondary education, male (number)"]        = convertNumber(d["School age population, upper secondary education, male (number)"]);
+    e["INVPRIMARYTEACHERS"] = convertNumber(d["Primary school teachers to pupils"]);
     if (e.INVPRIMARYTEACHERS < 0.0001)
     {
 	// zero INVPRIMARYTEACHERS indicates no data, so mark clearly by setting to NaN
         e.INVPRIMARYTEACHERS = NaN;
     }
-    e["PRIMARYTEACHERS"]    = convertNumber(d["School age population/Teacher ratio:Primary school"]);
-    e["INVLOWERTEACHERS"]   = convertNumber(d["Teacher/school age population ratio:Lower secondary school"]);
+    e["PRIMARYTEACHERS"]    = convertNumber(d["Primary school pupils to teachers"]);
+    e["INVLOWERTEACHERS"]   = convertNumber(d["Lower school teachers to pupils"]);
     if (e.INVLOWERTEACHERS < 0.0001)
     {
 	// zero INVLOWERTEACHERS indicates no data, so mark clearly by setting to NaN
         e.INVLOWERTEACHERS = NaN;
     }
-    e["LOWERTEACHERS"]      = convertNumber(d["School age population/Teacher ratio:Lower secondary school"]);
-    e["INVUPPERTEACHERS"]   = convertNumber(d["Teacher/school age population ratio:Upper secondary school"]);
+    e["LOWERTEACHERS"]      = convertNumber(d["Lower school pupils to teachers"]);
+    e["INVUPPERTEACHERS"]   = convertNumber(d["Upper school teachers to pupils"]);
     if (e.INVUPPERTEACHERS < 0.0001)
     {
 	// zero INVUPPERTEACHERS indicates no data, so mark clearly by setting to NaN
         e.INVUPPERTEACHERS = NaN;
     }
-    e["UPPERTEACHERS"]      = convertNumber(d["School age population/Teacher ratio:Upper secondary school"]);
+    e["UPPERTEACHERS"]      = convertNumber(d["Upper school pupils to teachers"]);
     e["Access to electricity (% of population)"] = convertNumber(d["Access to electricity (% of population)"]);
     e["Access to clean fuels and technologies for cooking (% of population)"] = convertNumber(d["Access to clean fuels and technologies for cooking (% of population)"]);
     e["Stunting prevalence (% of population)"] = convertNumber(d["Prevalence of stunting, height for age (modeled estimate, % of children under 5)"]);
-
-    return e;
-}
-
-function typeAndSetFixedEffects(d){
-    
-    var e = {}
-
-    e["countryname"]    = d["countryname"]
-    e["year"]           = convertNumber(d["year"])
-    e["ISO"]            = d["countrycode"]
-    e["CORRUPTION"]     = convertNumber(d["eqgmmcoruption_efct"])
-    e["GOVEFFECT"]      = convertNumber(d["eqgmmgoveff_efct"])
-    e["POLSTAB"]        = convertNumber(d["eqgmmpolstab_efct"])
-    e["REGQUALITY"]     = convertNumber(d["eqgmmregqual_efct"])
-    e["RULELAW"]        = convertNumber(d["eqgmmrulelaw_efct"])
+    e["Hospital beds (per 1,000 people)"] = convertNumber(d["Hospital beds (per 1,000 people)"]);
 
     return e;
 }

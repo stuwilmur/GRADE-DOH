@@ -252,10 +252,10 @@
                         Click to download <em>base data</em> used to drive the GRADE model, in Excel or CSV format.
                     </p>
                     <ul>
-                        <li><a download href="MASTER_2050_V4.xlsx" class="button"><i
+                        <li><a download href="GRADE_base_data.xlsx" class="button"><i
                                     class="fa fa-download"></i>&nbsp;Excel (including notes on data)</a>
                         </li>
-                        <li><a download href="MASTER_2050_V4.csv" class="button"><i
+                        <li><a download href="GRADE_base_data.csv" class="button"><i
                                     class="fa fa-download"></i>&nbsp;CSV</a></li>
                         <li>Map data from <a href="https://www.naturalearthdata.com/">Natural Earth&nbsp;<i
                                     class="fa fa-external-link"></i>&nbsp;</a></li>
@@ -295,10 +295,9 @@
               <p id="pictogram-errors"></p>
 	      <div id="pictogram" class="plot">
 	      </div>
-
                     <button onclick="download_csv_pictogram()"><i class="fa fa-download"></i>&nbsp;Download plot data</button>
-                    <button onclick="reset(event)"><i class="fa fa-close"></i>&nbsp;Close</button>
-
+                    <button onclick="reset(event)"><i class="fa fa-close"></i>&nbsp;Close</button> Add/remove outcome:
+		    <select name="pictogram-outcome" id="pictogram-outcome"></select>
             </div>
             <div class="plotwrapper" id="plotwrapper">
 	        <h1 class="plot-title">Projection results</h1>
@@ -567,7 +566,7 @@
 
         queue()
             .defer(d3.json, "countries.json")
-            .defer(d3.csv, "MASTER_2050_V4.csv", typeAndSetPopulation)
+            .defer(d3.csv, "GRADE_base_data.csv", typeAndSetPopulation)
             .defer(d3.csv, "GDPDEF.csv", typeAndSetDeflator)
             .await(loaded);
 
