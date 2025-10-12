@@ -840,8 +840,8 @@ var outcomesList = [
                 g = _type => getGov(_type, _iso, _year, _gov);
                 const A = - (0.302830708013 + 0.0554357864654 * g("CORRUPTION")
 		- 0.0522345181898 * g("GOVEFFECT") + 0.0158111987836 * g("VOICE"));
- 		const B = - (5.44629383701 + 0.469540956936 * g("CORRUPTION") 
-		- 0.231057562813 * g("POLSTAB"));
+ 		const B = 5.44629383701 + 0.469540956936 * g("CORRUPTION") 
+		- 0.231057562813 * g("POLSTAB");
 		const result = Math.exp(Math.log(8.0 / _target - 1.0) / A + B);
                 return result;
             },
