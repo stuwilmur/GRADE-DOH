@@ -810,6 +810,49 @@ var outcomesList = [
 	    untransform : function(_value) {
 			return Math.exp(_value - 4.0);
  	    },
+         }],
+         ["Nurses (per 1,000 people)",
+        {
+            name: "Nurses",
+            
+            loCol: "#dee5f8",
+	    hiCol: "#e09900",            
+	    fixedExtent: [0,20],
+            desc: "Nurses (per 1,000 people)",
+            isStockVar : true,
+            isInterpolated : false,
+            isPercentage: false,
+	    isStandardPopulationIndicator: false,
+            target:100,
+	    dp:4,
+            fn :    function(_grpc, _iso, _year, _gov) { 
+                g = _type => getGov(_type, _iso, _year, _gov, _grpc);
+                const result 
+		= 8 / (1 + Math.exp(
+		- (0.302830708013 + 0.0554357864654 * g("CORRUPTION")
+		- 0.0522345181898 * g("GOVEFFECT") 
+                + 0.0158111987836 * g("VOICE"))
+		* (Math.log(_grpc) 
+		- (5.44629383701 
+		+ 0.469540956936 * g("CORRUPTION") 
+		- 0.231057562813 * g("POLSTAB")))));
+                return result;
+            },
+            inv_fn : function(_target, _iso, _year, _gov){
+                g = _type => getGov(_type, _iso, _year, _gov);
+                const A = - (0.302830708013 + 0.0554357864654 * g("CORRUPTION")
+		- 0.0522345181898 * g("GOVEFFECT") + 0.0158111987836 * g("VOICE"));
+ 		const B = 5.44629383701 + 0.469540956936 * g("CORRUPTION") 
+		- 0.231057562813 * g("POLSTAB");
+		const result = Math.exp(Math.log(8.0 / _target - 1.0) / A + B);
+                return result;
+            },
+	    transform : function(_value) {
+			return Math.log(_value) + 4;
+	    },
+	    untransform : function(_value) {
+			return Math.exp(_value - 4.0);
+ 	    },
          }]
 ];
 
@@ -962,6 +1005,8 @@ function computeAdditionalResults(_iso, _year, _outcome, improved, original){
         additional.push ({name : "Children < 5 who no longer experience stunting", value : -(improved - original) / 100 * popU5, keyvariable : true}); // stunting goes the other way, i.e. improvement means a lower prevalence, so reverse the sign
     } else if (_outcome == "Hospital beds (per 1,000 people)") {
         additional.push ({name : "Additional hospital beds", value : (improved - original) / 1000 * popTotal, keyvariable : true});
+    } else if (_outcome == "Nurses (per 1,000 people)") {
+        additional.push ({name : "Additional nurses", value : (improved - original) / 1000 * popTotal, keyvariable : true});
     }
 
     return additional;
@@ -992,6 +1037,12 @@ function computeSpecialResults(_iso, _year, _outcome, _improved, _original, _add
         let additionalHospitalBeds = Math.round((_improved - _original) / 1000 * popTotal)
         let costPerBed = additionalHospitalBeds > 0 ? popTotal * _additionalGrpc / additionalHospitalBeds : NaN 
         special_results.push({name : "Cost per additional hospital bed", value : costPerBed, dp : 0})
+    }
+    if (_outcome == "Nurses (per 1,000 people)")
+    {
+        let additionalNurses = Math.round((_improved - _original) / 1000 * popTotal)
+        let costPerNurse = additionalNurses > 0 ? popTotal * _additionalGrpc / additionalNurses : NaN 
+        special_results.push({name : "Cost per additional nurse", value : costPerNurse, dp : 0})
     }    
     if (outcomeObject.isStandardPopulationIndicator 
 	     || _outcome == "PRIMARYSCHOOL" 
@@ -1207,6 +1258,7 @@ function typeAndSetPopulation(d) {
     e["Access to clean fuels and technologies for cooking (% of population)"] = convertNumber(d["Access to clean fuels and technologies for cooking (% of population)"]);
     e["Stunting prevalence (% of population)"] = convertNumber(d["Prevalence of stunting, height for age (modeled estimate, % of children under 5)"]);
     e["Hospital beds (per 1,000 people)"] = convertNumber(d["Hospital beds (per 1,000 people)"]);
+    e["Nurses (per 1,000 people)"] = convertNumber(d["Nurses (per 1000 people)"]);
 
     return e;
 }

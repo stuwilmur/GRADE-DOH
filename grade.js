@@ -610,7 +610,8 @@ function setupMenus(_countries, _outcomes) {
 			    "WATERBASIC",
 			    "SANITBASIC",
 			    "Access to clean fuels and technologies for cooking (% of population)",
-			    "Hospital beds (per 1,000 people)"
+			    "Hospital beds (per 1,000 people)",
+		            "Nurses (per 1,000 people)"
 			    ]);
     }
 
