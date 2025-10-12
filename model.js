@@ -830,9 +830,11 @@ var outcomesList = [
                 const result 
 		= 8 / (1 + Math.exp(
 		- (0.302830708013 + 0.0554357864654 * g("CORRUPTION")
-		- 0.0522345181898 * g("GOVEFFECT") + 0.0158111987836 * g("VOICE"))
+		- 0.0522345181898 * g("GOVEFFECT") 
+                + 0.0158111987836 * g("VOICE"))
 		* (Math.log(_grpc) 
-		- (5.44629383701 + 0.469540956936 * g("CORRUPTION") 
+		- (5.44629383701 
+		+ 0.469540956936 * g("CORRUPTION") 
 		- 0.231057562813 * g("POLSTAB")))));
                 return result;
             },
@@ -845,6 +847,12 @@ var outcomesList = [
 		const result = Math.exp(Math.log(8.0 / _target - 1.0) / A + B);
                 return result;
             },
+	    transform : function(_value) {
+			return Math.log(_value) + 4;
+	    },
+	    untransform : function(_value) {
+			return Math.exp(_value - 4.0);
+ 	    },
          }]
 ];
 
