@@ -822,7 +822,7 @@ var outcomesList = [
             isStockVar : true,
             isInterpolated : false,
             isPercentage: false,
-	    isStandardPopulationIndicator: true,
+	    isStandardPopulationIndicator: false,
             target:100,
 	    dp:4,
             fn :    function(_grpc, _iso, _year, _gov) { 
