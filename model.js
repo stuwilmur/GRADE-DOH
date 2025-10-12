@@ -1250,7 +1250,7 @@ function typeAndSetPopulation(d) {
     e["Access to clean fuels and technologies for cooking (% of population)"] = convertNumber(d["Access to clean fuels and technologies for cooking (% of population)"]);
     e["Stunting prevalence (% of population)"] = convertNumber(d["Prevalence of stunting, height for age (modeled estimate, % of children under 5)"]);
     e["Hospital beds (per 1,000 people)"] = convertNumber(d["Hospital beds (per 1,000 people)"]);
-    e["Nurses (per 1,000 people)"] = convertNumber(d["Nurses (per 1,000 people)"]);
+    e["Nurses (per 1,000 people)"] = convertNumber(d["Nurses (per 1000 people)"]);
 
     return e;
 }
