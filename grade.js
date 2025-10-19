@@ -53,14 +53,14 @@ var selections = new Map([
         {   
         desc : "Lower-middle-income countries",
         short_desc : "LMICs",
-        fn : (_cid, _year) => popdata.getstring(_cid, _year, "incomelevel") == "LMC",
+        fn : (_cid, _year) => popdata.getstring(_cid, _year, "incomelevel") == "LMIC",
         }],
     [
         "$-UMIC",
         {   
         desc : "Upper-middle-income countries",
         short_desc : "UMICs",
-        fn : (_cid, _year) => popdata.getstring(_cid, _year, "incomelevel") == "UMC",
+        fn : (_cid, _year) => popdata.getstring(_cid, _year, "incomelevel") == "UMIC",
         }],
     [
         "$-HIC",
@@ -95,7 +95,7 @@ var selections = new Map([
         {
         desc : "Europe and Central Asia",
         short_desc : "Europe and Central Asia",
-        fn : (_cid, _year) => popdata.getstring(_cid, _year, "region") == "ECS",
+        fn : (_cid, _year) => popdata.getstring(_cid, _year, "region") == "ECA",
     }],
     [
         "$-REG-MEA",
