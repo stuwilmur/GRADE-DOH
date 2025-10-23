@@ -872,8 +872,23 @@ function updatePictogram(){
 	    t: 20,
 	    b: 50,
 	    pad: 0
-	},
+	   },
     };
+
+    layout.images = [
+            {
+              x: 1,
+              y: .8,
+              sizex: 0.2,
+              sizey: 0.2,
+              source: "./grade-logo.png",
+              xanchor: "right",
+              xref: "paper",
+              yanchor: "bottom",
+              yref: "paper",
+              layer: "above",
+            }
+          ];
 
     Plotly.newPlot('pictogram', data.plotData, layout);    
 
@@ -1045,6 +1060,20 @@ function updateplot() {
 	var dp = theOutcome.dp;
         plotlayout.title = "Projection for " + countrycodes.get(country) + ": " + theOutcome.name;
         plotlayout.hovermode = "closest"
+        plotlayout.images = [
+            {
+              x: 1,
+              y: .8,
+              sizex: 0.2,
+              sizey: 0.2,
+              source: "./grade-logo.png",
+              xanchor: "right",
+              xref: "paper",
+              yanchor: "bottom",
+              yref: "paper",
+              layer: "below",
+            }
+          ];
 
         if (plottype == 'coverage')
         {
