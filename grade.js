@@ -127,9 +127,9 @@ var plotlayout = {
     margin: {
 	l: 70,
 	r: 20,
-	t: 0,
+	t: 70,
 	b: 50,
-	pad: 0
+	pad: 0,
     },
 };
 
@@ -869,7 +869,7 @@ function updatePictogram(){
 	margin: {
 	    l: 50,
 	    r: 20,
-	    t: 20,
+	    t: 70,
 	    b: 50,
 	    pad: 0
 	   },
@@ -878,7 +878,7 @@ function updatePictogram(){
     layout.images = [
             {
               x: 1,
-              y: .8,
+              y: 1,
               sizex: 0.2,
               sizey: 0.2,
               source: "./grade-logo.png",
@@ -1063,7 +1063,7 @@ function updateplot() {
         plotlayout.images = [
             {
               x: 1,
-              y: .8,
+              y: 1,
               sizex: 0.2,
               sizey: 0.2,
               source: "./grade-logo.png",
