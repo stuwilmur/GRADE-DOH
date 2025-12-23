@@ -745,7 +745,7 @@ function setupMenus(_countries, _outcomes) {
             
             e.year   = +d.YEAR;
             e.REVENUE = str2Num(d.REVENUE);
-            e.ISO = d.ISO;
+            e.ISO = d.ISO.trim();
             
             return e;
         }
