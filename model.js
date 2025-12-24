@@ -1104,18 +1104,18 @@ function coverageObject(_outcome, _original, _improved)
 
 function computeResult(_iso, _year, _outcome, _grpc, _grpcOrig, _govImprovement, _epsilon = 0) {
  
+    let outcomeObj = outcomesMap.get(_outcome);
     var fitted = compute(_iso, _year, _outcome, _grpcOrig, {model : null})
-    var bInterp = (outcomesMap.get(_outcome)).isInterpolated;
+    var bInterp = outcomeObj.isInterpolated;
     var original = popdata.getvalue(_iso, _year, _outcome, bInterp);
     
     // some outcomes require transformation to a different working quantity, e.g. their inverse:
     // apply this transformation for the original quantity
-    let outcomeObj = outcomesMap.get(_outcome);
     if (outcomeObj.hasOwnProperty("transform"))
     {
         original = outcomeObj.transform(original);
     }
-    let outcome_name = (outcomesMap.get(_outcome)).name;
+    let outcome_name = outcomeObj.name;
     
     // treat zero as "no data"
     if (original === 0 || isNaN(original)){
@@ -1123,7 +1123,7 @@ function computeResult(_iso, _year, _outcome, _grpc, _grpcOrig, _govImprovement,
     }
     var improved = compute(_iso, _year, _outcome, _grpc, _govImprovement)
     if (isNaN(improved)){
-        let outcome_name = (outcomesMap.get(_outcome)).name;
+        let outcome_name = outcomeObj.name;
         var errs = ["Unable to calculate " + outcome_name + ", " + _year];
         // temporary hack to check governance values
         let govresults = computegovernance(_iso, _year, _govImprovement, _grpc);
@@ -1138,9 +1138,18 @@ function computeResult(_iso, _year, _outcome, _grpc, _grpcOrig, _govImprovement,
     }
     let govresults = computegovernance(_iso, _year, _govImprovement, _grpc)
     var residual = original - fitted;
-    var limit = (outcomesMap.get(_outcome)).target
+    var limit = outcomeObj.target
+    
+    // Transform the limit since it is applied to the transformed variable
+    if (outcomeObj.hasOwnProperty("transform"))
+    {
+        limit = outcomeObj.transform(limit);
+    }
+
+    // If the observed value is greater than the target value,
+    // set the limit to be the hard upper limit
     if (original > limit ){
-        limit = 100;
+        limit = outcomeObj.fixedExtent[1];
     }
     improved = Math.min(Math.max(improved + residual, 0), limit);
     if (Math.abs(improved - original) < _epsilon){
