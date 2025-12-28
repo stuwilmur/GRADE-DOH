@@ -823,7 +823,7 @@ var outcomesList = [
             isInterpolated : false,
             isPercentage: false,
 	    isStandardPopulationIndicator: false,
-            target:100,
+            target:20,
 	    dp:4,
             fn :    function(_grpc, _iso, _year, _gov) { 
                 g = _type => getGov(_type, _iso, _year, _gov, _grpc);
