@@ -817,13 +817,13 @@ var outcomesList = [
             
             loCol: "#dee5f8",
 	    hiCol: "#e09900",            
-	    fixedExtent: [0,20],
+	    fixedExtent: [0,30],
             desc: "Nurses (per 1,000 people)",
             isStockVar : true,
             isInterpolated : false,
             isPercentage: false,
 	    isStandardPopulationIndicator: false,
-            target:20,
+            target:30,
 	    dp:4,
             fn :    function(_grpc, _iso, _year, _gov) { 
                 g = _type => getGov(_type, _iso, _year, _gov, _grpc);
