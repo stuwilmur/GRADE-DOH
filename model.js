@@ -1135,6 +1135,54 @@ var outcomesList = [
       },
     },
   ],
+  [
+    'Access to social protection (% of population)',
+    {
+      name: 'Social protection',
+
+      loCol: '#dee5f8',
+      hiCol: '#e09900',
+      fixedExtent: [0, 100],
+      desc: 'Access to social protection (% of population)',
+      isStockVar: true,
+      isInterpolated: false,
+      isPercentage: true,
+      isStandardPopulationIndicator: true,
+      target: 100,
+      dp: 4,
+      fn: function (_grpc, _iso, _year, _gov) {
+        g = (_type) => getGov(_type, _iso, _year, _gov, _grpc);
+        const result =
+          100.0 /
+          (1.0 +
+            Math.exp(
+              -(0.611213344183 + 0.164361481365 * g('VOICE')) *
+                (Math.log(_grpc) -
+                  (7.71444244182 +
+                    0.799760860664 * g('CORRUPTION') +
+                    0.440779040162 * g('POLSTAB') -
+                    0.586592663312 * g('REGQUALITY') -
+                    0.729156273136 * g('GOVEFFECT') -
+                    0.841025766472 * g('VOICE'))),
+            ));
+
+        return result;
+      },
+      inv_fn: function (_target, _iso, _year, _gov) {
+        g = (_type) => getGov(_type, _iso, _year, _gov);
+        const A = -(0.611213344183 + 0.164361481365 * g('VOICE'));
+        const B =
+          7.71444244182 +
+          0.799760860664 * g('CORRUPTION') +
+          0.440779040162 * g('POLSTAB') -
+          0.586592663312 * g('REGQUALITY') -
+          0.729156273136 * g('GOVEFFECT') -
+          0.841025766472 * g('VOICE');
+        const result = Math.exp(Math.log(100.0 / _target - 1.0) / A + B);
+        return result;
+      },
+    },
+  ],
 ];
 
 var outcomesMap = new Map(outcomesList);
@@ -1936,6 +1984,9 @@ function typeAndSetPopulation(d) {
   );
   e['Nurses (per 1,000 people)'] = convertNumber(d['Nurses (per 1000 people)']);
 
+  e['Access to social protection (% of population)'] = convertNumber(
+    d['Access to social protection (% of population)'],
+  );
   return e;
 }
 
