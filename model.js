@@ -1308,6 +1308,7 @@ function computeTarget(_iso, _year, _outcome, _target, _grpcOrig) {
 function computeAdditionalResults(_iso, _year, _outcome, improved, original) {
   var popTotal = popdata.getvalue(_iso, _year, 'Population, total');
   var popU5 = popdata.getvalue(_iso, _year, 'Pop < 5');
+  var popU18 = popdata.getvalue(_iso, _year, 'Pop < 18');
   var popFemale15_49 = popdata.getvalue(
     _iso,
     _year,
@@ -1329,6 +1330,7 @@ function computeAdditionalResults(_iso, _year, _outcome, improved, original) {
   const peopleText = 'People';
   const childrenText = 'Children < 5';
   const femalesText = 'Females 15-49';
+  const under18Text = 'People < 18';
   const withIncreasedAccessTo = ' with increased access to ';
 
   var additional = [];
@@ -1351,6 +1353,12 @@ function computeAdditionalResults(_iso, _year, _outcome, improved, original) {
       value: ((improved - original) / 100) * popFemale15_49,
       keyvariable: true,
       populationName: femalesText,
+    });
+    additional.push({
+      name: under18Text + withIncreasedAccessTo + outcomeName,
+      value: ((improved - original) / 100) * popU18,
+      keyvariable: true,
+      populationName: under18Text,
     });
   } else if (_outcome == 'IMUNISATION') {
     additional.push({
@@ -1892,6 +1900,7 @@ function typeAndSetPopulation(d) {
 
   e['Population, total'] = convertNumber(d['Pop total']);
   e['Pop < 5'] = convertNumber(d['Pop<5']);
+  e['Pop < 18'] = convertNumber(d['Pop <18']);
   e['Number of females aged 15-49'] = convertNumber(d['Female Pop15-49']);
   e['Children survive to 1 year'] = convertNumber(
     d['Number of infants surviving to 1yr'],
