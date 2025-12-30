@@ -1136,14 +1136,14 @@ var outcomesList = [
     },
   ],
   [
-    'Access to social protection (% of population)',
+    'People with at least one social protection (% of population)',
     {
       name: 'Social protection',
 
       loCol: '#dee5f8',
       hiCol: '#e09900',
       fixedExtent: [0, 100],
-      desc: 'Access to social protection (% of population)',
+      desc: 'People with at least one social protection (% of population)',
       isStockVar: true,
       isInterpolated: false,
       isPercentage: true,
@@ -1984,8 +1984,8 @@ function typeAndSetPopulation(d) {
   );
   e['Nurses (per 1,000 people)'] = convertNumber(d['Nurses (per 1000 people)']);
 
-  e['Access to social protection (% of population)'] = convertNumber(
-    d['Access to social protection (% of population)'],
+  e['People with at least one social protection (% of population)'] = convertNumber(
+    d['People with at least one social protection (% of population)'],
   );
   return e;
 }
