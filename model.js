@@ -1135,6 +1135,54 @@ var outcomesList = [
       },
     },
   ],
+  [
+    'People with at least one social protection (% of population)',
+    {
+      name: 'Social protection',
+
+      loCol: '#dee5f8',
+      hiCol: '#e09900',
+      fixedExtent: [0, 100],
+      desc: 'People with at least one social protection (% of population)',
+      isStockVar: true,
+      isInterpolated: false,
+      isPercentage: true,
+      isStandardPopulationIndicator: true,
+      target: 100,
+      dp: 4,
+      fn: function (_grpc, _iso, _year, _gov) {
+        g = (_type) => getGov(_type, _iso, _year, _gov, _grpc);
+        const result =
+          100.0 /
+          (1.0 +
+            Math.exp(
+              -(0.611213344183 + 0.164361481365 * g('VOICE')) *
+                (Math.log(_grpc) -
+                  (7.71444244182 +
+                    0.799760860664 * g('CORRUPTION') +
+                    0.440779040162 * g('POLSTAB') -
+                    0.586592663312 * g('REGQUALITY') -
+                    0.729156273136 * g('GOVEFFECT') -
+                    0.841025766472 * g('VOICE'))),
+            ));
+
+        return result;
+      },
+      inv_fn: function (_target, _iso, _year, _gov) {
+        g = (_type) => getGov(_type, _iso, _year, _gov);
+        const A = -(0.611213344183 + 0.164361481365 * g('VOICE'));
+        const B =
+          7.71444244182 +
+          0.799760860664 * g('CORRUPTION') +
+          0.440779040162 * g('POLSTAB') -
+          0.586592663312 * g('REGQUALITY') -
+          0.729156273136 * g('GOVEFFECT') -
+          0.841025766472 * g('VOICE');
+        const result = Math.exp(Math.log(100.0 / _target - 1.0) / A + B);
+        return result;
+      },
+    },
+  ],
 ];
 
 var outcomesMap = new Map(outcomesList);
@@ -1260,6 +1308,7 @@ function computeTarget(_iso, _year, _outcome, _target, _grpcOrig) {
 function computeAdditionalResults(_iso, _year, _outcome, improved, original) {
   var popTotal = popdata.getvalue(_iso, _year, 'Population, total');
   var popU5 = popdata.getvalue(_iso, _year, 'Pop < 5');
+  var popU18 = popdata.getvalue(_iso, _year, 'Pop < 18');
   var popFemale15_49 = popdata.getvalue(
     _iso,
     _year,
@@ -1281,6 +1330,7 @@ function computeAdditionalResults(_iso, _year, _outcome, improved, original) {
   const peopleText = 'People';
   const childrenText = 'Children < 5';
   const femalesText = 'Females 15-49';
+  const under18Text = 'People < 18';
   const withIncreasedAccessTo = ' with increased access to ';
 
   var additional = [];
@@ -1303,6 +1353,12 @@ function computeAdditionalResults(_iso, _year, _outcome, improved, original) {
       value: ((improved - original) / 100) * popFemale15_49,
       keyvariable: true,
       populationName: femalesText,
+    });
+    additional.push({
+      name: under18Text + withIncreasedAccessTo + outcomeName,
+      value: ((improved - original) / 100) * popU18,
+      keyvariable: true,
+      populationName: under18Text,
     });
   } else if (_outcome == 'IMUNISATION') {
     additional.push({
@@ -1844,6 +1900,7 @@ function typeAndSetPopulation(d) {
 
   e['Population, total'] = convertNumber(d['Pop total']);
   e['Pop < 5'] = convertNumber(d['Pop<5']);
+  e['Pop < 18'] = convertNumber(d['Pop <18']);
   e['Number of females aged 15-49'] = convertNumber(d['Female Pop15-49']);
   e['Children survive to 1 year'] = convertNumber(
     d['Number of infants surviving to 1yr'],
@@ -1936,6 +1993,9 @@ function typeAndSetPopulation(d) {
   );
   e['Nurses (per 1,000 people)'] = convertNumber(d['Nurses (per 1000 people)']);
 
+  e['People with at least one social protection (% of population)'] = convertNumber(
+    d['People with at least one social protection (% of population)'],
+  );
   return e;
 }
 
