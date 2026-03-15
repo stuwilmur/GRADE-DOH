@@ -661,7 +661,7 @@ var outcomesList = [
       isPercentage: false,
       isNonSaturating: true,
       isStandardPopulationIndicator: false,
-      target: 0.1,
+      target: 0.2,
       dp: 4,
       fn: function (_grpc, _iso, _year, _gov) {
         g = (_type) => getGov(_type, _iso, _year, _gov, _grpc);
@@ -719,7 +719,7 @@ var outcomesList = [
       isPercentage: false,
       isNonSaturating: true,
       isStandardPopulationIndicator: false,
-      target: 0.1,
+      target: 0.2,
       dp: 4,
       fn: function (_grpc, _iso, _year, _gov) {
         g = (_type) => getGov(_type, _iso, _year, _gov, _grpc);
@@ -777,7 +777,7 @@ var outcomesList = [
       isPercentage: false,
       isNonSaturating: true,
       isStandardPopulationIndicator: false,
-      target: 0.1,
+      target: 0.2,
       dp: 4,
       fn: function (_grpc, _iso, _year, _gov) {
         g = (_type) => getGov(_type, _iso, _year, _gov, _grpc);
