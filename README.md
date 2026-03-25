@@ -1,4 +1,4 @@
-![GRADE project logo](https://github.com/stuwilmur/GRADE-DOH/blob/main/grade-logo.png?raw=true)
+<img src="grade-logo.png" width="200" height="200"/>
 
 [![DeepScan grade](https://deepscan.io/api/teams/24725/projects/27877/branches/892753/badge/grade.svg)](https://deepscan.io/dashboard#view=project&tid=24725&pid=27877&bid=892753)
 # GRADE-DOH
