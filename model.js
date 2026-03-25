@@ -654,7 +654,7 @@ var outcomesList = [
 
       loCol: '#dee5f8',
       hiCol: '#e09900',
-      fixedExtent: [0.005, 0.1],
+      fixedExtent: [0.005, 0.2],
       desc: 'Number of primary school teachers per lower school-age child',
       isStockVar: true,
       isInterpolated: false,
@@ -712,7 +712,7 @@ var outcomesList = [
 
       loCol: '#dee5f8',
       hiCol: '#e09900',
-      fixedExtent: [0.005, 0.1],
+      fixedExtent: [0.005, 0.2],
       desc: 'Number of lower school teachers per lower school-age child',
       isStockVar: true,
       isInterpolated: false,
@@ -770,14 +770,14 @@ var outcomesList = [
 
       loCol: '#dee5f8',
       hiCol: '#e09900',
-      fixedExtent: [0.005, 0.1],
+      fixedExtent: [0.005, 0.5],
       desc: 'Number of upper school teachers per upper school-age child',
       isStockVar: true,
       isInterpolated: false,
       isPercentage: false,
       isNonSaturating: true,
       isStandardPopulationIndicator: false,
-      target: 0.2,
+      target: 0.5,
       dp: 4,
       fn: function (_grpc, _iso, _year, _gov) {
         g = (_type) => getGov(_type, _iso, _year, _gov, _grpc);
@@ -1244,10 +1244,10 @@ function computeTarget(_iso, _year, _outcome, _target, _grpcOrig) {
     _target = outcomeObject.transform(_target);
   }
   var residual = original - fitted;
-  var limit = outcomesMap.get(_outcome).target;
-  var dp = outcomesMap.get(_outcome).dp;
+  var limit = outcomeObject.target;
+  var dp = outcomeObject.dp;
   if (original > limit) {
-    limit = 100;
+    limit = outcomeObject.fixedExtent[1];
   }
 
   if (original > _target) {
