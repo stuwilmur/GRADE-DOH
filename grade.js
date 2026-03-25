@@ -1,5 +1,5 @@
-var version = 'GRADE v3.22.2';
-var date = '2026/03/15';
+var version = 'GRADE v3.22.3';
+var date = '2026/03/25';
 var subheight = 100;
 var legendCells = 11;
 var transitionTime = 500;
