@@ -725,6 +725,7 @@ function setupMenus(_countries, _outcomes) {
       'Access to clean fuels and technologies for cooking (% of population)',
       'Hospital beds (per 1,000 people)',
       'Nurses (per 1,000 people)',
+      'People with at least one social protection (% of population)',
     ]);
   }
 
