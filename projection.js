@@ -56,12 +56,20 @@ function getProjectionData(
       _governance.table = NaN;
     } else {
       var grpcIncreaseFactor = 1 + startRevenue['percentage increase'];
-      _governance.table = forecastGovernance(
-        _country,
-        _firstyear,
-        years_to_project + 1,
-        grpcIncreaseFactor,
-      );
+      // If there is effectively no revenue change, don't run the endogenous
+      // governance forecast — use observed governance values instead.
+      // This prevents small forecasting/residual differences altering the baseline
+      // when additional revenue is zero.
+      if (Math.abs(startRevenue['percentage increase']) < 1e-12) {
+        _governance.table = null;
+      } else {
+        _governance.table = forecastGovernance(
+          _country,
+          _firstyear,
+          years_to_project + 1,
+          grpcIncreaseFactor,
+        );
+      }
     }
   }
 
