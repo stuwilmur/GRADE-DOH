@@ -198,12 +198,17 @@ function getProjectionData(
 
     for (let i = 1; i < years_to_smooth; i++) {
       for (const property_index in ret.data[i].additional) {
-        const start_value = ret.data[0].additional[property_index].value;
-        const end_value =
-          ret.data[years_to_wait].additional[property_index].value;
-        const interpolated_value =
-          start_value + (i * (end_value - start_value)) / years_to_wait;
-        datacopy[i].additional[property_index].value = interpolated_value;
+        const propertyName = ret.data[0].additional[property_index].name;
+        // Hack to avoid smoothing the only two additional results which are base values derived/computed from base data
+        if (propertyName != 'Under-5 deaths' && propertyName != 'Maternal deaths' )
+	{
+          const start_value = ret.data[0].additional[property_index].value;
+          const end_value =
+            ret.data[years_to_wait].additional[property_index].value;
+          const interpolated_value =
+              start_value + (i * (end_value - start_value)) / years_to_wait;
+          datacopy[i].additional[property_index].value = interpolated_value;
+	}
       }
     }
     // ...and use it to replace the data already in place
