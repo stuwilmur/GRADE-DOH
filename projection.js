@@ -190,50 +190,34 @@ function getProjectionData(
   ) {
     // Smooth all effects between the starting year (no effect)
     // and the start of effect using linear interpolation.
-    // For mortality outcomes, smooth the underlying survival coverage and
-    // rebuild the derived death totals from the smoothed values rather than
-    // smoothing the derived death counts directly.
     years_to_smooth = Math.min(years_to_wait, _years_to_return + 1);
+
+    // Work on a temporary copy...
+    // Note: slice may be shorter than length specified if projection stopped early due to error
     datacopy = ret.data.slice(0, _years_to_return + 1);
-    const isMortalityOutcome = _outcome == 'U5MSURV' || _outcome == 'MMRSURV';
 
     for (let i = 1; i < years_to_smooth; i++) {
-      if (isMortalityOutcome) {
-        const startImprovedCoverage = ret.data[0].coverage[1].value;
-        const endImprovedCoverage = ret.data[years_to_wait].coverage[1].value;
-        const interpolatedImprovedCoverage =
-          startImprovedCoverage +
-          (i * (endImprovedCoverage - startImprovedCoverage)) / years_to_wait;
-
-        datacopy[i].coverage[1].value = interpolatedImprovedCoverage;
-        datacopy[i].additional = computeAdditionalResults(
-          _country,
-          datacopy[i].year,
-          _outcome,
-          interpolatedImprovedCoverage,
-          datacopy[i].coverage[0].value,
-        );
-        datacopy[i].special = computeSpecialResults(
-          _country,
-          datacopy[i].year,
-          _outcome,
-          interpolatedImprovedCoverage,
-          datacopy[i].coverage[0].value,
-          datacopy[i].grpc['improved grpc'] - datacopy[i].grpc['historical grpc'],
-        );
-        continue;
-      }
-
       for (const property_index in ret.data[i].additional) {
         const propertyName = ret.data[0].additional[property_index].name;
-        const start_value = ret.data[0].additional[property_index].value;
-        const end_value = ret.data[years_to_wait].additional[property_index].value;
-        const interpolated_value =
-          start_value + (i * (end_value - start_value)) / years_to_wait;
-        datacopy[i].additional[property_index].value = interpolated_value;
+        // These base-value rows are derived directly from the observed baseline and must remain fixed
+        // during the no-effect period. This matters for the mortality indicators where the death counts are
+        // calculated from survival percentages rather than being primary model outputs.
+        const isFixedBaseValue =
+          propertyName == 'Under-5 deaths' ||
+          propertyName == 'Maternal deaths' ||
+          propertyName == 'Under-5 deaths with additional revenue' ||
+          propertyName == 'Maternal deaths with additional revenue';
+
+        if (!isFixedBaseValue) {
+          const start_value = ret.data[0].additional[property_index].value;
+          const end_value = ret.data[years_to_wait].additional[property_index].value;
+          const interpolated_value =
+            start_value + (i * (end_value - start_value)) / years_to_wait;
+          datacopy[i].additional[property_index].value = interpolated_value;
+        }
       }
     }
-
+    // ...and use it to replace the data already in place
     ret.data = datacopy;
   }
 
