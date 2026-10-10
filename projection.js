@@ -189,7 +189,7 @@ function getProjectionData(
     years_successful > years_to_wait
   ) {
     // Smooth all effects between the starting year (no effect)
-    // and the start of effect using linear interpolation
+    // and the start of effect using linear interpolation.
     years_to_smooth = Math.min(years_to_wait, _years_to_return + 1);
 
     // Work on a temporary copy...
@@ -199,16 +199,22 @@ function getProjectionData(
     for (let i = 1; i < years_to_smooth; i++) {
       for (const property_index in ret.data[i].additional) {
         const propertyName = ret.data[0].additional[property_index].name;
-        // Hack to avoid smoothing the only two additional results which are base values derived/computed from base data
-        if (propertyName != 'Under-5 deaths' && propertyName != 'Maternal deaths' )
-	{
+        // These base-value rows are derived directly from the observed baseline and must remain fixed
+        // during the no-effect period. This matters for the mortality indicators where the death counts are
+        // calculated from survival percentages rather than being primary model outputs.
+        const isFixedBaseValue =
+          propertyName == 'Under-5 deaths' ||
+          propertyName == 'Maternal deaths' ||
+          propertyName == 'Under-5 deaths with additional revenue' ||
+          propertyName == 'Maternal deaths with additional revenue';
+
+        if (!isFixedBaseValue) {
           const start_value = ret.data[0].additional[property_index].value;
-          const end_value =
-            ret.data[years_to_wait].additional[property_index].value;
+          const end_value = ret.data[years_to_wait].additional[property_index].value;
           const interpolated_value =
-              start_value + (i * (end_value - start_value)) / years_to_wait;
+            start_value + (i * (end_value - start_value)) / years_to_wait;
           datacopy[i].additional[property_index].value = interpolated_value;
-	}
+        }
       }
     }
     // ...and use it to replace the data already in place
