@@ -481,15 +481,22 @@ input#yearrange {
 
 .ui-slider .ui-slider-handle {
   background: #0099ff;
-  opacity: 0.7;
-  width: 20px;
-  height: 20px;
+  opacity: 1;
+  width: 35px;
+  height: 35px;
   border-radius: 20px;
   cursor: pointer;
   border: none;
+  top: -12px;  /* NEW: (35px handle - 10px track) / 2 = 12px offset */
+  margin-left: -17px;  /* NEW: centers handle horizontally on the slider */
+
 }
 
 .ui-slider .ui-slider-handle:hover {
+  opacity: 1;
+}
+
+.ui-slider .ui-slider-handle:active {
   opacity: 1;
 }
 
@@ -505,7 +512,14 @@ input#yearrange {
 
 .ui-slider-range {
   background: #0099ff;
-  opacity: 0.7;
+  opacity: 1;
+}
+
+#slider-range {
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
 }
 
 .ui-widget-content {
@@ -516,8 +530,8 @@ input#yearrange {
   opacity: 0.7;
   cursor: pointer;
   transition: opacity 0.2s;
-  margin-top: 10px;
-  margin-bottom: 10px;
+  margin-top: 20px;
+  margin-bottom: 20px;
 }
 
 .ui-widget-content:hover {
