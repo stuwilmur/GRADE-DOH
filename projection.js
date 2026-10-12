@@ -256,6 +256,42 @@ function quote(string) {
   return `"${string}"`;
 }
 
+function hasAllSchoolingOutcomes(_outcomes) {
+  const selected = new Set(_outcomes || []);
+  return (
+    selected.has('PRIMARYSCHOOL') &&
+    selected.has('LOWERSCHOOL') &&
+    selected.has('UPPERSCHOOL')
+  );
+}
+
+function aggregateAdditionalSchoolingValues(dataRows) {
+  const byYear = new Map();
+  const schoolingNames = new Set([
+    'Additional children in primary education',
+    'Additional children in lower secondary education',
+    'Additional children in upper secondary education',
+  ]);
+
+  dataRows.forEach((row) => {
+    const year = Number(row.year);
+    if (!byYear.has(year)) {
+      byYear.set(year, 0);
+    }
+    row.additional.forEach((result) => {
+      if (schoolingNames.has(result.name)) {
+        byYear.set(year, byYear.get(year) + Number(result.value || 0));
+      }
+    });
+  });
+
+  return Array.from(byYear.entries()).map(([year, value]) => ({
+    year,
+    value,
+  }));
+}
+
+
 function getProjectionCSVData(
   _year,
   _countries,
@@ -303,6 +339,20 @@ function getProjectionCSVData(
         });
       }
     });
+
+    if (hasAllSchoolingOutcomes(_outcomes) && data) {
+      const aggregated = aggregateAdditionalSchoolingValues(data);
+      data.forEach((datarow) => {
+        const matching = aggregated.find((entry) => entry.year === datarow.year);
+        if (matching) {
+          datarow.additional.push({
+            name: 'Additional children in school',
+            value: matching.value,
+            keyvariable: true,
+          });
+        }
+      });
+    }
 
     if (!headerDone) {
       headerDone = true;
