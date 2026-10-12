@@ -196,27 +196,54 @@ function getProjectionData(
     // Note: slice may be shorter than length specified if projection stopped early due to error
     datacopy = ret.data.slice(0, _years_to_return + 1);
 
-    for (let i = 1; i < years_to_smooth; i++) {
-      for (const property_index in ret.data[i].additional) {
-        const propertyName = ret.data[0].additional[property_index].name;
-        // These base-value rows are derived directly from the observed baseline and must remain fixed
-        // during the no-effect period. This matters for the mortality indicators where the death counts are
-        // calculated from survival percentages rather than being primary model outputs.
-        const isFixedBaseValue =
-          propertyName == 'Under-5 deaths' ||
-          propertyName == 'Maternal deaths' ||
-          propertyName == 'Under-5 deaths with additional revenue' ||
-          propertyName == 'Maternal deaths with additional revenue';
+const isMortalityOutcome =
+  _outcome == 'U5MSURV' || _outcome == 'MMRSURV';
 
-        if (!isFixedBaseValue) {
-          const start_value = ret.data[0].additional[property_index].value;
-          const end_value = ret.data[years_to_wait].additional[property_index].value;
-          const interpolated_value =
-            start_value + (i * (end_value - start_value)) / years_to_wait;
-          datacopy[i].additional[property_index].value = interpolated_value;
-        }
-      }
+for (let i = 1; i < years_to_smooth; i++) {
+  for (const property_index in ret.data[i].additional) {
+    const propertyName = ret.data[0].additional[property_index].name;
+
+    const isFixedBaseValue =
+      propertyName == 'Under-5 deaths' ||
+      propertyName == 'Maternal deaths';
+
+    if (!isFixedBaseValue) {
+      const start_value = ret.data[0].additional[property_index].value;
+      const end_value = ret.data[years_to_wait].additional[property_index].value;
+      const interpolated_value =
+        start_value + (i * (end_value - start_value)) / years_to_wait;
+
+      ret.data[i].additional[property_index].value = interpolated_value;
     }
+  }
+
+  if (isMortalityOutcome) {
+    const baseDeathsName =
+      _outcome == 'U5MSURV' ? 'Under-5 deaths' : 'Maternal deaths';
+    const deathsAvertedName =
+      _outcome == 'U5MSURV' ? 'Under-5 five deaths averted' : 'Maternal deaths averted';
+    const withRevenueName =
+      _outcome == 'U5MSURV'
+        ? 'Under-5 deaths with additional revenue'
+        : 'Maternal deaths with additional revenue';
+
+    const baseDeaths = ret.data[i].additional.find(
+      x => x.name === baseDeathsName
+    ).value;
+
+    const deathsAverted = ret.data[i].additional.find(
+      x => x.name === deathsAvertedName
+    ).value;
+
+    const withRevenue = ret.data[i].additional.find(
+      x => x.name === withRevenueName
+    );
+
+    if (withRevenue) {
+      withRevenue.value = baseDeaths - deathsAverted;
+    }
+  }
+}
     // ...and use it to replace the data already in place
     ret.data = datacopy;
   }
