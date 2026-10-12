@@ -340,7 +340,7 @@ function getProjectionCSVData(
       }
     });
 
-    if (hasAllSchoolingOutcomes(_outcomes) && data) {
+    if (hasAllSchoolingOutcomes(_outcomes)) {
       const aggregated = aggregateAdditionalSchoolingValues(data);
       data.forEach((datarow) => {
         const matching = aggregated.find((entry) => entry.year === datarow.year);
