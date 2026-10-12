@@ -47,6 +47,7 @@
     <script src="deflator.js"></script>
     <script src="modal.js"></script>
     <script src="governance.js"></script>
+    <script src="equalearth.js"></script>
     <script src="https://code.jquery.com/jquery-1.12.4.js"></script>
     <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
     <script
@@ -699,8 +700,8 @@
       }
 
       var projection = d3.geo
-        .mercator()
-        .scale(225)
+        .projection(equalEarthRaw)
+        .scale(180)
         .translate([width / 2, height / 2]);
 
       var path = d3.geo.path().projection(projection);
