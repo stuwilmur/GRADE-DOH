@@ -1183,6 +1183,75 @@ var outcomesList = [
       },
     },
   ],
+  [
+    'Neonatal survival',
+    {
+      name: 'Neonatal survival',
+
+      loCol: '#dee5f8',
+      hiCol: '#e09900',
+      fixedExtent: [0, 100], //!! TODO review
+      desc: 'Deaths (per 1,000 infants)', //!! TODO review
+      isStockVar: true,
+      isInterpolated: false,
+      isPercentage: false,
+      isStandardPopulationIndicator: false,
+      target: 100, //!! TODO review
+      dp: 4,
+      fn: function (_grpc, _iso, _year, _gov) {
+        g = (_type) => getGov(_type, _iso, _year, _gov, _grpc);
+        const result = 
+          100 / 
+          (1 + 
+            Math.exp(
+              -(
+                0.442132742509 + 
+                0.0273863639337 * g('CORRUPTION') - 
+                0.0140227554807 * g('POLSTAB') +
+                0.0368588954695 * g('REGQUALITY') - 
+                0.0362363522733 * g('RULELAW') + 
+                0.0518882434461 * g('GOVEFFECT')  + 
+                0.081985674477  * g('VOICE')
+              ) * 
+                (Math.log(_grpc) - 
+                  2.6023934309 - 
+                  0.555729113849 * g('CORRUPTION') +
+                  0.45918682053  * g('POLSTAB') - 
+                  0.867300043806 * g('VOICE')
+                )
+              )
+            );
+        
+        return result;
+      },
+      inv_fn: function (_target, _iso, _year, _gov) {
+        g = (_type) => getGov(_type, _iso, _year, _gov);
+        const A = -(
+                    0.442132742509 + 
+                    0.0273863639337 * g('CORRUPTION') - 
+                    0.0140227554807 * g('POLSTAB') +
+                    0.0368588954695 * g('REGQUALITY') - 
+                    0.0362363522733 * g('RULELAW') + 
+                    0.0518882434461 * g('GOVEFFECT')  + 
+                    0.081985674477  * g('VOICE')
+              );
+        const B = -( //!! TODO review
+		    2.6023934309 - 
+                    0.555729113849 * g('CORRUPTION') +
+                    0.45918682053  * g('POLSTAB') - 
+                    0.867300043806 * g('VOICE')
+                   )
+        const result = Math.exp(Math.log(100.0 / _target - 1.0) / A + B);
+        return result;
+      },
+      transform: function (_value) {
+        return 100 - _value;
+      },
+      untransform: function (_value) {
+        return 100 - _value;
+      },
+    },
+  ],
 ];
 
 var outcomesMap = new Map(outcomesList);
