@@ -46,7 +46,6 @@ function getProjectionData(
 
   if (_governance.model == 'ENDOGENOUS') {
     // Forecast governance over the projection period
-    years_to_wait = 0;
     var startRevenue = getRevenue(_country, _firstyear, _revenue);
     if (startRevenue === undefined) {
       if (ret.error === null) {
@@ -68,6 +67,7 @@ function getProjectionData(
           _firstyear,
           years_to_project + 1,
           grpcIncreaseFactor,
+          years_to_wait,
         );
       }
     }

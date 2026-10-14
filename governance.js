@@ -202,6 +202,7 @@ function forecastGovernance(
   _startYear,
   _yearsToForecast,
   _grpcMultiplier,
+  _years_to_wait,
 ) {
   var table = new Map();
   var blankTable = new Map();
@@ -226,8 +227,9 @@ function forecastGovernance(
     var gov = new Map();
     var govImproved = new Map();
 
-    if (i == 0) {
-      // Start with fixed values on first iteration
+    if (i == 0 || i < _years_to_wait) {
+      // Start with fixed values on first iteration, or during the delay period 
+      // during which the revenue uplift is not yet felt
       grpcOrig = popdata.getvalue(_iso, year, 'GRPERCAP', true);
       grpcImproved = grpcOrig * _grpcMultiplier;
 
@@ -246,7 +248,7 @@ function forecastGovernance(
         gov.set(measure, pop[measure]);
         // Fixed effect is absorbed by calculation of residual
         var fixedEffect = 0;
-        // On timestep 1, pass -1 for the unavailable second lagged meausre
+        // On timestep 1, pass -1 for the unavailable second lagged meausure
         var measure_lagged2 =
           gov_lagged2 == null ? null : gov_lagged2.get(measure);
         var measureEquationForecast = govMeasures
@@ -264,7 +266,7 @@ function forecastGovernance(
         residual = pop[measure] - measureEquationForecast;
 
         // Forecast with improved GRPC and apply the residual
-        // On timestep 1, pass -1 for the unavailable second lagged meausre
+        // On timestep 1, pass -1 for the unavailable second lagged meausure
         var measureImproved_lagged2 =
           govImproved_lagged2 == null ? null : govImproved_lagged2.get(measure);
         var measureWithIncreasedGovRev = govMeasures
